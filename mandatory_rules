@@ -1,0 +1,44 @@
+=====	POINTS IMPORTANTS	=====
+
+	=====	ORGANISATION	=====
+
+		FRONT + BACK + DATABASE requis,
+		Organisation du repo propre et compréhensible (logs significatifs)
+			+ participation de tous les membres obligatoire
+		Le déploiement doit se faire en UNE commande et utiliser un système de CONTENEURISATION (ex: docker)
+
+		----	DATABASE	----
+			Doit avoir un schéma clair et des relations bien définies
+
+	====	NAVIGATEUR	====
+
+		Compatibilité avec la dernière version stable de google chrome (147.0.7727.137, majeure=147)
+		Aucun warning ou log d'erreur toléré dans la console du navigateur (ctrl + shift + i => Console)
+		inclusion de pages de Privacy Policy et Terms of Service (accesibles facilement + contenu pertinent)
+
+	====	SITE	====
+
+		Doit supporter plusieurs utilisateurs et actions simultanées proprement
+			- pas de data corruption / race (consultation/modification pdt une autre modification simultanément)
+			- maj en temps réel des changements pour ts les utilisateurs connectés lorsque possible
+		Stylisation requise (ex: CSS)
+
+	=====	PORTABILITE	=====
+
+		Frontend responsive (qui s'adapte, ex: redimensionnage de la fenêtre, appareil utilisé...)
+			et accesible sur tous les appareils
+
+	=====	SECURITE	=====
+
+		Les credentials (données d'identifications généralement sensibles, ex: mdp, clés)
+			doivent être dans un .env qui ne doit pas être push, un .env.example doit être présent
+		L'authentification doit être sécurisée, email + mdp minimum (hachage, sel, etc)
+		Chaque formulaires/user_input doit être controllé côté back ET front
+			(le front est un barrage superficiel mais utile, ex: réduction trafic en refusant déjà les mauvais formats par exemple,
+			 le back doit tout controller)
+		Toutes connexions externes au backend (navigateurs, API externes, scripts) doivent utiliser HTTPS
+			les internes peuvent être sans encryption
+
+	====	SYSTEME GESTION UTILISATEURS	====
+
+		Possibilité de s'authentifier de manière sécurisée, email + mdp au minimum
