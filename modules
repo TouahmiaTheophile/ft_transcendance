@@ -1,0 +1,37 @@
+REAL TIME feature using WebSockets or similar technology ?		major
+	Celui la ne serait pas déjà inclus si on fait un jeu en ligne en temps réel ?
+
+
+==== A GRATTER ====
+
+notif syst (pour chaque action de création, suppresion, update)		minor
+	: semble simple
+
+Implement advanced search functionality with filters, sorting, and pagination.		minor
+	: selon ce qu'on fait, on pourrait faire un sytème pour facilement trouver des personnes/posts/records selon des filtres (favoris, proches, liste noire, etc)
+
+Plusieurs langages disponibles		minor
+	!! pourrait s'avérer complexe et surtout sujet à l'erreur (doit fonctionner pour tous textes affichés, responsivité dans toutes les langues => multplications des tests)
+
+Support different browser (3+)			minor
+	!!! comme pour les langues ça risque de considérablement augmenter les tests (tester tous sur chaque navigateur)
+
+Implement remote authentification with OAth 2.0 (Google, Github, 42, etc)	minor
++
+A2F system for users		minor
+	: pourraient être assez détachés du reste, donc moins génant s'ils bug ou si on veut labandonner en cours de route, et pourraient peut être se rajouter à n'importe quel moment du développement
+
+2nd game with history and matchmaking		major
+	: si on fait déjà une jeu on aura déjà tout fait pour le online, historique etc donc le gros du travail sera déjà fait
+
+Advanced chat features			minor
+	: très liés à notre idée, possibilité d'inviter et rejoindre une session par le chat, syst de blocage, accès au profil via clic sur le chat
+
+Game customization options				minor
+	un mode de jeu avec règle custom serait suffisant et très simple
+
+spectator mode			minor
+	: semble simple et rapide
+
+
+
