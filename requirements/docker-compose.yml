@@ -33,7 +33,7 @@ services:
     # tmp: pour dev seulement, permet la maintenance de la db par prisma sans rebuild l'image
       - ./backend/prisma:/app/prisma  # <- Hot reload schema
       - ./backend/src:/app/src       # Hot reload code
-    command: sh -c "./prisma-init.sh && node src/server.js"
+    command: sh -c "./prisma-init.sh"
     environment:
       DB_HOST: db
       DB_USER: ${MARIADB_USER}
@@ -41,6 +41,8 @@ services:
       DB_NAME: ${MARIADB_DATABASE}
       # Prisma identifiers for mariadb, build here to reuse the variables
       DATABASE_URL: "mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@db:3306/${MARIADB_DATABASE}"
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
 
 volumes:
   db_data:

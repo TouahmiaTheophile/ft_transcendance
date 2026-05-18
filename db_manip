@@ -37,6 +37,13 @@ curl -X POST http://localhost:3000/users \
   -H "Content-Type: application/json" \
   -d '{"username": "user1", "email": "user1@example.com"}'
 
-curl -X POST http://localhost:3000/users -H "Content-Type: application/json" -d '{"username": "user1", "email": "user1@example.com"}'
+curl -X POST http://localhost:3000/users -H "Content-Type: application/json" -d '{"username": "user1", "password": "password1", "email": "user1@example.com"}'
 
+# auth
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "user1", "email": "user1@example.com"}'
 
+curl -X POST http://localhost:3000/auth/refresh -H "Content-Type: application/json" -d '{"refreshToken": "INSERT_REFRESH_TOKEN"}'
+
+curl -X POST http://localhost:3000/auth/testAccessToken -H "Authorization: Bearer YOUR_ACCESS_TOKEN"

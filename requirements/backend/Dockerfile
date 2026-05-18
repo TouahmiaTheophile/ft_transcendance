@@ -14,7 +14,7 @@ COPY . .
 
 # IMPORTANT : Prisma client generation (schema-based)
 # Optionnal, done by prisma-init.sh
-RUN npx prisma generate
+# RUN npx prisma generate
 
 # Expose backend port
 EXPOSE 3000
