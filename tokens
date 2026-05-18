@@ -1,0 +1,81 @@
+Un token transporte des données encodées permettant d'identifier un utilisateur,
+	mais ces données ne sont pas protégées !!!
+	elles sont très facilement lisible, l'encodage n'est pas une sécurité mais juste pour le transport,
+	par conséquent aucune donnée sensible ne doit être transportée à l'intérieur
+	il est possible de le récupérer et de le modifier pour fausser les données qu'il contient
+
+
+il se compose en 3 parties: A.B.C
+
+	A est l'encodage du header
+	B l'encodage du Body
+	C est une chaine générée à partir de A et B et d'un secret
+
+	ex:
+		header:
+			Content-Type: application/json
+
+		body:
+			{
+				id: 4,
+				username: John
+				role: user
+			}
+
+		crypté en A en et B, C généré avec ces derniers + secret
+
+
+Vérification du token:
+
+	reception du token sous la forme A.B.C
+	génération de C2 avec A + B + secret,
+	si C2 == C alors le contenu n'a pas été modifié donc token valide
+
+	si un attaquant essaie de modifier le body exemple:
+		body:
+			{
+			id: 4,
+			username: John,
+			role: admin
+			}
+	C2 ne correspondra pas à C, donc token invalide
+
+
+Le soucis du système basique:
+	Un token est stateless, c'est à dire qu'il n'y a pas d'état en db le concernant, toutes les informations
+		sont contenus par celui-ci, il reste valide indéfiniment, et s'il est volé il permet d'usurper la session du propriétaire
+
+	-> solution: tenir une table Session pour pouvoir les faires expirer (expiredAt)
+			-> nouveau problème: liste non exhaustive de token à tenir
+					-> nouvelle solution: système refresh token + rotation
+
+
+Si on raccourci la durée de vie du token l'utilisateur doit se reconnecter souvent,
+	si on la rallonge, le vol du token devient encore plus sensible
+
+Le système refresh token + rotation a donc été mis en place, le principe:
+	le token basique, nommé maintenant AccessToken a une durée de vie très courte,
+	le refresh token à une longue durée de vie et permet de générer un nouvel AccessToken si besoin
+
+	mais si on s'arrête là on déplace juste le problème d'un token à un autre,
+
+	du coup le RefreshToken est à utilisation unique, à chaque fois que le RefreshToken est utilisé/généré l'ancienne session est révoquée (invalide)
+		et un nouveau AccessToken et RefreshToken sont fournis
+
+	Le risque du vol du RefreshToken subsiste mais:
+		L'utilisateur va sur le site, lorsqu'il se reconnectera:
+			(soit parce que le RefreshToken volé a été utilisé donc sa session a expirée,
+			 soit parce qu'il change d'appareil/navigateur ou autre)
+				l'ancien RefreshToken (volé) devient obsolète et la session associée est révoquée (il devra revoler un token)
+
+	Donc l'AccessToken a le défaut de base (non secure) mais a une durée de vie très limité (~15min),
+		ce qui limite la fenêtre d'attaque à partir du vol.
+	Le RefreshToken lui dure mais peut être invalidé sans être rendu (reconnexion vrai propriétaire),
+		et il est moins souvent transmis que l'AccessToken puisqu'il n'est envoyé que pour recevoir un nouvel
+		AccessToken ou lors de la connexion, le risque de vol est réduit
+
+
+Si c'est encore flou, en gros:
+	AccessToken utilisé de partout, à chaque changement de page pour indiquer
+	que c'est le même utilisateur et éviter des reconnexions permanentes. Expire vite.
+	RefreshToken sert à générer des AccesToken, plus secure. Expire lentement (~30j)
