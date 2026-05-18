@@ -42,5 +42,14 @@ services:
       # Prisma identifiers for mariadb, build here to reuse the variables
       DATABASE_URL: "mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@db:3306/${MARIADB_DATABASE}"
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000" # Maps host port 3001 to container port 3000
+    depends_on:
+      - backend
+
 volumes:
   db_data:
