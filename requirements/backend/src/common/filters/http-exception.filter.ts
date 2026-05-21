@@ -7,6 +7,8 @@ import {
 import { Request, Response } from 'express';
 import { createErrorResponse } from '../errors/create-error-response';
 import { normalizeError } from '../errors/normalize-error';
+// import { ErrorCode } from '../errors/error-codes';
+import { ErrorCode } from '@shared/errors/error-codes';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -21,7 +23,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     return response.status(error.statusCode).json(
       createErrorResponse({
         statusCode: error.statusCode,
-        code: error.code,
+        code: error.code as ErrorCode,
         message: error.message,
         details: error.details,
         path: request.url,

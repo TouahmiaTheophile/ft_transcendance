@@ -2,8 +2,9 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 import { ApiException } from './api.exception';
-import { ErrorCode } from './error-codes';
 import { resolveUniqueConstraintFields } from '../../prisma/prisma-error.utils';
+// import { ErrorCode } from './error-codes';
+import { ErrorCode } from '@shared/errors/error-codes';
 
 /**
  * Central error normalization layer.
@@ -29,7 +30,7 @@ export function normalizeError(error: unknown): ApiException {
   // 4. Syntax / body parser errors (Express / Fastify adapter level)
   if (isSyntaxError(error)) {
     return new ApiException({
-      code: ErrorCode.BAD_REQUEST,
+      code: 'BAD_REQUEST',
       message: 'Malformed request syntax',
       statusCode: HttpStatus.BAD_REQUEST,
       details: null,
@@ -41,7 +42,7 @@ export function normalizeError(error: unknown): ApiException {
 
   // 5. Fallback (unknown error)
   return new ApiException({
-    code: ErrorCode.INTERNAL_ERROR,
+    code: 'INTERNAL_ERROR',
     message: 'Internal server error',
     statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     details: null,
@@ -57,7 +58,7 @@ function normalizePrismaError(
   switch (error.code) {
     case 'P2002': {
       return new ApiException({
-        code: ErrorCode.UNIQUE_CONSTRAINT,
+        code: 'UNIQUE_CONSTRAINT',
         message: 'Resource already exists',
         statusCode: HttpStatus.CONFLICT,
         details: {
@@ -68,7 +69,7 @@ function normalizePrismaError(
   }
 
   return new ApiException({
-    code: ErrorCode.INTERNAL_ERROR,
+    code: 'INTERNAL_ERROR',
     message: 'Database error',
     statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
     details: null,
@@ -103,17 +104,17 @@ function normalizeHttpException(error: HttpException): ApiException {
 function mapStatusToErrorCode(status: number): ErrorCode {
   switch (status) {
     case HttpStatus.BAD_REQUEST:
-      return ErrorCode.BAD_REQUEST;
+      return 'BAD_REQUEST';
     case HttpStatus.UNAUTHORIZED:
-      return ErrorCode.UNAUTHORIZED;
+      return 'UNAUTHORIZED';
     case HttpStatus.FORBIDDEN:
-      return ErrorCode.FORBIDDEN;
+      return 'FORBIDDEN';
     case HttpStatus.NOT_FOUND:
-      return ErrorCode.NOT_FOUND;
+      return 'NOT_FOUND';
     case HttpStatus.CONFLICT:
-      return ErrorCode.CONFLICT;
+      return 'CONFLICT';
     default:
-      return ErrorCode.INTERNAL_ERROR;
+      return 'INTERNAL_ERROR';
   }
 }
 

@@ -1,0 +1,69 @@
+name: ft_transcendence-mandatory
+
+services:
+  db:
+    image: mariadb:latest
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./mariadb/tools:/docker-entrypoint-initdb.d   # Initialization script
+          # will be excuted only if the volume is empty
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  backend:
+    build:
+      context: .
+      dockerfile: requirements/backend/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./requirements/backend/prisma:/app/requirements/backend/prisma
+      - ./requirements/backend/src:/app/requirements/backend/src
+    environment:
+      DB_HOST: db
+      DB_USER: ${MARIADB_USER}
+      DB_PASSWORD: ${MARIADB_PASSWORD}
+      DB_NAME: ${MARIADB_DATABASE}
+      DATABASE_URL: "mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@db:3306/${MARIADB_DATABASE}"
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000" # Maps host port 3000 to container port 3000
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   volumes:
+  #   # tmp: pour dev seulement, permet la maintenance de la db par prisma sans rebuild l'image
+  #     - ./backend/prisma:/app/prisma  # <- Hot reload schema
+  #     - ./backend/src:/app/src       # Hot reload code
+  #   command: sh -c "./prisma-init.sh"
+  #   environment:
+  #     DB_HOST: db
+  #     DB_USER: ${MARIADB_USER}
+  #     DB_PASSWORD: ${MARIADB_PASSWORD}
+  #     DB_NAME: ${MARIADB_DATABASE}
+  #     # Prisma identifiers for mariadb, build here to reuse the variables
+  #     DATABASE_URL: "mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@db:3306/${MARIADB_DATABASE}"
+  #     JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+  #     JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+
+volumes:
+  db_data:

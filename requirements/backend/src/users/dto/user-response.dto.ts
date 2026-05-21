@@ -1,8 +1,8 @@
 export class UserResponseDto {
-  id: string;
+  id: number;
   username: string;
   email: string;
-  passwordHash: string;
+  // passwordHash: string;
   // age?: number;
   createdAt: Date;
 }

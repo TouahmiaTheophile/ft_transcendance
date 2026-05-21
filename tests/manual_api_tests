@@ -37,7 +37,11 @@ curl http://localhost:3000/users
 ====    AUTH LOGIN    ====
 
 // Valid login	(store the returned tokens for token tests)
+	// old method (body)
 curl -X POST http://localhost:3000/auth/login -H "Content-Type: application/json" -d '{"email":"john@test.com","password":"password123"}'
+	// current method (cookies)
+curl -X POST -H "Content-Type: application/json" -c ./cookies.txt -d '{"email": "john@test.com","password": "password123"}' http://localhost:3000/auth/login
+
 // Wrong password
 curl -X POST http://localhost:3000/auth/login -H "Content-Type: application/json" -d '{"email":"john@test.com","password":"wrongpassword"}'
 // Unknow user
@@ -87,3 +91,6 @@ curl http://localhost:3000/users/me -H "Authorization: Bearer invalid"
 TOKEN="" curl -s -X POST http://localhost:3000/auth/refresh -H "Authorization: Bearer $TOKEN" & curl -s -X POST http://localhost:3000/auth/refresh -H "Authorization: Bearer $TOKEN" & wait
 
 curl -X POST http://localhost:3000/auth/refresh -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiJjbXBiOGQ2NWowMDAycDY0Z2JsMnFoMmZwIiwic3ViIjoxLCJpYXQiOjE3NzkxMTAzNDcsImV4cCI6MTc4MTcwMjM0N30.8aTlBijspyDgfXwBTMRfaR18jtKgz6IbERw3ErpeZDU"
+
+
+curl -X POST -H "Content-Type: application/json" -c ./cookies.txt -d '{"email": "john@test.com","password": "password123"}' http://localhost:3000/auth/login

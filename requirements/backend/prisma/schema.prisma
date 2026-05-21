@@ -26,6 +26,9 @@ model User {
 
   createdAt     DateTime  @default(now()) @map("created_at")
 
+  sentFriendRequests Friendship[] @relation("FriendshipRequester")
+  receivedFriendRequests Friendship[] @relation("FriendshipAddressee")
+
   @@map("users") // Correspond to "users" table in db
 }
 
@@ -42,4 +45,28 @@ model RefreshSession {
   createdAt        DateTime @default(now())
 
   revokedAt        DateTime?
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  BLOCKED
+}
+
+model Friendship {
+  id Int @id @default(autoincrement())
+
+  requesterId Int
+  addresseeId Int
+
+  status FriendshipStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requester User @relation("FriendshipRequester", fields: [requesterId], references: [id])
+  addressee User @relation("FriendshipAddressee", fields: [addresseeId], references: [id])
+
+  @@unique([requesterId, addresseeId])
 }

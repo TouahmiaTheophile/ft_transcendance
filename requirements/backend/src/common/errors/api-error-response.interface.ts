@@ -1,11 +1,11 @@
-import { ErrorCode } from './error-codes';
-import { ErrorDetails } from './error-details.types';
+// import { ErrorCode } from './error-codes';
+import { ErrorCode } from '@shared/errors/error-codes';
 
 export interface APIErrorResponse {
   statusCode: number;
   code: ErrorCode;
   message: string;
-  details: ErrorDetails;
+  details?: unknown;
   timestamp: string;
   path: string;
 }

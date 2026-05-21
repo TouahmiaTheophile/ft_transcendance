@@ -1,13 +1,18 @@
-import { User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { UserResponseDto } from '../dto/user-response.dto';
+import { USER_PUBLIC_SELECT } from '../constants/user-selects';
 
-export function toUserResponse(user: User): UserResponseDto {
+type PublicUser = Prisma.UserGetPayload<{
+  select: typeof USER_PUBLIC_SELECT;
+}>;
+
+export function toUserResponse(
+  user: PublicUser,
+): UserResponseDto {
   return {
-    id: String(user.id),
+    id: user.id,
     username: user.username,
     email: user.email,
-    passwordHash: user.passwordHash,
-    // age: user.age ?? undefined,
     createdAt: user.createdAt,
   };
 }

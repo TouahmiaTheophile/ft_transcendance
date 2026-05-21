@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { PasswordService } from './password.service';
+import { PasswordService } from '../common/security/password.service';
 import { LoginDto } from './dto/login.dto';
-import { JwtService } from './jwt.service';
+import { TokenService } from './token.service';
 import { User } from '@prisma/client';
 import { SessionService } from './session.service';
 import { RefreshRequestUser } from './types/authenticated-request.type';
 import { ApiErrors } from '../common/errors/api-exceptions.helper';
+import { AuthTokens } from './types/auth-tokens.type'
 
 @Injectable()
 export class AuthService {
@@ -16,7 +17,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private passwordService: PasswordService,
-    private jwtService: JwtService,
+    private tokenService: TokenService,
     private sessionService: SessionService,
   ) {}
 
@@ -41,30 +42,8 @@ export class AuthService {
     return user;
   }
 
-  async login(dto: LoginDto) {
-    const user = await this.validateUser(dto);
-
-    const session = await this.sessionService.create(
-      user.id,
-      new Date(Date.now() + AuthService.REFRESH_SESSION_DURATION_MS),
-      '',
-    );
-
-    return this.issueTokens(session.id, user.id);
-  }
-
-  async refresh(user: RefreshRequestUser) {
-    const newSession = await this.sessionService.rotate(
-      user.sessionId,
-      user.sub,
-      user.refreshToken,
-    );
-
-    return this.issueTokens(newSession.id, user.sub);
-  }
-
-  private async issueTokens(sessionId: string, userId: number) {
-    const refreshToken = this.jwtService.generateRefreshToken({
+  private async issueTokens(sessionId: string, userId: number): Promise<AuthTokens> {
+    const refreshToken = this.tokenService.generateRefreshToken({
       sessionId,
       sub: userId,
     });
@@ -73,11 +52,36 @@ export class AuthService {
 
     await this.sessionService.updateHash(sessionId, hash);
 
-    const accessToken = this.jwtService.generateAccessToken(userId);
+    const accessToken = this.tokenService.generateAccessToken(userId);
 
     return {
       accessToken,
       refreshToken,
     };
+  }
+
+  async login(dto: LoginDto): Promise<AuthTokens> {
+    const user = await this.validateUser(dto);
+
+    const session = await this.sessionService.create(
+      user.id,
+      new Date(Date.now() + AuthService.REFRESH_SESSION_DURATION_MS),
+      '',
+    );
+
+    const result = await this.issueTokens(session.id, user.id);
+
+    return result;
+  }
+
+  async refresh(user: RefreshRequestUser): Promise<AuthTokens> {
+    const { userId, sessionId } = await this.sessionService.rotate(
+      user.sessionId,
+      user.refreshToken,
+    );
+
+    const newTokens = await this.issueTokens(sessionId, userId);
+
+    return newTokens;
   }
 }

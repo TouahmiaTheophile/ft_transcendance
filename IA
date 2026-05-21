@@ -1,0 +1,4 @@
+tree
+
+find . -type f -exec sh -c 'printf "\n===== %s =====\n" "$1"; cat "$1"' _ {} \;
+

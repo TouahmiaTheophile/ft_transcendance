@@ -1,17 +1,15 @@
-import { ErrorCode } from './error-codes';
-import { APIErrorResponse } from './api-error-response.interface';
+// import { ErrorCode } from './error-codes';
+import { ErrorCode } from '@shared/errors/error-codes';
 
 type CreateErrorResponseParams = {
   statusCode: number;
   code: ErrorCode;
   message: string;
-  details?: any;
+  details?: unknown;
   path: string;
 };
 
-export function createErrorResponse(
-  params: CreateErrorResponseParams,
-): APIErrorResponse {
+export function createErrorResponse(params: CreateErrorResponseParams) {
   return {
     statusCode: params.statusCode,
     code: params.code,

@@ -1,22 +1,23 @@
-import { HttpStatus } from '@nestjs/common';
-import { ErrorCode } from './error-codes';
-import { ErrorDetails } from './error-details.types';
+// import { ErrorDetailsMap } from './error-details-map';
+import { ErrorDetailsMap } from '@shared/errors/error-details-map';
+// import { ErrorCode } from './error-codes';
+import { ErrorCode } from '@shared/errors/error-codes';
 
-export class ApiException extends Error {
-  code: ErrorCode;
-  statusCode: number;
-  details: ErrorDetails;
+export class ApiException<K extends ErrorCode = ErrorCode> extends Error {
+  public readonly code: K;
+  public readonly statusCode: number;
+  public readonly details: ErrorDetailsMap[K];
 
   constructor(params: {
-    code: ErrorCode;
-    message: string;
+    code: K;
+    message?: string;
     statusCode?: number;
-    details?: ErrorDetails;
+    details?: ErrorDetailsMap[K];
   }) {
-    super(params.message);
+    super(params.message ?? 'Error');
 
     this.code = params.code;
     this.statusCode = params.statusCode ?? 500;
-    this.details = params.details ?? null;
+    this.details = params.details;
   }
 }

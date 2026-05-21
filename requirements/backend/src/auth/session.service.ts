@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { PasswordService } from './password.service';
-import { ApiException } from '../common/errors/api.exception';
-import { ErrorCode } from '../common/errors/error-codes';
+import { PasswordService } from '../common/security/password.service';
 import { ApiErrors } from '../common/errors/api-exceptions.helper';
 
 @Injectable()
@@ -53,7 +51,7 @@ export class SessionService {
     }
   }
 
-  async rotate(sessionId: string, userId: number, refreshToken: string) {
+  async rotate(sessionId: string, refreshToken: string) {
     const session = await this.find(sessionId);
 
     if (!session) {
@@ -77,14 +75,9 @@ export class SessionService {
       throw ApiErrors.unauthorized('Invalid refresh token');
     }
 
-    await this.revoke(session.id);
-
-    const newSession = await this.create(
-      userId,
-      new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-      '',
-    );
-
-    return newSession;
+    return {
+      sessionId: session.id,
+      userId: session.userId,
+    };
   }
 }

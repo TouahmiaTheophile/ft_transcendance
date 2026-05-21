@@ -1,53 +1,31 @@
 import { ApiException } from './api.exception';
-import { ErrorCode } from './error-codes';
 
 export const ApiErrors = {
-  unauthorized(message = 'Unauthorized') {
+  unauthorized(message?: string) {
     return new ApiException({
-      code: ErrorCode.UNAUTHORIZED,
+      code: 'UNAUTHORIZED',
       message,
-      statusCode: 401,
     });
   },
 
-  forbidden(message = 'Forbidden') {
+  forbidden(message?: string) {
     return new ApiException({
-      code: ErrorCode.FORBIDDEN,
+      code: 'FORBIDDEN',
       message,
-      statusCode: 403,
     });
   },
 
-  notFound(message = 'Not found') {
+  notFound(message?: string) {
     return new ApiException({
-      code: ErrorCode.NOT_FOUND,
+      code: 'NOT_FOUND',
       message,
-      statusCode: 404,
     });
   },
 
-  conflict(message = 'Conflict') {
+  badRequest(message?: string) {
     return new ApiException({
-      code: ErrorCode.CONFLICT,
+      code: 'BAD_REQUEST',
       message,
-      statusCode: 409,
-    });
-  },
-
-  badRequest(message = 'Bad request') {
-    return new ApiException({
-      code: ErrorCode.BAD_REQUEST,
-      message,
-      statusCode: 400,
-    });
-  },
-
-  unique(message = 'Resource already exists', details?: any) {
-    return new ApiException({
-      code: ErrorCode.UNIQUE_CONSTRAINT,
-      message,
-      statusCode: 409,
-      details,
     });
   },
 };

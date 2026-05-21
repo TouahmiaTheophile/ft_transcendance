@@ -3,7 +3,7 @@ import { JwtService as NestJwtService } from '@nestjs/jwt';
 import { RefreshTokenPayload } from './types/refresh-token-payload.type';
 
 @Injectable()
-export class JwtService {
+export class TokenService {
   constructor(private jwt: NestJwtService) {}
 
   generateAccessToken(userId: number) {

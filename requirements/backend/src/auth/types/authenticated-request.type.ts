@@ -1,6 +1,6 @@
 import { Request } from 'express';
 
-export interface AuthenticatedRequest<T = any> extends Request {
+export interface AuthenticatedRequest<T = unknown> extends Request {
   user: T;
 }
 

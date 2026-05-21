@@ -14,16 +14,16 @@
 
 set -e
 
-echo "🧹 Reset Prisma state..."
+# echo "🧹 Reset Prisma state..."
 
-rm -rf node_modules/.prisma
-rm -rf node_modules/@prisma/client
+# rm -rf node_modules/.prisma
+# rm -rf node_modules/@prisma/client
 
 echo "📦 db push..."
 npx prisma db push --accept-data-loss
 
-echo "⚙️ generate..."
-npx prisma generate
+# echo "⚙️ generate..."
+# npx prisma generate
 
 echo "🚀 start app..."
 exec npm run start

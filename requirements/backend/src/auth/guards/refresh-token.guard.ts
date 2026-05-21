@@ -1,37 +1,28 @@
+// src/auth/guards/refresh-token.guard.ts
 import {
   CanActivate,
   ExecutionContext,
   Injectable,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { JwtService } from '../jwt.service';
+import { TokenService } from '../token.service';
 import { ApiErrors } from '../../common/errors/api-exceptions.helper';
 
 @Injectable()
-export class RefreshTokenGuard
-  implements CanActivate
-{
-  constructor(
-    private jwtService: JwtService,
-  ) {}
+export class RefreshTokenGuard implements CanActivate {
+  constructor(private tokenService: TokenService) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
 
-    const authHeader = request.headers.authorization;
+    let token = request.cookies?.refreshToken;
 
-    if (!authHeader) {
-      throw ApiErrors.unauthorized('Missing authorization header');
-    }
-
-    const [type, token] = authHeader.split(' ');
-
-    if (type !== 'Bearer' || !token) {
-      throw ApiErrors.unauthorized('Invalid authorization header');
+    if (!token) {
+      throw ApiErrors.unauthorized('Missing refresh token');
     }
 
     try {
-      const payload = this.jwtService.verifyRefreshToken(token);
+      const payload = this.tokenService.verifyRefreshToken(token);
 
       request.user = {
         sessionId: payload.sessionId,

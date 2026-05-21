@@ -1,6 +1,5 @@
 import { ValidationError } from 'class-validator';
 import { ApiException } from '../errors/api.exception';
-import { ErrorCode } from '../errors/error-codes';
 
 export function validationExceptionFactory(errors: ValidationError[]) {
   const fields: Record<string, string[]> = {};
@@ -23,7 +22,7 @@ export function validationExceptionFactory(errors: ValidationError[]) {
   }
 
   return new ApiException({
-    code: ErrorCode.VALIDATION_ERROR,
+    code: 'VALIDATION_ERROR',
     message: 'Validation failed',
     statusCode: 400,
     details: {

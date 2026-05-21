@@ -13,12 +13,14 @@
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "cookie-parser": "^1.4.7",
     "express": "^4.21.0",
     "mysql2": "^3.0.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "@project/shared": "workspace:*"
   },
   "scripts": {
     "build": "nest build",
@@ -30,10 +32,14 @@
   "devDependencies": {
     "@nestjs/cli": "^11.0.21",
     "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.10",
     "@types/node": "^25.6.0",
     "@types/passport-jwt": "^4.0.1",
     "prisma": "^6.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   }
 }

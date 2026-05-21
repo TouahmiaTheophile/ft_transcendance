@@ -1,7 +1,11 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus, ParseIntPipe, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AccessTokenPayload } from '../auth/types/access-token-payload.type';
 import { UsersService } from './users.service';
-import { RegisterUserDto } from './dto/register-user.dto';
 import { toUserResponse } from './mappers/user.mapper';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { ApiErrors } from '../common/errors/api-exceptions.helper';
 
 @Controller('users')
 export class UsersController {
@@ -20,35 +24,15 @@ export class UsersController {
 
     return users.map(toUserResponse);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async me(@CurrentUser() user: AccessTokenPayload) {
+    const fullUser = await this.usersService.findById(user.sub);
+    if (!fullUser) {
+      throw ApiErrors.notFound('User not found');
+    }
+
+    return toUserResponse(fullUser);
+  }
 }
-
-// @Controller('users')
-// export class UsersController {
-//   constructor(private readonly usersService: UsersService) {}
-
-//   @Post()
-//   async create(@Body() RegisterUserDto: RegisterUserDto) {
-//     return this.usersService.create(RegisterUserDto);
-//   }
-
-//   @Get()
-//   async findAll() {
-//     return this.usersService.findAll();
-//   }
-
-//   // @Put(':id')
-//   // async update(@Param('id', ParseIntPipe) id: number, @Body() body: Partial<RegisterUserDto>) {
-//   //   return this.usersService.update(id, body);
-//   // }
-
-//   // @Delete(':id')
-//   // @HttpCode(HttpStatus.NO_CONTENT)
-//   // async remove(@Param('id', ParseIntPipe) id: number) {
-//   //   await this.usersService.remove(id);
-//   // }
-
-//   // @Post('login')
-//   // async login(@Body() body: { username: string; email: string }) {
-//   //   return this.usersService.login(body.username, body.email);
-//   // }
-// }
