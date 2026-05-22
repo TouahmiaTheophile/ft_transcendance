@@ -1,4 +1,3 @@
-// import { FriendshipSnapshot } from './friendship-snapshot.type';
 import { FriendshipSnapshot } from '@shared/friendship/friendship-snapshot.type';
 
 export type FriendshipErrorReason =

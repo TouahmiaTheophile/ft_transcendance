@@ -1,8 +1,0 @@
-{
-  "name": "ft-transcendence",
-  "private": true,
-  "workspaces": [
-    "backend",
-    "shared"
-  ]
-}

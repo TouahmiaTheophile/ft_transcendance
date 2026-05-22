@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { UserResponseDto } from '../dto/user-response.dto';
+import { UserResponseDto } from '@shared/users/user-response.dto';
 import { USER_PUBLIC_SELECT } from '../constants/user-selects';
 
 type PublicUser = Prisma.UserGetPayload<{

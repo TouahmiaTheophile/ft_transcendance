@@ -1,4 +1,3 @@
-// import { ErrorCode } from './error-codes';
 import { ErrorCode } from '@shared/errors/error-codes';
 
 type CreateErrorResponseParams = {

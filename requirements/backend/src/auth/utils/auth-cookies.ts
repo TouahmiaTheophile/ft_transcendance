@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { AuthTokens } from '../types/auth-tokens.type';
+import { AuthTokens } from '@shared/auth/auth-tokens.type';
 
 export function setAuthCookies(
   res: Response,

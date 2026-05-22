@@ -3,7 +3,6 @@ import { Prisma } from '@prisma/client';
 
 import { ApiException } from './api.exception';
 import { resolveUniqueConstraintFields } from '../../prisma/prisma-error.utils';
-// import { ErrorCode } from './error-codes';
 import { ErrorCode } from '@shared/errors/error-codes';
 
 /**

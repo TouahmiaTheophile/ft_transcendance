@@ -1,5 +1,5 @@
-// import { ErrorCode } from './error-codes';
-import { ErrorCode } from '@shared/errors/error-codes';
+import { ErrorCode } from '../errors/error-codes';
+// import { ErrorCode } from '@shared/errors/error-codes';
 
 export interface APIErrorResponse {
   statusCode: number;

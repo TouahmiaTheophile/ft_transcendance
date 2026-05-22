@@ -1,6 +1,5 @@
 import { ApiException } from '../../common/errors/api.exception';
 import { toFriendshipSnapshot } from '../mappers/friendship.mapper';
-// import { FriendshipSnapshot } from '../types/friendship-snapshot.type';
 import { FriendshipSnapshot } from '@shared/friendship/friendship-snapshot.type';
 
 export const FriendshipErrors = {

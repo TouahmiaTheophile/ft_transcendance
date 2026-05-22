@@ -7,7 +7,7 @@ import { User } from '@prisma/client';
 import { SessionService } from './session.service';
 import { RefreshRequestUser } from './types/authenticated-request.type';
 import { ApiErrors } from '../common/errors/api-exceptions.helper';
-import { AuthTokens } from './types/auth-tokens.type'
+import { AuthTokens } from '@shared/auth/auth-tokens.type'
 
 @Injectable()
 export class AuthService {

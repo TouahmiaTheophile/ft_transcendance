@@ -30,8 +30,10 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ./requirements/backend/prisma:/app/requirements/backend/prisma
-      - ./requirements/backend/src:/app/requirements/backend/src
+    # tmp: pour dev seulement, permet la maintenance de la db par prisma sans rebuild l'image
+      - ./requirements/backend/prisma:/app/requirements/backend/prisma  # Hot reload schema
+      - ./requirements/backend/src:/app/requirements/backend/src        # Hot reload code
+    command: sh -c "./prisma-init.sh"
     environment:
       DB_HOST: db
       DB_USER: ${MARIADB_USER}

@@ -1,4 +1,4 @@
-export class FriendResponseDto {
+export type FriendResponseDto = {
   id: number;
   friend: {
     id: number;
@@ -6,4 +6,4 @@ export class FriendResponseDto {
     email: string;
     createdAt: Date;
   };
-}
+};

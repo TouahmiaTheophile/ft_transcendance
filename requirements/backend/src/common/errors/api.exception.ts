@@ -1,6 +1,4 @@
-// import { ErrorDetailsMap } from './error-details-map';
 import { ErrorDetailsMap } from '@shared/errors/error-details-map';
-// import { ErrorCode } from './error-codes';
 import { ErrorCode } from '@shared/errors/error-codes';
 
 export class ApiException<K extends ErrorCode = ErrorCode> extends Error {

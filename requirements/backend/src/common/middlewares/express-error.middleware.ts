@@ -1,7 +1,6 @@
 import { normalizeError } from '../errors/normalize-error';
 import { createErrorResponse } from '../errors/create-error-response';
 import { Request, Response, NextFunction } from 'express';
-// import { ErrorCode } from '../errors/error-codes';
 import { ErrorCode } from '@shared/errors/error-codes';
 
 // Handle some of pre-nest-errors due to HTTP request

@@ -7,7 +7,6 @@ import {
 import { Request, Response } from 'express';
 import { createErrorResponse } from '../errors/create-error-response';
 import { normalizeError } from '../errors/normalize-error';
-// import { ErrorCode } from '../errors/error-codes';
 import { ErrorCode } from '@shared/errors/error-codes';
 
 @Catch()
