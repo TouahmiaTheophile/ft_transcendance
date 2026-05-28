@@ -1,0 +1,37 @@
+services:
+  mariadb:
+    ports:
+      - "${DB_PORT:-3306}:3306"
+
+  backend:
+    build:
+      target: development
+    container_name: ${COMPOSE_PROJECT_NAME}-backend-dev
+    env_file: .env
+    volumes:
+      - ./backend:/app/backend
+      - ./shared:/app/shared
+      - backend_node_modules:/app/backend/node_modules
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=development
+
+  frontend:
+    build:
+      target: development
+    container_name: ${COMPOSE_PROJECT_NAME}-frontend-dev
+    env_file: .env
+    volumes:
+      - ./frontend:/app/frontend
+      - ./shared:/app/shared
+      - frontend_node_modules:/app/frontend/node_modules
+    ports:
+      - "${FRONTEND_PORT:-3001}:3001"
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+
+volumes:
+  backend_node_modules:
+  frontend_node_modules:

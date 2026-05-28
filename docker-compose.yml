@@ -1,0 +1,56 @@
+services:
+  mariadb:
+    image: mariadb:11
+    container_name: ${COMPOSE_PROJECT_NAME}-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - app_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: .docker/backend/Dockerfile
+      target: production
+    container_name: ${COMPOSE_PROJECT_NAME}-backend
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: .docker/frontend/Dockerfile
+      target: production
+    container_name: ${COMPOSE_PROJECT_NAME}-frontend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    ports:
+      - "${FRONTEND_PORT:-3001}:3001"
+    networks:
+      - app_network
+
+volumes:
+  mariadb_data:
+
+networks:
+  app_network:
+    driver: bridge
