@@ -22,24 +22,24 @@ help: ## Show this help
 	@echo "  \033[1mUsage:\033[0m make \033[36m<target>\033[0m"
 	@echo ""
 	@echo "  \033[1mDev\033[0m"
-	@grep -E '^(dev|stop|restart|logs|shell|fresh).*:.*##' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*##"}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -h -E '^(dev|dev-d|stop|restart|logs|shell|fresh).*:.*##' $(MAKEFILE_LIST) \
+		| awk 'BEGIN {FS = ":.*## "}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "  \033[1mProd\033[0m"
-	@grep -E '^(prod|prod-stop|prod-logs).*:.*##' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*##"}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -h -E '^(prod|prod-stop|prod-logs).*:.*##' $(MAKEFILE_LIST) \
+		| awk 'BEGIN {FS = ":.*## "}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "  \033[1mDatabase\033[0m"
-	@grep -E '^(db-.*).*:.*##' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*##"}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -h -E '^(db-.*).*:.*##' $(MAKEFILE_LIST) \
+		| awk 'BEGIN {FS = ":.*## "}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "  \033[1mDependencies\033[0m"
-	@grep -E '^(deps-.*).*:.*##' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*##"}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -h -E '^(deps-.*).*:.*##' $(MAKEFILE_LIST) \
+		| awk 'BEGIN {FS = ":.*## "}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "  \033[1mUtilities\033[0m"
-	@grep -E '^(build|clean|nuke|ps|init).*:.*##' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*##"}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -h -E '^(build|build-prod|build-no-cache|clean|nuke|ps|init).*:.*##' $(MAKEFILE_LIST) \
+		| awk 'BEGIN {FS = ":.*## "}; {printf "    \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 
 # ─── Init ─────────────────────────────────────────────────────────────────────
