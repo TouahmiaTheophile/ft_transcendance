@@ -1,5 +1,5 @@
-import { TransitionMap } from '@shared/state-machine/state-machine.types';
-import { FriendshipStatus } from './friendship-state';
+import { TransitionMap } from '../state-machine/state-machine.types';
+import { FriendshipStatus } from './friendship-snapshot.type';
 
 export const FRIENDSHIP_TRANSITIONS: TransitionMap<FriendshipStatus> = {
   PENDING: ['ACCEPTED', 'REJECTED', 'BLOCKED'],

@@ -48,7 +48,7 @@ model RefreshSession {
 enum FriendshipStatus {
   PENDING
   ACCEPTED
-  DECLINED
+  REJECTED
   BLOCKED
 }
 

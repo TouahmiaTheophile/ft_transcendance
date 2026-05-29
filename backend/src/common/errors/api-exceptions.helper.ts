@@ -4,28 +4,45 @@ export const ApiErrors = {
   unauthorized(message?: string) {
     return new ApiException({
       code: 'UNAUTHORIZED',
-      message,
+      statusCode: 401,
+      message: message ?? 'Unauthorized',
+      details: null,
     });
   },
 
   forbidden(message?: string) {
     return new ApiException({
       code: 'FORBIDDEN',
-      message,
+      statusCode: 403,
+      message: message ?? 'Forbidden',
+      details: null,
     });
   },
 
   notFound(message?: string) {
     return new ApiException({
       code: 'NOT_FOUND',
-      message,
+      statusCode: 404,
+      message: message ?? 'Not found',
+      details: null,
     });
   },
 
   badRequest(message?: string) {
     return new ApiException({
       code: 'BAD_REQUEST',
-      message,
+      statusCode: 400,
+      message: message ?? 'Bad request',
+      details: null,
+    });
+  },
+
+  conflict(message?: string) {
+    return new ApiException({
+      code: 'CONFLICT',
+      statusCode: 409,
+      message: message ?? 'Conflict',
+      details: null,
     });
   },
 };

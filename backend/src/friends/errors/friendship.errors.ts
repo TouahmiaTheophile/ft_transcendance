@@ -6,6 +6,7 @@ export const FriendshipErrors = {
   selfRequest() {
     return new ApiException({
       code: 'FRIENDSHIP_SELF_REQUEST',
+      statusCode: 400,
       message: "You can't add yourself",
       details: null,
     });
@@ -14,6 +15,7 @@ export const FriendshipErrors = {
   alreadyExists(friendship: FriendshipSnapshot) {
     return new ApiException({
       code: 'FRIENDSHIP_ALREADY_EXISTS',
+      statusCode: 409,
       message: 'Friendship already exists or request pending',
       details: { friendship: toFriendshipSnapshot(friendship) },
     });
@@ -22,6 +24,7 @@ export const FriendshipErrors = {
   notPending(friendship: FriendshipSnapshot) {
     return new ApiException({
       code: 'FRIENDSHIP_NOT_PENDING',
+      statusCode: 409,
       message: 'Friend request is not pending',
       details: { friendship: toFriendshipSnapshot(friendship) },
     });
@@ -30,6 +33,7 @@ export const FriendshipErrors = {
   forbidden(friendship: FriendshipSnapshot) {
     return new ApiException({
       code: 'FRIENDSHIP_FORBIDDEN',
+      statusCode: 403,
       message: 'You cannot perform this action',
       details: { friendship: toFriendshipSnapshot(friendship) },
     });

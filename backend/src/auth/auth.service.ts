@@ -7,7 +7,7 @@ import { User } from '@prisma/client';
 import { SessionService } from './session.service';
 import { RefreshRequestUser } from './types/authenticated-request.type';
 import { ApiErrors } from '../common/errors/api-exceptions.helper';
-import { AuthTokens } from '@shared/auth/auth-tokens.type'
+import { AuthTokens } from '@shared/auth/auth-tokens.type';
 
 @Injectable()
 export class AuthService {
@@ -30,11 +30,7 @@ export class AuthService {
       throw ApiErrors.unauthorized('Invalid credentials');
     }
 
-    const valid = await this.passwordService.compare(
-      dto.password,
-      user.passwordHash,
-    );
-
+    const valid = await this.passwordService.compare(dto.password, user.passwordHash);
     if (!valid) {
       throw ApiErrors.unauthorized('Invalid credentials');
     }
@@ -43,21 +39,11 @@ export class AuthService {
   }
 
   private async issueTokens(sessionId: string, userId: number): Promise<AuthTokens> {
-    const refreshToken = this.tokenService.generateRefreshToken({
-      sessionId,
-      sub: userId,
-    });
-
+    const refreshToken = this.tokenService.generateRefreshToken({ sessionId, sub: userId });
     const hash = await this.passwordService.hash(refreshToken);
-
     await this.sessionService.updateHash(sessionId, hash);
-
     const accessToken = this.tokenService.generateAccessToken(userId);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return { accessToken, refreshToken };
   }
 
   async login(dto: LoginDto): Promise<AuthTokens> {
@@ -69,9 +55,7 @@ export class AuthService {
       '',
     );
 
-    const result = await this.issueTokens(session.id, user.id);
-
-    return result;
+    return this.issueTokens(session.id, user.id);
   }
 
   async refresh(user: RefreshRequestUser): Promise<AuthTokens> {
@@ -80,8 +64,21 @@ export class AuthService {
       user.refreshToken,
     );
 
-    const newTokens = await this.issueTokens(sessionId, userId);
+    return this.issueTokens(sessionId, userId);
+  }
 
-    return newTokens;
+  // Extracts sessionId from a refresh token without full verification.
+  // Used during logout where we want to revoke the session even with an expired token.
+  extractSessionId(refreshToken: string): string | null {
+    try {
+      const payload = this.tokenService.verifyRefreshToken(refreshToken);
+      return payload.sessionId;
+    } catch {
+      return null;
+    }
+  }
+
+  async logout(sessionId: string): Promise<void> {
+    await this.sessionService.revoke(sessionId);
   }
 }

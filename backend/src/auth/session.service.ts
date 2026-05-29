@@ -1,21 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { PasswordService } from '../common/security/password.service';
 import { ApiErrors } from '../common/errors/api-exceptions.helper';
+import { PasswordService } from '../common/security/password.service';
 
 @Injectable()
 export class SessionService {
   constructor(
-	private prisma: PrismaService,
-	private passwordService: PasswordService,
+    private prisma: PrismaService,
+	  private passwordService: PasswordService,
   ) {}
 
   create(userId: number, expiresAt: Date, refreshTokenHash: string) {
     return this.prisma.refreshSession.create({
       data: {
-        user: {
-          connect: { id: userId },
-        },
+        user: { connect: { id: userId } },
         expiresAt,
         refreshTokenHash,
       },
@@ -37,17 +35,12 @@ export class SessionService {
 
   async revoke(sessionId: string) {
     const result = await this.prisma.refreshSession.updateMany({
-      where: {
-        id: sessionId,
-        revokedAt: null,
-      },
-      data: {
-        revokedAt: new Date(),
-      },
+      where: { id: sessionId, revokedAt: null },
+      data: { revokedAt: new Date() },
     });
 
     if (result.count === 0) {
-      throw ApiErrors.unauthorized('Session revoked');
+      throw ApiErrors.unauthorized('Session already revoked');
     }
   }
 

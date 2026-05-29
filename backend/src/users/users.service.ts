@@ -9,17 +9,10 @@ export class UsersService {
   constructor(
     private prisma: PrismaService,
     private passwordService: PasswordService,
-  ) {
-    console.log('UsersService constructed');
-    console.log('UsersService file:', __filename);
-    console.log('UsersService TOKEN', UsersService.name);
-  }
+  ) {}
 
   async register(dto: RegisterUserDto) {
-    const passwordHash =
-      await this.passwordService.hash(
-        dto.password,
-      );
+    const passwordHash = await this.passwordService.hash(dto.password);
 
     return this.prisma.user.create({
       data: {

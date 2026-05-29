@@ -9,26 +9,17 @@ import { ApiErrors } from '../common/errors/api-exceptions.helper';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {
-    console.log('controller usersService =', usersService);
-    console.log('controller instance id', Math.random());
-    console.log('UsersService injected:', this.usersService?.constructor?.name);
-    console.log('Controller file:', __filename);
-    console.log('controller token', usersService?.constructor?.name);
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
   async create(@Body() dto: RegisterUserDto) {
     const user = await this.usersService.register(dto);
-
     return toUserResponse(user);
   }
 
   @Get()
   async findAll() {
-    console.log('SERVICE:', this.usersService);
     const users = await this.usersService.findAll();
-
     return users.map(toUserResponse);
   }
 
@@ -39,7 +30,6 @@ export class UsersController {
     if (!fullUser) {
       throw ApiErrors.notFound('User not found');
     }
-
     return toUserResponse(fullUser);
   }
 }

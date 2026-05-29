@@ -1,17 +1,10 @@
 import {
   IsDefined,
   IsEmail,
-  IsInt,
-  IsOptional,
   IsString,
-  IsNumber,
   Matches,
-  Max,
-  Min,
   MinLength,
 } from 'class-validator';
-
-import { Type } from 'class-transformer';
 
 export class RegisterUserDto {
   @MinLength(3, {

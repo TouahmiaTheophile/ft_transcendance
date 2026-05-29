@@ -1,4 +1,3 @@
-// src/auth/guards/refresh-token.guard.ts
 import {
   CanActivate,
   ExecutionContext,
@@ -15,7 +14,7 @@ export class RefreshTokenGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
 
-    let token = request.cookies?.refreshToken;
+    const token = request.cookies?.refreshToken;
 
     if (!token) {
       throw ApiErrors.unauthorized('Missing refresh token');

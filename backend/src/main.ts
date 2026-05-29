@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { validateEnvironment } from './utils/validate-env';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { validationExceptionFactory } from './common/validation/validation-exception.factory';
@@ -27,7 +26,6 @@ async function bootstrap() {
     }),
   );
   app.use(expressErrorMiddleware);
-  // const configService = app.get(ConfigService);
   await app.listen(process.env.BACKEND_PORT || 3000);
   console.log('API NestJS with Prisma on port 3000');
 }

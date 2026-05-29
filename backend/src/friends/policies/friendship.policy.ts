@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { FRIENDSHIP_TRANSITIONS } from '../state/friendship-transitions';
-import { assertTransition } from '@shared/state-machine/create-state-machine';
+import { canTransition } from '@shared/state-machine/create-state-machine';
+import { FRIENDSHIP_TRANSITIONS } from '@shared/friendship/friendship-transitions';
 import { FriendshipErrors } from '../errors/friendship.errors';
 
 @Injectable()
@@ -21,25 +21,17 @@ export class FriendshipPolicy {
     if (friendship.addresseeId !== userId) {
       throw FriendshipErrors.forbidden(friendship);
     }
-
-    assertTransition(
-      FRIENDSHIP_TRANSITIONS,
-      friendship.status,
-      'ACCEPTED',
-      () => FriendshipErrors.notPending(friendship),
-    );
+    if (!canTransition(FRIENDSHIP_TRANSITIONS, friendship.status, 'ACCEPTED')) {
+      throw FriendshipErrors.notPending(friendship);
+    }
   }
 
   assertReject(friendship: any, userId: number) {
     if (friendship.addresseeId !== userId) {
       throw FriendshipErrors.forbidden(friendship);
     }
-
-    assertTransition(
-      FRIENDSHIP_TRANSITIONS,
-      friendship.status,
-      'REJECTED',
-      () => FriendshipErrors.notPending(friendship),
-    );
+    if (!canTransition(FRIENDSHIP_TRANSITIONS, friendship.status, 'REJECTED')) {
+      throw FriendshipErrors.notPending(friendship);
+    }
   }
 }
