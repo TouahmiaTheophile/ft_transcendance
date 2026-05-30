@@ -1,4 +1,4 @@
-import { FriendshipSnapshot } from "../friendship/friendship-snapshot.type";
+import { FriendshipSnapshot } from '../friendship/friendship-snapshot.type';
 
 export type ErrorDetailsMap = {
   BAD_REQUEST: null;
@@ -16,9 +16,13 @@ export type ErrorDetailsMap = {
     fields: string[];
   };
 
-  FRIENDSHIP_SELF_REQUEST: {
-    friendship?: null;
+  // Returned when a password or email check fails on sensitive operations
+  // (update email, update password, delete account)
+  INVALID_CREDENTIALS: {
+    field: 'password' | 'email';
   };
+
+  FRIENDSHIP_SELF_REQUEST: null;
 
   FRIENDSHIP_ALREADY_EXISTS: {
     friendship: FriendshipSnapshot;
