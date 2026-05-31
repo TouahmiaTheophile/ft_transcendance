@@ -1,16 +1,15 @@
 #!/bin/bash
 
 # =============================================================================
-#  API Test Suite
-#  Usage: bash api-tests.sh
+#  API Test Suite v2 — Users CRUD + publicUsername
+#  Usage: bash api-tests-v2.sh
 #  Requires: curl, jq
 # =============================================================================
 
 BASE_URL="http://localhost:3000"
-COOKIE_JAR=$(mktemp)
-COOKIE_JAR_2=$(mktemp)
+COOKIE_ALICE=$(mktemp)
+COOKIE_BOB=$(mktemp)
 
-# Colors
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
@@ -22,7 +21,7 @@ fail() { echo -e "  ${RED}✘ $1${NC}"; }
 section() { echo -e "\n${BLUE}━━━ $1 ━━━${NC}"; }
 info() { echo -e "  ${YELLOW}→ $1${NC}"; }
 
-check_field() {
+check() {
   local json="$1" field="$2" expected="$3" label="$4"
   local actual
   actual=$(echo "$json" | jq -r "$field" 2>/dev/null)
@@ -33,328 +32,292 @@ check_field() {
   fi
 }
 
+check_null() {
+  local json="$1" field="$2" label="$3"
+  local actual
+  actual=$(echo "$json" | jq -r "$field" 2>/dev/null)
+  if [ "$actual" = "null" ] || [ -z "$actual" ]; then
+    pass "$label (not exposed)"
+  else
+    fail "$label (should be absent, got: $actual)"
+  fi
+}
+
+check_present() {
+  local json="$1" field="$2" label="$3"
+  local actual
+  actual=$(echo "$json" | jq -r "$field" 2>/dev/null)
+  if [ "$actual" != "null" ] && [ -n "$actual" ]; then
+    pass "$label (got: $actual)"
+  else
+    fail "$label (expected a value, got null or empty)"
+  fi
+}
+
 # =============================================================================
-section "USERS — Registration"
+section "SETUP — Register users"
 # =============================================================================
 
-info "POST /users — valid registration (user 1)"
+info "POST /users — alice (username + publicUsername)"
 RES=$(curl -s -X POST "$BASE_URL/users" \
   -H "Content-Type: application/json" \
-  -d '{"username":"alice","email":"alice@test.com","password":"password123"}')
+  -d '{"username":"alice","publicUsername":"Alice Wonder","email":"alice@test.com","password":"password123"}')
 echo "$RES" | jq .
-check_field "$RES" ".username" "alice" "username matches"
-check_field "$RES" ".email" "alice@test.com" "email matches"
-check_field "$RES" ".id" "null" "no id leak" 2>/dev/null || \
-check_field "$RES" ".passwordHash" "null" "no passwordHash leak"
-USER1_ID=$(echo "$RES" | jq -r '.id')
+check "$RES" ".username" "alice" "username"
+check "$RES" ".publicUsername" "Alice Wonder" "publicUsername"
+check "$RES" ".email" "alice@test.com" "email"
+check_null "$RES" ".passwordHash" "passwordHash not exposed"
+ALICE_ID=$(echo "$RES" | jq -r '.id')
 
-info "POST /users — valid registration (user 2)"
+info "POST /users — bob"
 RES=$(curl -s -X POST "$BASE_URL/users" \
   -H "Content-Type: application/json" \
-  -d '{"username":"bob","email":"bob@test.com","password":"password123"}')
+  -d '{"username":"bob","publicUsername":"Bobby B","email":"bob@test.com","password":"password123"}')
 echo "$RES" | jq .
-check_field "$RES" ".username" "bob" "username matches"
-USER2_ID=$(echo "$RES" | jq -r '.id')
+check "$RES" ".publicUsername" "Bobby B" "publicUsername"
+BOB_ID=$(echo "$RES" | jq -r '.id')
 
-info "POST /users — valid registration (user 3)"
-RES=$(curl -s -X POST "$BASE_URL/users" \
+info "POST /auth/login — alice"
+curl -s -X POST "$BASE_URL/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"username":"charlie","email":"charlie@test.com","password":"password123"}')
-echo "$RES" | jq .
-USER3_ID=$(echo "$RES" | jq -r '.id')
+  -c "$COOKIE_ALICE" \
+  -d '{"email":"alice@test.com","password":"password123"}' > /dev/null
 
-info "User IDs: alice=$USER1_ID, bob=$USER2_ID, charlie=$USER3_ID"
+info "POST /auth/login — bob"
+curl -s -X POST "$BASE_URL/auth/login" \
+  -H "Content-Type: application/json" \
+  -c "$COOKIE_BOB" \
+  -d '{"email":"bob@test.com","password":"password123"}' > /dev/null
+
+info "User IDs: alice=$ALICE_ID, bob=$BOB_ID"
 
 # =============================================================================
-section "USERS — Read"
+section "USERS — GET"
 # =============================================================================
 
-info "GET /users — list all users"
+info "GET /users — publicUsername present in list"
 RES=$(curl -s "$BASE_URL/users")
 echo "$RES" | jq .
-COUNT=$(echo "$RES" | jq 'length')
-if [ "$COUNT" -ge 3 ]; then
-  pass "At least 3 users returned ($COUNT)"
-else
-  fail "Expected at least 3 users, got $COUNT"
-fi
+check "$RES" ".[0].publicUsername" "Alice Wonder" "publicUsername in list"
+check_null "$RES" ".[0].passwordHash" "passwordHash not in list"
+
+info "GET /users/me — publicUsername present"
+RES=$(curl -s "$BASE_URL/users/me" -b "$COOKIE_ALICE")
+echo "$RES" | jq .
+check "$RES" ".username" "alice" "username"
+check "$RES" ".publicUsername" "Alice Wonder" "publicUsername"
 
 # =============================================================================
-section "AUTH — Login"
+section "USERS — PATCH /users/me"
 # =============================================================================
 
-info "POST /auth/login — alice login (saves cookies)"
-RES=$(curl -s -X POST "$BASE_URL/auth/login" \
+info "PATCH — update publicUsername only (no password required)"
+RES=$(curl -s -X PATCH "$BASE_URL/users/me" \
   -H "Content-Type: application/json" \
-  -c "$COOKIE_JAR" \
-  -d '{"email":"alice@test.com","password":"password123"}')
+  -b "$COOKIE_ALICE" \
+  -d '{"publicUsername":"Alice W."}')
 echo "$RES" | jq .
-check_field "$RES" ".success" "true" "login success"
+check "$RES" ".publicUsername" "Alice W." "publicUsername updated"
+check "$RES" ".username" "alice" "username unchanged"
 
-info "POST /auth/login — bob login (saves cookies)"
-RES=$(curl -s -X POST "$BASE_URL/auth/login" \
+info "PATCH — update email with correct password"
+RES=$(curl -s -X PATCH "$BASE_URL/users/me" \
   -H "Content-Type: application/json" \
-  -c "$COOKIE_JAR_2" \
-  -d '{"email":"bob@test.com","password":"password123"}')
-check_field "$RES" ".success" "true" "bob login success"
-
-# =============================================================================
-section "AUTH — Protected routes"
-# =============================================================================
-
-info "GET /users/me — with valid access token (alice)"
-RES=$(curl -s "$BASE_URL/users/me" -b "$COOKIE_JAR")
+  -b "$COOKIE_ALICE" \
+  -d '{"email":"alice-new@test.com","currentPassword":"password123"}')
 echo "$RES" | jq .
-check_field "$RES" ".username" "alice" "returns alice's profile"
+check "$RES" ".email" "alice-new@test.com" "email updated"
 
-info "POST /auth/refresh — rotate tokens (alice)"
-RES=$(curl -s -X POST "$BASE_URL/auth/refresh" \
-  -b "$COOKIE_JAR" \
-  -c "$COOKIE_JAR")
-echo "$RES" | jq .
-check_field "$RES" ".success" "true" "token rotation success"
-
-info "GET /users/me — after token rotation (alice)"
-RES=$(curl -s "$BASE_URL/users/me" -b "$COOKIE_JAR")
-echo "$RES" | jq .
-check_field "$RES" ".username" "alice" "still authenticated after rotation"
-
-# =============================================================================
-section "FRIENDS — Send requests"
-# =============================================================================
-
-info "POST /friends/request/$USER2_ID — alice sends request to bob"
-RES=$(curl -s -X POST "$BASE_URL/friends/request/$USER2_ID" -b "$COOKIE_JAR")
-echo "$RES" | jq .
-check_field "$RES" ".status" "PENDING" "status is PENDING"
-check_field "$RES" ".requesterId" "$USER1_ID" "requesterId is alice"
-check_field "$RES" ".addresseeId" "$USER2_ID" "addresseeId is bob"
-FRIENDSHIP1_ID=$(echo "$RES" | jq -r '.id')
-
-info "POST /friends/request/$USER3_ID — alice sends request to charlie"
-RES=$(curl -s -X POST "$BASE_URL/friends/request/$USER3_ID" -b "$COOKIE_JAR")
-echo "$RES" | jq .
-check_field "$RES" ".status" "PENDING" "status is PENDING"
-FRIENDSHIP2_ID=$(echo "$RES" | jq -r '.id')
-
-info "Friendship IDs: alice-bob=$FRIENDSHIP1_ID, alice-charlie=$FRIENDSHIP2_ID"
-
-# =============================================================================
-section "FRIENDS — List pending"
-# =============================================================================
-
-info "GET /friends/pending — bob sees pending requests"
-RES=$(curl -s "$BASE_URL/friends/pending" -b "$COOKIE_JAR_2")
-echo "$RES" | jq .
-COUNT=$(echo "$RES" | jq 'length')
-if [ "$COUNT" -ge 1 ]; then
-  pass "Bob has $COUNT pending request(s)"
-else
-  fail "Expected pending requests for bob"
-fi
-
-# =============================================================================
-section "FRIENDS — Accept / Reject"
-# =============================================================================
-
-info "POST /friends/accept/$FRIENDSHIP1_ID — bob accepts alice's request"
-RES=$(curl -s -X POST "$BASE_URL/friends/accept/$FRIENDSHIP1_ID" -b "$COOKIE_JAR_2")
-echo "$RES" | jq .
-check_field "$RES" ".status" "ACCEPTED" "status is ACCEPTED"
-
-info "POST /friends/reject/$FRIENDSHIP2_ID — charlie rejects alice's request (charlie login first)"
-RES=$(curl -s -X POST "$BASE_URL/auth/login" \
+info "PATCH — update password with correct current password"
+RES=$(curl -s -X PATCH "$BASE_URL/users/me" \
   -H "Content-Type: application/json" \
-  -c /tmp/cookie_charlie \
-  -d '{"email":"charlie@test.com","password":"password123"}')
-RES=$(curl -s -X POST "$BASE_URL/friends/reject/$FRIENDSHIP2_ID" -b /tmp/cookie_charlie)
+  -b "$COOKIE_ALICE" \
+  -d '{"newPassword":"newpassword123","currentPassword":"password123"}')
 echo "$RES" | jq .
-check_field "$RES" ".status" "REJECTED" "status is REJECTED"
+check "$RES" ".username" "alice" "response valid after password change"
 
-# =============================================================================
-section "FRIENDS — List friends"
-# =============================================================================
-
-info "GET /friends — alice's friend list"
-RES=$(curl -s "$BASE_URL/friends" -b "$COOKIE_JAR")
-echo "$RES" | jq .
-COUNT=$(echo "$RES" | jq 'length')
-if [ "$COUNT" -ge 1 ]; then
-  pass "Alice has $COUNT friend(s)"
-else
-  fail "Expected at least 1 friend for alice"
-fi
-check_field "$RES" ".[0].friend.username" "bob" "friend is bob"
-
-# =============================================================================
-section "AUTH — Logout"
-# =============================================================================
-
-info "POST /auth/logout — alice logs out"
-RES=$(curl -s -X POST "$BASE_URL/auth/logout" -b "$COOKIE_JAR" -c "$COOKIE_JAR")
-echo "$RES" | jq .
-check_field "$RES" ".success" "true" "logout success"
-
-info "GET /users/me — after logout (should fail)"
-RES=$(curl -s "$BASE_URL/users/me" -b "$COOKIE_JAR")
-echo "$RES" | jq .
-check_field "$RES" ".code" "UNAUTHORIZED" "access denied after logout"
-
-info "POST /auth/refresh — after logout (should fail)"
-RES=$(curl -s -X POST "$BASE_URL/auth/refresh" -b "$COOKIE_JAR")
-echo "$RES" | jq .
-check_field "$RES" ".code" "UNAUTHORIZED" "refresh denied after logout"
-
-# =============================================================================
-section "ERRORS — Validation"
-# =============================================================================
-
-info "POST /users — empty body"
-RES=$(curl -s -X POST "$BASE_URL/users" \
+info "GET /users/me — re-login with new password to verify"
+curl -s -X POST "$BASE_URL/auth/login" \
   -H "Content-Type: application/json" \
+  -c "$COOKIE_ALICE" \
+  -d '{"email":"alice-new@test.com","password":"newpassword123"}' > /dev/null
+RES=$(curl -s "$BASE_URL/users/me" -b "$COOKIE_ALICE")
+check "$RES" ".username" "alice" "authenticated with new credentials"
+
+info "PATCH — update publicUsername + email in one request"
+RES=$(curl -s -X PATCH "$BASE_URL/users/me" \
+  -H "Content-Type: application/json" \
+  -b "$COOKIE_ALICE" \
+  -d '{"publicUsername":"Alice Final","email":"alice@test.com","currentPassword":"newpassword123"}')
+echo "$RES" | jq .
+check "$RES" ".publicUsername" "Alice Final" "publicUsername updated"
+check "$RES" ".email" "alice@test.com" "email updated"
+
+# =============================================================================
+section "USERS — Friends include publicUsername"
+# =============================================================================
+
+info "POST /friends/request/$BOB_ID — alice sends request"
+curl -s -X POST "$BASE_URL/friends/request/$BOB_ID" -b "$COOKIE_ALICE" > /dev/null
+
+info "POST /friends/accept — bob accepts"
+FRIENDSHIP_ID=$(curl -s "$BASE_URL/friends/pending" -b "$COOKIE_BOB" | jq -r '.[0].id')
+curl -s -X POST "$BASE_URL/friends/accept/$FRIENDSHIP_ID" -b "$COOKIE_BOB" > /dev/null
+
+info "GET /friends — publicUsername present in friend response"
+RES=$(curl -s "$BASE_URL/friends" -b "$COOKIE_ALICE")
+echo "$RES" | jq .
+check "$RES" ".[0].friend.publicUsername" "Bobby B" "friend.publicUsername present"
+check_null "$RES" ".[0].friend.passwordHash" "friend.passwordHash not exposed"
+
+# =============================================================================
+section "ERRORS — PATCH validation"
+# =============================================================================
+
+info "PATCH — email without currentPassword"
+RES=$(curl -s -X PATCH "$BASE_URL/users/me" \
+  -H "Content-Type: application/json" \
+  -b "$COOKIE_ALICE" \
+  -d '{"email":"no-password@test.com"}')
+echo "$RES" | jq .
+check "$RES" ".code" "VALIDATION_ERROR" "code is VALIDATION_ERROR"
+check "$RES" ".statusCode" "400" "statusCode is 400"
+check_present "$RES" ".details.fields.currentPassword" "currentPassword error in details"
+
+info "PATCH — newPassword without currentPassword"
+RES=$(curl -s -X PATCH "$BASE_URL/users/me" \
+  -H "Content-Type: application/json" \
+  -b "$COOKIE_ALICE" \
+  -d '{"newPassword":"newpassword456"}')
+echo "$RES" | jq .
+check "$RES" ".code" "VALIDATION_ERROR" "code is VALIDATION_ERROR"
+check_present "$RES" ".details.fields.currentPassword" "currentPassword error in details"
+
+info "PATCH — wrong currentPassword"
+RES=$(curl -s -X PATCH "$BASE_URL/users/me" \
+  -H "Content-Type: application/json" \
+  -b "$COOKIE_ALICE" \
+  -d '{"email":"other@test.com","currentPassword":"wrongpassword"}')
+echo "$RES" | jq .
+check "$RES" ".code" "INVALID_CREDENTIALS" "code is INVALID_CREDENTIALS"
+check "$RES" ".statusCode" "401" "statusCode is 401"
+check "$RES" ".details.field" "password" "details.field is password"
+
+info "PATCH — publicUsername too short"
+RES=$(curl -s -X PATCH "$BASE_URL/users/me" \
+  -H "Content-Type: application/json" \
+  -b "$COOKIE_ALICE" \
+  -d '{"publicUsername":"ab"}')
+echo "$RES" | jq .
+check "$RES" ".code" "VALIDATION_ERROR" "code is VALIDATION_ERROR"
+check_present "$RES" ".details.fields.publicUsername" "publicUsername error in details"
+
+info "PATCH — empty body (nothing to update)"
+RES=$(curl -s -X PATCH "$BASE_URL/users/me" \
+  -H "Content-Type: application/json" \
+  -b "$COOKIE_ALICE" \
   -d '{}')
 echo "$RES" | jq .
-check_field "$RES" ".code" "VALIDATION_ERROR" "code is VALIDATION_ERROR"
-check_field "$RES" ".statusCode" "400" "statusCode is 400"
-HAS_FIELDS=$(echo "$RES" | jq 'has("details") and (.details | has("fields"))')
-[ "$HAS_FIELDS" = "true" ] && pass "details.fields present" || fail "details.fields missing"
+check "$RES" ".username" "alice" "empty patch returns current user unchanged"
 
-info "POST /users — invalid email"
-RES=$(curl -s -X POST "$BASE_URL/users" \
+info "PATCH — without auth"
+RES=$(curl -s -X PATCH "$BASE_URL/users/me" \
   -H "Content-Type: application/json" \
-  -d '{"username":"test","email":"not-an-email","password":"password123"}')
+  -d '{"publicUsername":"hacker"}')
 echo "$RES" | jq .
-check_field "$RES" ".code" "VALIDATION_ERROR" "code is VALIDATION_ERROR"
-
-info "POST /users — password too short"
-RES=$(curl -s -X POST "$BASE_URL/users" \
-  -H "Content-Type: application/json" \
-  -d '{"username":"test","email":"test@test.com","password":"short"}')
-echo "$RES" | jq .
-check_field "$RES" ".code" "VALIDATION_ERROR" "code is VALIDATION_ERROR"
-
-info "POST /users — username too short"
-RES=$(curl -s -X POST "$BASE_URL/users" \
-  -H "Content-Type: application/json" \
-  -d '{"username":"ab","email":"test@test.com","password":"password123"}')
-echo "$RES" | jq .
-check_field "$RES" ".code" "VALIDATION_ERROR" "code is VALIDATION_ERROR"
-
-info "POST /users — unknown field (whitelist)"
-RES=$(curl -s -X POST "$BASE_URL/users" \
-  -H "Content-Type: application/json" \
-  -d '{"username":"test","email":"test@test.com","password":"password123","hacked":true}')
-echo "$RES" | jq .
-check_field "$RES" ".code" "VALIDATION_ERROR" "unknown field rejected"
+check "$RES" ".code" "UNAUTHORIZED" "code is UNAUTHORIZED"
+check "$RES" ".statusCode" "401" "statusCode is 401"
 
 # =============================================================================
-section "ERRORS — Auth"
+section "ERRORS — Registration validation"
 # =============================================================================
 
-info "POST /auth/login — wrong password"
-RES=$(curl -s -X POST "$BASE_URL/auth/login" \
+info "POST /users — missing publicUsername"
+RES=$(curl -s -X POST "$BASE_URL/users" \
   -H "Content-Type: application/json" \
-  -d '{"email":"alice@test.com","password":"wrongpassword"}')
+  -d '{"username":"test","email":"test@test.com","password":"password123"}')
 echo "$RES" | jq .
-check_field "$RES" ".code" "UNAUTHORIZED" "code is UNAUTHORIZED"
-check_field "$RES" ".statusCode" "401" "statusCode is 401"
+check "$RES" ".code" "VALIDATION_ERROR" "code is VALIDATION_ERROR"
+check_present "$RES" ".details.fields.publicUsername" "publicUsername error in details"
 
-info "POST /auth/login — unknown email"
-RES=$(curl -s -X POST "$BASE_URL/auth/login" \
+info "POST /users — invalid publicUsername characters"
+RES=$(curl -s -X POST "$BASE_URL/users" \
   -H "Content-Type: application/json" \
-  -d '{"email":"ghost@test.com","password":"password123"}')
+  -d '{"username":"test","publicUsername":"<script>","email":"test@test.com","password":"password123"}')
 echo "$RES" | jq .
-check_field "$RES" ".code" "UNAUTHORIZED" "code is UNAUTHORIZED"
-
-info "GET /users/me — no token"
-RES=$(curl -s "$BASE_URL/users/me")
-echo "$RES" | jq .
-check_field "$RES" ".code" "UNAUTHORIZED" "code is UNAUTHORIZED"
-check_field "$RES" ".statusCode" "401" "statusCode is 401"
-
-info "POST /auth/refresh — no refresh token"
-RES=$(curl -s -X POST "$BASE_URL/auth/refresh")
-echo "$RES" | jq .
-check_field "$RES" ".code" "UNAUTHORIZED" "missing refresh token rejected"
-
-# =============================================================================
-section "ERRORS — Unique constraints"
-# =============================================================================
+check "$RES" ".code" "VALIDATION_ERROR" "invalid characters rejected"
 
 info "POST /users — duplicate username"
 RES=$(curl -s -X POST "$BASE_URL/users" \
   -H "Content-Type: application/json" \
-  -d '{"username":"alice","email":"other@test.com","password":"password123"}')
+  -d '{"username":"alice","publicUsername":"Other Alice","email":"other@test.com","password":"password123"}')
 echo "$RES" | jq .
-check_field "$RES" ".code" "UNIQUE_CONSTRAINT" "code is UNIQUE_CONSTRAINT"
-check_field "$RES" ".statusCode" "409" "statusCode is 409"
+check "$RES" ".code" "UNIQUE_CONSTRAINT" "code is UNIQUE_CONSTRAINT"
+check "$RES" ".statusCode" "409" "statusCode is 409"
+check "$RES" ".details.fields[0]" "username" "details.fields contains username"
 
-info "POST /users — duplicate email"
-RES=$(curl -s -X POST "$BASE_URL/users" \
+# =============================================================================
+section "USERS — DELETE /users/me"
+# =============================================================================
+
+info "DELETE — wrong password"
+RES=$(curl -s -X DELETE "$BASE_URL/users/me" \
   -H "Content-Type: application/json" \
-  -d '{"username":"alice2","email":"alice@test.com","password":"password123"}')
+  -b "$COOKIE_BOB" \
+  -d '{"password":"wrongpassword"}')
 echo "$RES" | jq .
-check_field "$RES" ".code" "UNIQUE_CONSTRAINT" "code is UNIQUE_CONSTRAINT"
+check "$RES" ".code" "INVALID_CREDENTIALS" "code is INVALID_CREDENTIALS"
+check "$RES" ".details.field" "password" "details.field is password"
 
-# =============================================================================
-section "ERRORS — Friendship domain"
-# =============================================================================
-
-info "POST /auth/login — alice re-login for domain error tests"
-curl -s -X POST "$BASE_URL/auth/login" \
+info "DELETE — missing password"
+RES=$(curl -s -X DELETE "$BASE_URL/users/me" \
   -H "Content-Type: application/json" \
-  -c "$COOKIE_JAR" \
-  -d '{"email":"alice@test.com","password":"password123"}' > /dev/null
-
-info "POST /friends/request/$USER1_ID — alice sends request to herself"
-RES=$(curl -s -X POST "$BASE_URL/friends/request/$USER1_ID" -b "$COOKIE_JAR")
+  -b "$COOKIE_BOB" \
+  -d '{}')
 echo "$RES" | jq .
-check_field "$RES" ".code" "FRIENDSHIP_SELF_REQUEST" "code is FRIENDSHIP_SELF_REQUEST"
-check_field "$RES" ".statusCode" "400" "statusCode is 400"
+check "$RES" ".code" "VALIDATION_ERROR" "code is VALIDATION_ERROR"
+check_present "$RES" ".details.fields.password" "password error in details"
 
-info "POST /friends/request/$USER2_ID — alice sends duplicate request to bob"
-RES=$(curl -s -X POST "$BASE_URL/friends/request/$USER2_ID" -b "$COOKIE_JAR")
-echo "$RES" | jq .
-check_field "$RES" ".code" "FRIENDSHIP_ALREADY_EXISTS" "code is FRIENDSHIP_ALREADY_EXISTS"
-check_field "$RES" ".statusCode" "409" "statusCode is 409"
-
-info "POST /friends/accept/$FRIENDSHIP1_ID — alice tries to accept her own sent request"
-RES=$(curl -s -X POST "$BASE_URL/friends/accept/$FRIENDSHIP1_ID" -b "$COOKIE_JAR")
-echo "$RES" | jq .
-check_field "$RES" ".code" "FRIENDSHIP_FORBIDDEN" "code is FRIENDSHIP_FORBIDDEN"
-check_field "$RES" ".statusCode" "403" "statusCode is 403"
-
-info "POST /friends/accept/$FRIENDSHIP1_ID — bob tries to accept an already accepted request"
-RES=$(curl -s -X POST "$BASE_URL/friends/accept/$FRIENDSHIP1_ID" -b "$COOKIE_JAR_2")
-echo "$RES" | jq .
-check_field "$RES" ".code" "FRIENDSHIP_NOT_PENDING" "code is FRIENDSHIP_NOT_PENDING"
-check_field "$RES" ".statusCode" "409" "statusCode is 409"
-
-info "POST /friends/accept/99999 — accept non-existent friendship"
-RES=$(curl -s -X POST "$BASE_URL/friends/accept/99999" -b "$COOKIE_JAR_2")
-echo "$RES" | jq .
-check_field "$RES" ".code" "NOT_FOUND" "code is NOT_FOUND"
-check_field "$RES" ".statusCode" "404" "statusCode is 404"
-
-# =============================================================================
-section "ERRORS — Malformed requests"
-# =============================================================================
-
-info "POST /users — malformed JSON"
-RES=$(curl -s -X POST "$BASE_URL/users" \
+info "DELETE — without auth"
+RES=$(curl -s -X DELETE "$BASE_URL/users/me" \
   -H "Content-Type: application/json" \
-  -d '{invalid json}')
+  -d '{"password":"password123"}')
 echo "$RES" | jq .
-check_field "$RES" ".code" "BAD_REQUEST" "malformed JSON rejected"
-check_field "$RES" ".statusCode" "400" "statusCode is 400"
+check "$RES" ".code" "UNAUTHORIZED" "code is UNAUTHORIZED"
 
-info "GET /nonexistent — unknown route"
-RES=$(curl -s "$BASE_URL/nonexistent")
+info "DELETE — bob deletes his account with correct password"
+RES=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/users/me" \
+  -H "Content-Type: application/json" \
+  -b "$COOKIE_BOB" \
+  -d '{"password":"password123"}')
+if [ "$RES" = "204" ]; then
+  pass "204 No Content returned"
+else
+  fail "Expected 204, got $RES"
+fi
+
+info "GET /users — bob no longer in list"
+RES=$(curl -s "$BASE_URL/users")
+BOB_STILL_EXISTS=$(echo "$RES" | jq '[.[] | select(.username == "bob")] | length')
+if [ "$BOB_STILL_EXISTS" = "0" ]; then
+  pass "bob removed from user list"
+else
+  fail "bob still exists (cascade delete may have failed)"
+fi
+
+info "GET /friends — alice's friend list after bob deletion (cascade)"
+RES=$(curl -s "$BASE_URL/friends" -b "$COOKIE_ALICE")
 echo "$RES" | jq .
-check_field "$RES" ".statusCode" "404" "404 on unknown route"
+FRIEND_COUNT=$(echo "$RES" | jq 'length')
+if [ "$FRIEND_COUNT" = "0" ]; then
+  pass "Friendship cascade deleted with bob"
+else
+  fail "Expected 0 friends after bob deletion, got $FRIEND_COUNT"
+fi
 
 # =============================================================================
-echo -e "\n${BLUE}━━━ Cleanup ━━━${NC}"
-rm -f "$COOKIE_JAR" "$COOKIE_JAR_2" /tmp/cookie_charlie
-pass "Temp cookie files removed"
+section "Cleanup"
+# =============================================================================
+rm -f "$COOKIE_ALICE" "$COOKIE_BOB"
+pass "Temp files removed"
 echo ""

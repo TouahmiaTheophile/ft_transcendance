@@ -6,12 +6,11 @@ type PublicUser = Prisma.UserGetPayload<{
   select: typeof USER_PUBLIC_SELECT;
 }>;
 
-export function toUserResponse(
-  user: PublicUser,
-): UserResponseDto {
+export function toUserResponse(user: PublicUser): UserResponseDto {
   return {
     id: user.id,
     username: user.username,
+    publicUsername: user.publicUsername,
     email: user.email,
     createdAt: user.createdAt,
   };

@@ -13,7 +13,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser()); // Required to be able to read req.cookies
-
+  app.enableCors({
+      origin: ['http://localhost:3001/', 'http://127.0.0.1:3001/'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      credentials: true,
+    });
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(   // DTO Validation auto
   new ValidationPipe({

@@ -1,4 +1,5 @@
 export * from './users/user-response.dto';
+export * from './users/user-request.types';
 
 export * from './auth/auth-tokens.type';
 

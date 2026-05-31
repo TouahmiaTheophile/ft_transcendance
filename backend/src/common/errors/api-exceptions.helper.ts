@@ -45,4 +45,13 @@ export const ApiErrors = {
       details: null,
     });
   },
+
+  invalidCredentials(field: 'password' | 'email', message?: string) {
+    return new ApiException({
+      code: 'INVALID_CREDENTIALS',
+      statusCode: 401,
+      message: message ?? 'Invalid credentials',
+      details: { field },
+    });
+  },
 };
