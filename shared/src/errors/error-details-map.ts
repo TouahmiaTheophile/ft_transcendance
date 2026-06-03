@@ -16,23 +16,13 @@ export type ErrorDetailsMap = {
     fields: string[];
   };
 
-  // Returned when a password or email check fails on sensitive operations
-  // (update email, update password, delete account)
   INVALID_CREDENTIALS: {
     field: 'password' | 'email';
   };
 
-  FRIENDSHIP_SELF_REQUEST: null;
-
-  FRIENDSHIP_ALREADY_EXISTS: {
-    friendship: FriendshipSnapshot;
-  };
-
-  FRIENDSHIP_NOT_PENDING: {
-    friendship: FriendshipSnapshot;
-  };
-
-  FRIENDSHIP_FORBIDDEN: {
-    friendship: FriendshipSnapshot;
-  };
+  FRIENDSHIP_SELF_REQUEST:   null;
+  FRIENDSHIP_ALREADY_EXISTS: { friendship: FriendshipSnapshot };
+  FRIENDSHIP_NOT_PENDING:    { friendship: FriendshipSnapshot };
+  FRIENDSHIP_FORBIDDEN:      { friendship: FriendshipSnapshot };
+  FRIENDSHIP_CANNOT_BLOCK:   { friendship: FriendshipSnapshot };
 };

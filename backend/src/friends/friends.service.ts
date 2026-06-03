@@ -7,12 +7,16 @@ import { FriendshipPolicy } from './policies/friendship.policy';
 import { toFriendshipResponse, toFriendResponse } from './mappers/friendship.mapper';
 import { FriendshipErrors } from './errors/friendship.errors';
 import { FriendshipResponseDto, FriendResponseDto } from '@shared/friendship/friendship-response.dto';
+import { ChatService } from '../chat/chat.service';
+import { ChatGateway } from '../chat/gateway/chat.gateway';
+import { CONVERSATION_INCLUDE, toConversationResponse } from '../chat/mappers/chat.mapper';
 
 @Injectable()
 export class FriendsService {
   constructor(
     private prisma: PrismaService,
     private friendshipPolicy: FriendshipPolicy,
+    private chatService: ChatService,
   ) {}
 
   async sendRequest(requesterId: number, addresseeId: number): Promise<FriendshipResponseDto> {
@@ -37,20 +41,27 @@ export class FriendsService {
   }
 
   async accept(friendshipId: number, userId: number): Promise<FriendshipResponseDto> {
-    const friendship = await this.prisma.friendship.findUnique({
-      where: { id: friendshipId },
+    const result = await this.prisma.$transaction(async (tx) => {
+      const friendship = await tx.friendship.findUnique({
+        where: { id: friendshipId },
+      });
+
+      if (!friendship) throw ApiErrors.notFound('Friendship not found');
+      this.friendshipPolicy.assertAccept(friendship, userId);
+
+      const updated = await tx.friendship.update({
+        where: { id: friendshipId },
+        data: { status: FriendshipStatus.ACCEPTED },
+      });
+
+      await tx.conversation.create({
+        data: { friendshipId },
+      });
+
+      return updated;
     });
 
-    if (!friendship) throw ApiErrors.notFound('Friendship not found');
-
-    this.friendshipPolicy.assertAccept(friendship, userId);
-
-    const updated = await this.prisma.friendship.update({
-      where: { id: friendshipId },
-      data: { status: FriendshipStatus.ACCEPTED },
-    });
-
-    return toFriendshipResponse(updated);
+    return toFriendshipResponse(result);
   }
 
   async reject(friendshipId: number, userId: number): Promise<FriendshipResponseDto> {
@@ -66,6 +77,31 @@ export class FriendsService {
       where: { id: friendshipId },
       data: { status: FriendshipStatus.REJECTED },
     });
+
+    return toFriendshipResponse(updated);
+  }
+
+  async block(friendshipId: number, userId: number): Promise<FriendshipResponseDto> {
+    const friendship = await this.prisma.friendship.findUnique({
+      where: { id: friendshipId },
+    });
+
+    if (!friendship) throw ApiErrors.notFound('Friendship not found');
+
+    // Either participant can block
+    if (friendship.requesterId !== userId && friendship.addresseeId !== userId) {
+      throw ApiErrors.forbidden();
+    }
+
+    this.friendshipPolicy.assertBlock(friendship);
+
+    const updated = await this.prisma.friendship.update({
+      where: { id: friendshipId },
+      data: { status: FriendshipStatus.BLOCKED },
+    });
+
+    // Delete conversation — cascade removes messages
+    await this.chatService.deleteConversationByFriendship(friendshipId);
 
     return toFriendshipResponse(updated);
   }

@@ -4,7 +4,7 @@ import { PasswordService } from '../common/security/password.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
-import { USER_PUBLIC_SELECT } from './constants/user-selects';
+import { USER_PRIVATE_SELECT, USER_PUBLIC_SELECT } from './constants/user-selects';
 import { ApiErrors } from '../common/errors/api-exceptions.helper';
 
 @Injectable()
@@ -38,6 +38,13 @@ export class UsersService {
     return this.prisma.user.findUnique({
       where: { id },
       select: USER_PUBLIC_SELECT,
+    });
+  }
+
+  async findById_private(id: number) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: USER_PRIVATE_SELECT,
     });
   }
 

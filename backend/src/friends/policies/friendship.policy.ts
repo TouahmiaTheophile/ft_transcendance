@@ -34,4 +34,10 @@ export class FriendshipPolicy {
       throw FriendshipErrors.notPending(friendship);
     }
   }
+
+  assertBlock(friendship: any) {
+    if (!canTransition(FRIENDSHIP_TRANSITIONS, friendship.status, 'BLOCKED')) {
+      throw FriendshipErrors.cannotBlock(friendship);
+    }
+  }
 }

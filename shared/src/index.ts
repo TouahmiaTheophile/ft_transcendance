@@ -9,6 +9,8 @@ export * from './friendship/friendship-snapshot.type';
 export * from './friendship/friendship-transitions';
 export * from './friendship/friendship-response.dto';
 
+export * from './chat/chat.types';
+
 export * from './errors/error-codes';
 export * from './errors/error-details-map';
 
