@@ -1,0 +1,91 @@
+------ USERS --------
+	Access/modify users' data
+
+	public user's data:		private user's data:
+		- id					- email
+		- username				- passwordHash
+		- avatarFilename		- createdAt
+
+
+	GET    users/
+		list all users
+
+	POST   users/
+		create a new user,
+				require a body with non-optionnal parameters of users table
+
+	GET    users/search/
+		(args in query -> users/search?query=TO_SEARCH&max=HOW_MANY)
+			(tout ce qui suit '?' est la query HTTP, 'query' est un nom de variable custom, à ne pas confondre)
+		get list of users where username match query
+
+	----me---- : AccesToken required
+		Interact with a specific user's data,
+
+	GET    users/me/
+		get user's public data
+
+	DELETE users/me/
+		delete user,
+				require password in body
+
+	PATCH  users/me/
+		update user's data,
+				new values in body, requires password for sensitive fields (ex: email)
+
+	PATCH  users/me/avatar
+		update user's avatar,
+				file must be transmetted by multipart/form-data (Content-Type)
+
+	DELETE users/me/avatar
+		delete user's avatar
+
+
+
+	GET    uploads/avatars/FILE_NAME
+		get the avatar file,
+				FILE_NAME is provided by public selection,
+				No authentification is required for this
+
+
+------ FRIENDS --------: AccessToken required
+	Handle relationships
+
+	Possible Relationship status:
+		- PENDING
+		- ACCEPTED
+		- REJECTED
+		- BLOCKED
+
+	!!! (relationshipId != userId) !!!
+
+	POST   friends/request/:id
+		send friend request to user matching id
+
+	POST   friends/accept/:id
+		accept friend request matching id
+
+	POST   friends/reject/:id
+		reject friend request matching id
+
+	POST   friends/block/:id
+		block the user associated with the relationship matching id (relationshipId),
+				a user can only block users who sent request or are already friends
+
+	GET    friends/
+		list all friends (ACCEPTED)
+
+	GET    friends/pending/
+		list all pending requests
+
+
+------ CONVERSATIONS --------: AccessToken required
+	Get user's conversations list and messages
+	
+	GET    conversations/
+		Get conversations list
+
+	GET    conversations/:id/messages
+		Get 'limit' last messages from conversation matching id,
+				'limit' must be provide by query (conversations/:id/messages?limit=20)
+				(Je n'ai pas encore contrôler la variable limite, donc tu peux même mettre des valeurs incohérentes: -1, 9999999. Je ferai plus tard)

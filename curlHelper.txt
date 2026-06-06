@@ -7,6 +7,9 @@ curl http://localhost:3000/
 ------ ROUTES ------
 users
 -d '{"username": "user1", "publicUsername": "user1_public", "email": "user1@example.com", "password": "password123"}'
+users/me/avatar
+-F "file=@FILE_NAME"
+uploads/avatars/FILE_NAME.webp --output OUTFILE.webp
 
 auth/login
 -d '{"email": "user1@example.com", "password": "password123"}'
@@ -16,4 +19,10 @@ friends/pending
 -b cookiesUser1
 
 
--d '{"email": "wsbob@test.com, "password": "password123"}'
+
+curl http://localhost:3000/users -X POST -H "Content-Type: Application/json" -d '{"username": "Alicia", "publicUsername": "Alicia_public", "email": "Alicia@example.com", "password": "password123"}'
+curl http://localhost:3000/users -X POST -H "Content-Type: Application/json" -d '{"username": "alfred", "publicUsername": "alfred_public", "email": "alfred@example.com", "password": "password123"}'
+curl http://localhost:3000/users -X POST -H "Content-Type: Application/json" -d '{"username": "sebEtFred", "publicUsername": "sebEtFred_public", "email": "sebEtFred@example.com", "password": "password123"}'
+curl http://localhost:3000/users -X POST -H "Content-Type: Application/json" -d '{"username": "thomas", "publicUsername": "thomas_public", "email": "thomas@example.com", "password": "password123"}'
+
+curl "http://localhost:3000/users/search?query=e&max=2"

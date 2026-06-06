@@ -1,12 +1,10 @@
 export type RegisterUserRequest = {
   username: string;
-  publicUsername: string;
   email: string;
   password: string;
 };
 
 export type UpdateUserRequest = {
-  publicUsername?: string;
   email?: string;
   newPassword?: string;
   // Required when email or newPassword is provided
@@ -15,4 +13,9 @@ export type UpdateUserRequest = {
 
 export type DeleteUserRequest = {
   password: string;
+};
+
+export type SearchUsersRequest = {
+  query: string;
+  size?: number;
 };

@@ -8,6 +8,9 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -18,6 +21,8 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { ApiErrors } from '../common/errors/api-exceptions.helper';
+
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UsersController {
@@ -61,5 +66,33 @@ export class UsersController {
     @Body() dto: DeleteUserDto,
   ) {
     await this.usersService.delete(user.sub, dto);
+  }
+
+  @Patch('me/avatar')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', {
+    limits: { fileSize: 2 * 1024 * 1024 },
+  }))
+  async uploadAvatar(
+    @CurrentUser() user: AccessTokenPayload,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.usersService.updateAvatar(user.sub, file);
+  }
+
+  @Delete('me/avatar')
+  @UseGuards(JwtAuthGuard)
+  async deleteAvatar(
+    @CurrentUser() user: AccessTokenPayload,
+  ) {
+    return this.usersService.deleteAvatar(user.sub);
+  }
+
+  @Get('search')
+  async searchUsers(
+    @Query('query') query: string,
+    @Query('max') max: number
+  ) {
+    return this.usersService.searchUsers(query, max);
   }
 }

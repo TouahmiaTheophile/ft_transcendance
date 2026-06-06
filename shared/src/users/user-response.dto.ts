@@ -1,13 +1,14 @@
 export type UserResponseDto = {
   id: number;
   username: string;
-  publicUsername: string;
+  avatarUrl: string;
 };
 
 export type PrivateUserResponseDto = {
   id: number;
   username: string;
-  publicUsername: string;
+  avatarUrl: string;
+
   email: string;
   createdAt: Date;
 };

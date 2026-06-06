@@ -8,15 +8,22 @@ import { validationExceptionFactory } from './common/validation/validation-excep
 import { expressErrorMiddleware } from './common/middlewares/express-error.middleware';
 import cookieParser from 'cookie-parser';
 
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+
 async function bootstrap() {
   validateEnvironment();
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors({
     origin: ['http://localhost:3001/', 'http://127.0.0.1:3001/'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
+  });
+
+  app.useStaticAssets(join(__dirname, '..', 'uploads/avatars'), {
+    prefix: '/uploads/avatars',
   });
 
   app.use(cookieParser());

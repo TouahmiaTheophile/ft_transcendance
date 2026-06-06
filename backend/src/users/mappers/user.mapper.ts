@@ -10,7 +10,9 @@ export function toUserResponse(user: PublicUser): UserResponseDto {
   return {
     id: user.id,
     username: user.username,
-    publicUsername: user.publicUsername,
+    avatarUrl: user.avatarFilename
+      ? `/uploads/avatars/${user.avatarFilename}`
+      : null,
   };
 }
 
@@ -22,7 +24,9 @@ export function toPrivateUserResponse(user: PrivateUser): PrivateUserResponseDto
   return {
     id: user.id,
     username: user.username,
-    publicUsername: user.publicUsername,
+    avatarUrl: user.avatarFilename
+      ? `/uploads/avatars/${user.avatarFilename}`
+      : null,
     email: user.email,
     createdAt: user.createdAt,
   };
