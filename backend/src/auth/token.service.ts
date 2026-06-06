@@ -34,4 +34,11 @@ export class TokenService {
       secret: process.env.JWT_REFRESH_SECRET,
     }) as RefreshTokenPayload;
   }
+
+  decodeRefreshToken(token: string): RefreshTokenPayload {
+    return this.jwt.verify(token, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      ignoreExpiration: true,
+    }) as RefreshTokenPayload;
+  }
 }

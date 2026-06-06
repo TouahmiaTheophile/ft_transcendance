@@ -38,4 +38,13 @@ export const FriendshipErrors = {
       details: { friendship: toFriendshipSnapshot(friendship) },
     });
   },
+
+  cannotBlock(friendship: FriendshipSnapshot) {
+    return new ApiException({
+      code: 'FRIENDSHIP_CANNOT_BLOCK',
+      statusCode: 409,
+      message: 'Cannot block from this state',
+      details: { friendship: toFriendshipSnapshot(friendship) },
+    });
+  },
 };

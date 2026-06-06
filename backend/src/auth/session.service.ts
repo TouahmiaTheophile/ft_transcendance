@@ -38,10 +38,6 @@ export class SessionService {
       where: { id: sessionId, revokedAt: null },
       data: { revokedAt: new Date() },
     });
-
-    if (result.count === 0) {
-      throw ApiErrors.unauthorized('Session already revoked');
-    }
   }
 
   async rotate(sessionId: string, refreshToken: string) {

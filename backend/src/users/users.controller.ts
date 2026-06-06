@@ -13,7 +13,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AccessTokenPayload } from '../auth/types/access-token-payload.type';
 import { UsersService } from './users.service';
-import { toUserResponse } from './mappers/user.mapper';
+import { toPrivateUserResponse, toUserResponse } from './mappers/user.mapper';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
@@ -38,9 +38,9 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async me(@CurrentUser() user: AccessTokenPayload) {
-    const fullUser = await this.usersService.findById(user.sub);
+    const fullUser = await this.usersService.findById_private(user.sub);
     if (!fullUser) throw ApiErrors.notFound('User not found');
-    return toUserResponse(fullUser);
+    return toPrivateUserResponse(fullUser);
   }
 
   @UseGuards(JwtAuthGuard)

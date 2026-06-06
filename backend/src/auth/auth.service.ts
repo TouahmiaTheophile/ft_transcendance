@@ -71,7 +71,7 @@ export class AuthService {
   // Used during logout where we want to revoke the session even with an expired token.
   extractSessionId(refreshToken: string): string | null {
     try {
-      const payload = this.tokenService.verifyRefreshToken(refreshToken);
+      const payload = this.tokenService.decodeRefreshToken(refreshToken);
       return payload.sessionId;
     } catch {
       return null;

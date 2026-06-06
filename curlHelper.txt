@@ -1,0 +1,19 @@
+curl http://localhost:3000/
+-X POST -H "Content-Type: Application/json"
+-d '{}'
+-c cookiesToStore
+-b cookiesToSend
+
+------ ROUTES ------
+users
+-d '{"username": "user1", "publicUsername": "user1_public", "email": "user1@example.com", "password": "password123"}'
+
+auth/login
+-d '{"email": "user1@example.com", "password": "password123"}'
+-c cookiesUser1
+
+friends/pending
+-b cookiesUser1
+
+
+-d '{"email": "wsbob@test.com, "password": "password123"}'
