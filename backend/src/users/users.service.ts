@@ -20,7 +20,6 @@ export class UsersService {
     return this.prisma.user.create({
       data: {
         username: dto.username,
-        publicUsername: dto.publicUsername,
         email: dto.email,
         passwordHash,
       },
@@ -57,10 +56,6 @@ export class UsersService {
     }
 
     const data: Record<string, unknown> = {};
-
-    if (dto.publicUsername !== undefined) {
-      data.publicUsername = dto.publicUsername;
-    }
 
     if (dto.email !== undefined) {
       data.email = dto.email;
