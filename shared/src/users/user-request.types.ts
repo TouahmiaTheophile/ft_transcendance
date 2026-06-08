@@ -14,3 +14,8 @@ export type UpdateUserRequest = {
 export type DeleteUserRequest = {
   password: string;
 };
+
+export type SearchUsersRequest = {
+  query: string;
+  size?: number;
+};

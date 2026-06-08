@@ -5,6 +5,7 @@ function toUserDto(user: any) {
   return {
     id: user.id,
     username: user.username,
+    avatarUrl: `/uploads/avatars/${user.avatarFilename}`,
     email: user.email,
     createdAt: user.createdAt,
   };

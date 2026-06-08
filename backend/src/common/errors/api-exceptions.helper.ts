@@ -54,4 +54,13 @@ export const ApiErrors = {
       details: { field },
     });
   },
+
+  internal(message?: string) {
+    return new ApiException({
+      code: 'INTERNAL_ERROR',
+      statusCode: 500,
+      message: message ?? 'Internal Error',
+      details: null,
+    });
+  },
 };
