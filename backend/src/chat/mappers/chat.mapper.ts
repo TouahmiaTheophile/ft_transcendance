@@ -5,7 +5,6 @@ function toUserDto(user: any) {
   return {
     id: user.id,
     username: user.username,
-    publicUsername: user.publicUsername,
     email: user.email,
     createdAt: user.createdAt,
   };

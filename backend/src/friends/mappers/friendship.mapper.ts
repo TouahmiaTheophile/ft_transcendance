@@ -32,7 +32,6 @@ export function toFriendResponse(friendship: any, userId: number): FriendRespons
   const friend: UserResponseDto = {
     id: friendRaw.id,
     username: friendRaw.username,
-    publicUsername: friendRaw.publicUsername,
   };
 
   return { id: friendship.id, friend };

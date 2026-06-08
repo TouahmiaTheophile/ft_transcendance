@@ -16,7 +16,7 @@ async function register(username, email, password) {
   const res = await fetch(`${BASE_URL}/users`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, publicUsername: username, email, password }),
+    body: JSON.stringify({ username, email, password }),
   });
   return res.json();
 }
