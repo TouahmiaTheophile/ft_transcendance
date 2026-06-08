@@ -4,8 +4,8 @@ import { UserResponseDto } from '../users/user-response.dto';
 // Réponse pour sendRequest / accept / reject — état brut de la relation
 export type FriendshipResponseDto = {
   id: number;
-  requesterId: number;
-  addresseeId: number;
+  requester: UserResponseDto;
+  addressee: UserResponseDto;
   status: FriendshipStatus;
   createdAt: Date;
   updatedAt: Date;

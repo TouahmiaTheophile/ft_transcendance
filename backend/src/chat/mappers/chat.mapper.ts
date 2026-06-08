@@ -1,15 +1,6 @@
 import { ConversationResponseDto, MessageResponseDto } from '@shared/chat/chat.types';
 import { USER_PUBLIC_SELECT } from '../../users/constants/user-selects';
-
-function toUserDto(user: any) {
-  return {
-    id: user.id,
-    username: user.username,
-    avatarUrl: `/uploads/avatars/${user.avatarFilename}`,
-    email: user.email,
-    createdAt: user.createdAt,
-  };
-}
+import { toUserResponse } from 'src/users/mappers/user.mapper';
 
 export function toConversationResponse(
   conversation: any,
@@ -20,7 +11,7 @@ export function toConversationResponse(
 
   return {
     id: conversation.id,
-    friend: toUserDto(friend),
+    friend: toUserResponse(friend),
     createdAt: conversation.createdAt,
   };
 }
@@ -29,7 +20,7 @@ export function toMessageResponse(message: any): MessageResponseDto {
   return {
     id: message.id,
     conversationId: message.conversationId,
-    sender: toUserDto(message.sender),
+    sender: toUserResponse(message.sender),
     content: message.content,
     sentAt: message.sentAt,
   };
