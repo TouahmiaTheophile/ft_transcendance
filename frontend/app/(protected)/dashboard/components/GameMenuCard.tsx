@@ -6,6 +6,8 @@ const GameMenuCard = () => {
     <div className={styles.card}>
       <NavigationLink label="Local" href="/local" />
       <NavigationLink label="Online" href="/online" />
+      <NavigationLink label="Social" href="/dashboard/social" />
+
     </div>
   )
 }
