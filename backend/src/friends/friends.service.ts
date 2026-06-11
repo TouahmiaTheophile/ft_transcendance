@@ -5,11 +5,9 @@ import { ApiErrors } from '../common/errors/api-exceptions.helper';
 import { USER_PUBLIC_SELECT } from '../users/constants/user-selects';
 import { FriendshipPolicy } from './policies/friendship.policy';
 import { toFriendshipResponse, toFriendResponse } from './mappers/friendship.mapper';
-import { FriendshipErrors } from './errors/friendship.errors';
 import { FriendshipResponseDto, FriendResponseDto } from '@shared/friendship/friendship-response.dto';
 import { ChatService } from '../chat/chat.service';
-import { ChatGateway } from '../chat/gateway/chat.gateway';
-import { CONVERSATION_INCLUDE, toConversationResponse } from '../chat/mappers/chat.mapper';
+import { FRIENDSHIP_USERS_INCLUDE } from './constants/friendship.users-selects';
 
 @Injectable()
 export class FriendsService {
@@ -35,6 +33,7 @@ export class FriendsService {
 
     const friendship = await this.prisma.friendship.create({
       data: { requesterId, addresseeId, status: FriendshipStatus.PENDING },
+      include: FRIENDSHIP_USERS_INCLUDE,
     });
 
     return toFriendshipResponse(friendship);
@@ -52,6 +51,10 @@ export class FriendsService {
       const updated = await tx.friendship.update({
         where: { id: friendshipId },
         data: { status: FriendshipStatus.ACCEPTED },
+        include: {
+          requester: { select: USER_PUBLIC_SELECT },
+          addressee: { select: USER_PUBLIC_SELECT },
+        },
       });
 
       await tx.conversation.create({
@@ -76,6 +79,7 @@ export class FriendsService {
     const updated = await this.prisma.friendship.update({
       where: { id: friendshipId },
       data: { status: FriendshipStatus.REJECTED },
+      include: FRIENDSHIP_USERS_INCLUDE,
     });
 
     return toFriendshipResponse(updated);
@@ -98,6 +102,7 @@ export class FriendsService {
     const updated = await this.prisma.friendship.update({
       where: { id: friendshipId },
       data: { status: FriendshipStatus.BLOCKED },
+      include: FRIENDSHIP_USERS_INCLUDE,
     });
 
     // Delete conversation — cascade removes messages
@@ -112,10 +117,7 @@ export class FriendsService {
         status: FriendshipStatus.ACCEPTED,
         OR: [{ requesterId: userId }, { addresseeId: userId }],
       },
-      include: {
-        requester: { select: USER_PUBLIC_SELECT },
-        addressee: { select: USER_PUBLIC_SELECT },
-      },
+      include: FRIENDSHIP_USERS_INCLUDE,
     });
 
     return friendships.map(f => toFriendResponse(f, userId));
@@ -124,6 +126,7 @@ export class FriendsService {
   async listPending(userId: number): Promise<FriendshipResponseDto[]> {
     const friendships = await this.prisma.friendship.findMany({
       where: { addresseeId: userId, status: FriendshipStatus.PENDING },
+      include: FRIENDSHIP_USERS_INCLUDE,
     });
 
     return friendships.map(toFriendshipResponse);

@@ -1,5 +1,0 @@
-à vérifier:
-	redondance toUserDto, any et dupplique toUserResponse
-
-à faire:
-	contrôler la valeur de 'limit' pour la route conversations/:id/messages
