@@ -1,69 +1,31 @@
 import {
   WebSocketGateway,
   WebSocketServer,
-  SubscribeMessage,
-  MessageBody,
-  ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
+  ConnectedSocket,
+  MessageBody,
   WsException,
 } from '@nestjs/websockets';
-import { UseGuards } from '@nestjs/common';
-import { Server, Socket } from 'socket.io';
-import { ChatService } from '../chat.service';
-import { WsJwtGuard } from './ws-jwt.guard';
-import {
-  JoinConversationPayload,
-  LeaveConversationPayload,
-  SendMessagePayload,
-} from '../../websocket/dto/private-chat.dto';
-import { TokenService } from 'src/auth/token.service';
 
-@WebSocketGateway({ cors: { origin: '*', credentials: true } })
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+import { Server, Socket } from 'socket.io';
+import { ChatService } from 'src/chat/chat.service';
+import { JoinConversationPayload, LeaveConversationPayload, SendMessagePayload } from '../dto/private-chat.dto';
+
+@WebSocketGateway({
+  cors: {
+	origin: '*',
+  },
+})
+export class ConversationGateway {
   @WebSocketServer()
   server: Server;
 
   constructor(
     private chatService: ChatService,
-    private tokenService: TokenService
   ) {}
 
-  private extractAccessToken(client: Socket): string | null {
-    const cookie = client.handshake.headers.cookie;
-
-    if (!cookie) return null;
-
-    const match = cookie
-      .split(';')
-      .find(c => c.trim().startsWith('accessToken='));
-
-    return match?.split('=')[1] ?? null;
-  }
-
-  handleConnection(client: Socket) {
-    const token = this.extractAccessToken(client);
-
-    if (!token) {
-      client.disconnect();
-      return;
-    }
-
-    try {
-      const payload =
-        this.tokenService.verifyAccessToken(token);
-
-      client.data.user = payload;
-
-      client.join(`user:${payload.sub}`);
-    } catch (err) {
-      client.disconnect();
-    }
-  }
-
-  handleDisconnect(_client: Socket) {}
-
-  @UseGuards(WsJwtGuard)
   @SubscribeMessage('joinConversation')
   async handleJoinConversation(
     @ConnectedSocket() client: Socket,
@@ -83,7 +45,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.emit('history', messages);
   }
 
-  @UseGuards(WsJwtGuard)
   @SubscribeMessage('leaveConversation')
   handleLeaveConversation(
     @ConnectedSocket() client: Socket,
@@ -92,7 +53,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.leave(`conversation:${payload.conversationId}`);
   }
 
-  @UseGuards(WsJwtGuard)
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
     @ConnectedSocket() client: Socket,

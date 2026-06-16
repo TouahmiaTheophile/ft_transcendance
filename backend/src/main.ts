@@ -22,6 +22,7 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Allow to deliver static files
   app.useStaticAssets(join(__dirname, '..', 'uploads/avatars'), {
     prefix: '/uploads/avatars',
   });

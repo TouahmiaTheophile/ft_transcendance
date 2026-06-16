@@ -15,23 +15,3 @@ export type MessageResponseDto = {
   content: string;
   sentAt: Date;
 };
-
-// ─── WebSocket payloads (client → server) ─────────────────────────────────────
-
-export type JoinConversationPayload = {
-  conversationId: number;
-  limit: number; // Number of recent messages to receive on join
-};
-
-export type LeaveConversationPayload = {
-  conversationId: number;
-};
-
-export type SendMessagePayload = {
-  conversationId: number;
-  content: string;
-};
-
-// ─── WebSocket events (server → client) ───────────────────────────────────────
-
-export type ServerMessageEvent          = MessageResponseDto;
