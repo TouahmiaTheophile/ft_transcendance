@@ -19,7 +19,7 @@ import {
 } from '@shared/chat/chat.types';
 import { TokenService } from 'src/auth/token.service';
 
-@WebSocketGateway({ cors: { origin: '*', credentials: true } })
+@WebSocketGateway({ cors: { origin: 'http://localhost:3001', credentials: true } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;

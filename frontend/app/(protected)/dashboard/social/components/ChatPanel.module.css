@@ -6,6 +6,7 @@
   background: rgb(255 255 255 / 0.05);
   overflow: hidden;
   min-height: 24rem;
+  max-height: calc(100vh - 3rem);
 }
 
 .header {
@@ -21,9 +22,85 @@
 
 .body {
   flex: 1;
+  min-height: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.empty {
+  margin: auto;
   font-size: 0.875rem;
   color: rgb(255 255 255 / 0.3);
+}
+
+.row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.rowMine {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 70%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: white;
+  background: rgb(255 255 255 / 0.1);
+  word-break: break-word;
+}
+
+.bubbleMine {
+  background: rgb(34 211 238 / 0.25);
+}
+
+.error {
+  margin: 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  color: #f87171;
+  background: rgb(248 113 113 / 0.1);
+  border: 1px solid rgb(248 113 113 / 0.3);
+}
+
+.inputRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  color: white;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.inviteBtn {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgb(34 211 238 / 0.4);
+  color: #22d3ee;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.inviteBtn:hover {
+  background: rgb(34 211 238 / 0.1);
 }

@@ -13,29 +13,33 @@ type SearchUser = {
 
 type Props = {
   friendIds: Set<number>
+  meId: number | null
 }
 
-export default function AddFriend({ friendIds }: Props) {
+export default function AddFriend({ friendIds, meId }: Props) {
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<SearchUser[]>([])
   const [sent, setSent] = useState<Set<number>>(new Set())
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (!query.trim()) { setResults([]); return }
+    if (debounceRef.current)
+      clearTimeout(debounceRef.current)
+    if (!query.trim())
+      { setResults([]); return }
 
     debounceRef.current = setTimeout(async () => {
       const res = await apiFetch(`/users/search?query=${encodeURIComponent(query.trim())}&max=8`)
       if (!res.ok) return
       const data: SearchUser[] = await res.json()
-      setResults(data.filter(u => !friendIds.has(u.id)))
+      setResults(data.filter(u => !friendIds.has(u.id) && u.id !== meId))
     }, 300)
-  }, [query, friendIds])
+  }, [query, friendIds, meId])
 
   const sendRequest = async (userId: number) => {
     const res = await apiFetch(`/friends/request/${userId}`, { method: "POST" })
-    if (res.ok) setSent(prev => new Set(prev).add(userId))
+    // 409 = a request already exists (e.g. sent before a page reload)
+    if (res.ok || res.status === 409) setSent(prev => new Set(prev).add(userId))
   }
 
   return (

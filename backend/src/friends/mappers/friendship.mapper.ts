@@ -1,6 +1,5 @@
 import { FriendshipResponseDto, FriendResponseDto } from '@shared/friendship/friendship-response.dto';
 import { FriendshipSnapshot } from '@shared/friendship/friendship-snapshot.type';
-import { UserResponseDto } from '@shared/users/user-response.dto';
 import { toUserResponse } from 'src/users/mappers/user.mapper';
 
 // export function toFriendshipResponse(friendship: any): FriendshipResponseDto {
@@ -41,11 +40,5 @@ export function toFriendResponse(friendship: any, userId: number): FriendRespons
       ? friendship.addressee
       : friendship.requester;
 
-  const friend: UserResponseDto = {
-    id: friendRaw.id,
-    username: friendRaw.username,
-    avatarUrl: `/uploads/avatars/${friendRaw.avatarFilename}`
-  };
-
-  return { id: friendship.id, friend };
+  return { id: friendship.id, friend: toUserResponse(friendRaw) };
 }

@@ -1,0 +1,68 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgb(255 255 255 / 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.5rem;
+  transition: background 0.15s;
+}
+
+.row:hover {
+  background: rgb(255 255 255 / 0.05);
+}
+
+.username {
+  font-size: 0.875rem;
+  color: white;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acceptBtn {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgb(74 222 128 / 0.4);
+  color: #4ade80;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.acceptBtn:hover {
+  background: rgb(74 222 128 / 0.1);
+}
+
+.rejectBtn {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgb(248 113 113 / 0.4);
+  color: #f87171;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.rejectBtn:hover {
+  background: rgb(248 113 113 / 0.1);
+}
