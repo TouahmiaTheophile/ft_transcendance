@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { apiFetch } from "@/app/lib/api"
 import Avatar from "./components/Avatar"
@@ -75,6 +76,14 @@ export default function SocialPage() {
     <div className="min-h-screen p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
       <section className="flex flex-col gap-4 lg:h-[calc(100vh-3rem)]">
+        <Link
+          href="/dashboard"
+          aria-label="Back to dashboard"
+          className="flex items-center gap-2 text-sm text-white/60 hover:text-white w-fit"
+        >
+          <span className="text-lg leading-none">←</span>
+          Dashboard
+        </Link>
         {me && (
           <div className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5">
             <Avatar username={me.username} avatarUrl={me.avatarUrl} size={40} />
