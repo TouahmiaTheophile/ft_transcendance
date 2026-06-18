@@ -5,6 +5,6 @@ import { FriendshipStatus } from './friendship-snapshot.type';
 export const FRIENDSHIP_TRANSITIONS: TransitionMap<FriendshipStatus> = {
   PENDING:  ['ACCEPTED', 'REJECTED', 'BLOCKED'],
   ACCEPTED: ['BLOCKED'],
-  REJECTED: [],
+  REJECTED: ['PENDING'],
   BLOCKED:  [],
 };

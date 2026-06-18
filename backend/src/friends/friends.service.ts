@@ -76,13 +76,12 @@ export class FriendsService {
 
     this.friendshipPolicy.assertReject(friendship, userId);
 
-    const updated = await this.prisma.friendship.update({
+    const deleted = await this.prisma.friendship.delete({
       where: { id: friendshipId },
-      data: { status: FriendshipStatus.REJECTED },
       include: FRIENDSHIP_USERS_INCLUDE,
     });
 
-    return toFriendshipResponse(updated);
+    return toFriendshipResponse(deleted);
   }
 
   async block(friendshipId: number, userId: number): Promise<FriendshipResponseDto> {

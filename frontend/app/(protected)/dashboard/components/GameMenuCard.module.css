@@ -1,0 +1,44 @@
+.card {
+    width: 100%;
+    max-width: 36rem;
+    padding: 1.25rem;
+    margin: 2rem auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 20, 40, 0.8);
+    border: 2px solid rgba(0, 243, 255, 0.3);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    box-sizing: border-box;
+}
+
+.card a {
+    width: min(100%, 14rem);
+    max-width: 14rem;
+    height: 58px;
+    padding: 0 1.25rem;
+    background: linear-gradient(135deg, rgba(255, 79, 216, 0.95), rgba(125, 249, 255, 0.9));
+    color: #06111a;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 18px rgba(255, 79, 216, 0.18);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    transition: all 0.2s ease;
+}
+
+.card a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 22px rgba(125, 249, 255, 0.22);
+    filter: brightness(1.03);
+}
+
+@media (max-width: 768px) {
+    .card {
+        padding: 1rem;
+        margin-top: 1.5rem;
+    }
+}

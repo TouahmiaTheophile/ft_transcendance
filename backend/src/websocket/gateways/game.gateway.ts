@@ -13,7 +13,8 @@ import { GameService } from 'src/game/game.service';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: ['http://localhost:3001', 'http://127.0.0.1:3001'],
+    credentials: true,
   },
 })
 export class GameGateway {

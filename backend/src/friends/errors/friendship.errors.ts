@@ -47,4 +47,13 @@ export const FriendshipErrors = {
       details: { friendship: toFriendshipSnapshot(friendship) },
     });
   },
+
+  cannotSendRequest(friendship: FriendshipSnapshot) {
+    return new ApiException({
+      code: 'FRIENDSHIP_CANNOT_SEND',
+      statusCode: 409,
+      message: 'Cannot send request from this state',
+      details: { friendship: toFriendshipSnapshot(friendship) },
+    });
+  },
 };

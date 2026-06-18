@@ -1,8 +1,6 @@
 import {
   WebSocketGateway,
   WebSocketServer,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
   SubscribeMessage,
   ConnectedSocket,
   MessageBody,
@@ -15,10 +13,11 @@ import { JoinConversationPayload, LeaveConversationPayload, SendMessagePayload }
 
 @WebSocketGateway({
   cors: {
-	origin: '*',
+    origin: ['http://localhost:3001', 'http://127.0.0.1:3001'],
+    credentials: true,
   },
 })
-export class ConversationGateway {
+export class ChatGateway {
   @WebSocketServer()
   server: Server;
 
@@ -31,7 +30,8 @@ export class ConversationGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: JoinConversationPayload,
   ) {
-    const userId = client.data.user.sub;
+    const userId = client.data.userId;
+    console.log(`UserId: ${userId}`);
     const { conversationId, limit } = payload;
 
     const isParticipant = await this.chatService.isParticipant(conversationId, userId);
@@ -58,7 +58,7 @@ export class ConversationGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: SendMessagePayload,
   ) {
-    const userId = client.data.user.sub;
+    const userId = client.data.userId;
     const { conversationId, content } = payload;
 
     if (!content || content.length > 150) {

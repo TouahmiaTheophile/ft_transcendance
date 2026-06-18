@@ -30,11 +30,5 @@ export function toFriendResponse(friendship: any, userId: number): FriendRespons
       ? friendship.addressee
       : friendship.requester;
 
-  const friend: UserResponseDto = {
-    id: friendRaw.id,
-    username: friendRaw.username,
-    avatarUrl: `/uploads/avatars/${friendRaw.avatarFilename}`
-  };
-
-  return { id: friendship.id, friend };
+  return { id: friendship.id, friend: toUserResponse(friendRaw) };
 }

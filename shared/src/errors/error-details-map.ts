@@ -25,4 +25,5 @@ export type ErrorDetailsMap = {
   FRIENDSHIP_NOT_PENDING:    { friendship: FriendshipSnapshot };
   FRIENDSHIP_FORBIDDEN:      { friendship: FriendshipSnapshot };
   FRIENDSHIP_CANNOT_BLOCK:   { friendship: FriendshipSnapshot };
+  FRIENDSHIP_CANNOT_SEND:    { friendship: FriendshipSnapshot };
 };

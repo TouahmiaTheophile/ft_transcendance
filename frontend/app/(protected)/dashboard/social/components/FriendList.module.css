@@ -1,0 +1,36 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.empty {
+  font-size: 0.875rem;
+  color: rgb(255 255 255 / 0.4);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.row:hover {
+  background: rgb(255 255 255 / 0.05);
+}
+
+.username {
+  font-size: 0.875rem;
+  color: white;
+}

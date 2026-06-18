@@ -11,7 +11,8 @@ import { PresenceService } from '../presence.service';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: ['http://localhost:3001', 'http://127.0.0.1:3001'],
+    credentials: true,
   },
 })
 export class WsAuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -36,6 +37,7 @@ export class WsAuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleConnection(client: Socket) {
+    console.log(`handleConnection`);
     const token = this.extractAccessToken(client);
 
     if (!token) {
@@ -48,6 +50,8 @@ export class WsAuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.tokenService.verifyAccessToken(token);
 
       client.data.userId = payload.sub;
+      console.log(`payload.sub: ${payload.sub}`);
+      console.log(`client.data.userId: ${client.data.userId}`);
 
       this.presenceService.connect(payload.sub, client.id);
 
