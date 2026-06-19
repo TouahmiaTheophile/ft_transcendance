@@ -58,6 +58,18 @@ export class GameGateway {
     return res;
   }
 
+  @SubscribeMessage('invite_to_lobby')
+  inviteToLobby(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody('targetId') targetId: number,
+  ) {
+    const userId = socket.data.userId;
+    const lobby = this.lobbyService.requirePlayerLobby(userId);
+    lobby.assertCanInvite(userId, targetId);
+
+    this.server.to(`user:${targetId}`).emit('invite_to_lobby', { lobbyId: lobby.id, inviterId: userId });
+  }
+
   @SubscribeMessage('player_input')
   handlePlayerInput(
     @ConnectedSocket() socket: Socket,
