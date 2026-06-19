@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, UseGuards, ParseIntPipe }from "@nestjs/common";
 import { CurrentUser } from "src/auth/decorators/current-user.decorator";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { AccessTokenPayload } from "src/auth/types/access-token-payload.type";
@@ -44,5 +44,12 @@ export class LobbyController {
   ) {
     this.lobbyService.ejectFromLobby(user.sub, targetId);
     return { success: true };
+  }
+
+  @Get('joinable')
+  getJoinableLobbies(
+    @Query('limit', ParseIntPipe) limit = 10,
+  ) {
+    return this.lobbyService.getJoinableLobbies(limit);
   }
 }
