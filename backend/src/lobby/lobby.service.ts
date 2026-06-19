@@ -122,6 +122,25 @@ export class LobbyService {
     }
   }
 
+  getJoinableLobbies(limit: number = 10) {
+    const lobbies = [];
+    for (const lobby of this.lobbies.values()) {
+      const currentPlayers = lobby.players.length;
+      const maxPlayers = lobby.maxPlayers;
+      if (lobby.status === 'open' && currentPlayers < maxPlayers) {
+        lobbies.push({
+          id: lobby.id,
+          hostId: lobby.hostId,
+          maxPlayers,
+          currentPlayers,
+        });
+      }
+      if (lobbies.length >= limit)
+        break;
+    }
+    return lobbies;
+  }
+
 // --------- UTILS -----------
 
   requireLobby(lobbyId: string) : Lobby {
