@@ -6,6 +6,11 @@ import { AuthModule } from './auth/auth.module';
 import { FriendsModule } from './friends/friends.module';
 import { ChatModule } from './chat/chat.module';
 import { CleanupModule } from './cleanup/cleanup.module';
+import { GameService } from './game/game.service';
+import { GameGateway } from './websocket/gateways/game.gateway';
+import { LobbyModule } from './lobby/lobby.module';
+import { WsAuthGateway } from './websocket/gateways/ws-auth.gateway';
+import { PresenceService } from './websocket/presence.service';
 
 @Module({
   imports: [
@@ -16,6 +21,13 @@ import { CleanupModule } from './cleanup/cleanup.module';
     FriendsModule,
     ChatModule,
     CleanupModule,
+    LobbyModule,
+  ],
+  providers: [
+    WsAuthGateway,
+    PresenceService,
+    GameService,
+    GameGateway,
   ],
 })
 export class AppModule {}

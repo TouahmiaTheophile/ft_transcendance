@@ -8,11 +8,13 @@ import FriendList from "./components/FriendList"
 import PendingRequests from "./components/PendingRequests"
 import AddFriend from "./components/AddFriend"
 import ChatPanel from "./components/ChatPanel"
+import ProfileModal from "./components/ProfileModal"
 
 type User = {
   id: number
   username: string
   avatarUrl: string | null
+  email?: string | null
 }
 
 type Friend = {
@@ -36,6 +38,14 @@ export default function SocialPage() {
   const [pending, setPending] = useState<PendingRequest[]>([])
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
+  // Which profile is open: "me" (editable) or another user (view-only), or none.
+  const [profile, setProfile] = useState<{ kind: "me" } | { kind: "user"; user: User } | null>(null)
+
+  const loadMe = useCallback(() => {
+    apiFetch("/users/me")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data) setMe(data) })
+  }, [])
 
   const loadFriends = useCallback(() => {
     apiFetch("/friends")
@@ -56,13 +66,11 @@ export default function SocialPage() {
   }, [])
 
   useEffect(() => {
-    apiFetch("/users/me")
-      .then(res => res.ok ? res.json() : null)
-      .then(data => { if (data) setMe(data) })
+    loadMe()
     loadFriends()
     loadPending()
     loadConversations()
-  }, [loadFriends, loadPending, loadConversations])
+  }, [loadMe, loadFriends, loadPending, loadConversations])
 
   const logout = async () => {
     await apiFetch("/auth/logout", { method: "POST" })
@@ -86,8 +94,13 @@ export default function SocialPage() {
         </Link>
         {me && (
           <div className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5">
-            <Avatar username={me.username} avatarUrl={me.avatarUrl} size={40} />
-            <span className="text-white font-semibold">{me.username}</span>
+            <button
+              onClick={() => setProfile({ kind: "me" })}
+              className="flex items-center gap-3 hover:opacity-80 cursor-pointer"
+            >
+              <Avatar username={me.username} avatarUrl={me.avatarUrl} size={40} />
+              <span className="text-white font-semibold">{me.username}</span>
+            </button>
             <button
               onClick={logout}
               className="ml-auto text-sm text-blue-200/70 hover:text-blue-200 cursor-pointer"
@@ -113,8 +126,21 @@ export default function SocialPage() {
       </section>
 
       <section className="lg:col-span-2 lg:h-[calc(100vh-3rem)]">
-        <ChatPanel conversation={selectedConversation} meId={me?.id ?? null} />
+        <ChatPanel
+          conversation={selectedConversation}
+          meId={me?.id ?? null}
+          onViewProfile={(user) => setProfile({ kind: "user", user })}
+        />
       </section>
+
+      {profile && me && (
+        <ProfileModal
+          user={profile.kind === "me" ? me : profile.user}
+          isMe={profile.kind === "me"}
+          onClose={() => setProfile(null)}
+          onUpdated={loadMe}
+        />
+      )}
 
     </div>
   )

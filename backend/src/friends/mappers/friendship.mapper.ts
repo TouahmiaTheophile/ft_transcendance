@@ -2,17 +2,6 @@ import { FriendshipResponseDto, FriendResponseDto } from '@shared/friendship/fri
 import { FriendshipSnapshot } from '@shared/friendship/friendship-snapshot.type';
 import { toUserResponse } from 'src/users/mappers/user.mapper';
 
-// export function toFriendshipResponse(friendship: any): FriendshipResponseDto {
-//   return {
-//     id: friendship.id,
-//     requesterId: friendship.requesterId,
-//     addresseeId: friendship.addresseeId,
-//     status: friendship.status,
-//     createdAt: friendship.createdAt,
-//     updatedAt: friendship.updatedAt,
-//   };
-// }
-
 export function toFriendshipResponse(friendship: any): FriendshipResponseDto {
   return {
     id: friendship.id,

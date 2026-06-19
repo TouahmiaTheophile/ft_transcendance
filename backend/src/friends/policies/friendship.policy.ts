@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { canTransition } from '@shared/state-machine/create-state-machine';
 import { FRIENDSHIP_TRANSITIONS } from '@shared/friendship/friendship-transitions';
 import { FriendshipErrors } from '../errors/friendship.errors';
+import { Friendship } from '@prisma/client';
 
 @Injectable()
 export class FriendshipPolicy {
@@ -11,13 +12,13 @@ export class FriendshipPolicy {
     }
   }
 
-  assertCreateAllowed(existing: any) {
+  assertCreateAllowed(existing: Friendship) {
     if (existing) {
       throw FriendshipErrors.alreadyExists(existing);
     }
   }
 
-  assertAccept(friendship: any, userId: number) {
+  assertAccept(friendship: Friendship, userId: number) {
     if (friendship.addresseeId !== userId) {
       throw FriendshipErrors.forbidden(friendship);
     }
@@ -26,7 +27,7 @@ export class FriendshipPolicy {
     }
   }
 
-  assertReject(friendship: any, userId: number) {
+  assertReject(friendship: Friendship, userId: number) {
     if (friendship.addresseeId !== userId) {
       throw FriendshipErrors.forbidden(friendship);
     }
@@ -35,7 +36,7 @@ export class FriendshipPolicy {
     }
   }
 
-  assertBlock(friendship: any) {
+  assertBlock(friendship: Friendship) {
     if (!canTransition(FRIENDSHIP_TRANSITIONS, friendship.status, 'BLOCKED')) {
       throw FriendshipErrors.cannotBlock(friendship);
     }

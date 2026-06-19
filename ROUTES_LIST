@@ -81,7 +81,7 @@
 
 ------ CONVERSATIONS --------: AccessToken required
 	Get user's conversations list and messages
-	
+
 	GET    conversations/
 		Get conversations list
 
@@ -89,3 +89,18 @@
 		Get 'limit' last messages from conversation matching id,
 				'limit' must be provide by query (conversations/:id/messages?limit=20)
 				(Je n'ai pas encore contrôler la variable limite, donc tu peux même mettre des valeurs incohérentes: -1, 9999999. Je ferai plus tard)
+
+------ LOBBY --------: AccessToken required
+	Handle lobbies
+
+	POST   /
+		Create a lobby, user will join it
+
+	POST   /join
+		Join lobby corresponding to lobbyId in body
+
+	POST   /leave
+		Leave user's current lobby
+
+	POST   /eject
+		Eject user corresponding to targetId in body

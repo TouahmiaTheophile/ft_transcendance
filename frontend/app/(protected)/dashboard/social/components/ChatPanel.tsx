@@ -20,6 +20,7 @@ type Conversation = {
 type Props = {
   conversation: Conversation | null
   meId: number | null
+  onViewProfile: (user: User) => void
 }
 
 type Message = {
@@ -30,7 +31,7 @@ type Message = {
   sentAt: string
 }
 
-export default function ChatPanel({ conversation, meId }: Props) {
+export default function ChatPanel({ conversation, meId, onViewProfile }: Props) {
 
   const [messages, setMessages] = useState<Message[]>([])
   const [text, setText] = useState("")
@@ -78,9 +79,17 @@ export default function ChatPanel({ conversation, meId }: Props) {
   return (
     <div className={`${styles.panel} h-full lg:h-[calc(100vh-3rem)]`}>
       <div className={styles.header}>
-        <h2 className={styles.title}>
-          {conversation ? conversation.friend.username : "Chat"}
-        </h2>
+        {conversation ? (
+          <button
+            onClick={() => onViewProfile(conversation.friend)}
+            className={styles.title}
+            style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+          >
+            {conversation.friend.username}
+          </button>
+        ) : (
+          <h2 className={styles.title}>Chat</h2>
+        )}
       </div>
       <div className={styles.body}>
         {conversation ? (

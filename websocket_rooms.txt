@@ -1,0 +1,36 @@
+Chaque user rejoindra une room à spécifique à son id lors de la connexion:
+	"user:USER_ID"
+De plus PresenceService actualisera la liste des users connectés à chaque (dé)connexion,
+	sa méthode isOnline(userId) permettra d'indiquer les amis en ligne lors de la connexion
+Lors d'une (dé)connexion un message est envoyé aux amis connecté pour indiquer le changement de statut
+	"friend:status"
+
+
+
+"user:USER_ID" room perso de chaque user pour pouvoir le cibler directement
+"friend:status" notif pour indiquer (dé)connexion d'un ami
+
+
+LobbyService
+ ├─ createLobby()
+ ├─ joinLobby()
+ ├─ leaveLobby()
+ ├─ getPlayers()
+ ├─ lockLobby()
+ ├─ startGame()
+
+LobbyGateway
+ ├─ handle join/leave
+ ├─ emit updates
+
+GameService
+ ├─ createGameFromLobby()
+
+
+type Lobby = {
+  id: string;
+  hostId: number;
+  players: number[];
+  maxPlayers: number;
+  status: 'open' | 'locked' | 'in-game';
+};
