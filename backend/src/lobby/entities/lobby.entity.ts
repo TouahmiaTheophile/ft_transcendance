@@ -72,6 +72,13 @@ export class Lobby {
       throw ApiErrors.conflict("Lobby is not startable");
   }
 
+  assertCanInvite(requesterId: number, targetId: number) {
+    if (!this.players.includes(requesterId))
+      throw ApiErrors.forbidden("Cannot invite player. You are not in this lobby");
+    if (this.players.includes(targetId))
+      throw ApiErrors.conflict("Cannot invite player. He is already in this lobby");
+  }
+
   contains(userId: number) : boolean { return this._players.has(userId); }
   isEmpty() : boolean { return this._players.size === 0; }
   isHost(userId: number) : boolean { return this._hostId === userId; }
