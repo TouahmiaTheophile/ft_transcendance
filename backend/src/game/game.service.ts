@@ -28,6 +28,8 @@ export class GameService {
       }
     }
 
+    // For bot players represented by negative numeric ids, also map their numeric ids in playerGame
+
     let game!: GameInstance;
     game = new GameInstance(
       config,
@@ -40,6 +42,7 @@ export class GameService {
 
     // IMPORTANT: mapping players → game
     for (const p of config.players) {
+      // allow bots (negative ids) to be looked up by numeric id
       this.playerGame.set(Number(p.id), game.id);
     }
 
