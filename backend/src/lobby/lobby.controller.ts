@@ -46,6 +46,16 @@ export class LobbyController {
     return { success: true };
   }
 
+  @Post('add-bot')
+  @UseGuards(JwtAuthGuard)
+  addBot(
+    @CurrentUser() user: AccessTokenPayload,
+    @Body('kind') kind: 'random' | 'smart',
+  ) {
+    const botId = this.lobbyService.addBotToLobby(user.sub, kind);
+    return { botId };
+  }
+
   @Get('joinable')
   getJoinableLobbies(
     @Query('limit', ParseIntPipe) limit = 10,

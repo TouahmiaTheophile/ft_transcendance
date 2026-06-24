@@ -4,11 +4,14 @@ import { ApiErrors } from "src/common/errors/api-exceptions.helper";
 import { GameService } from "src/game/game.service";
 import { GameOptions } from "src/game/gameInstance.entity";
 import { Direction } from "src/game/game.types";
+import type { ControllerKind } from "src/game/types";
 
 @Injectable()
 export class LobbyService {
   private lobbies = new Map<string, Lobby>();
   private playerLobby = new Map<number, string>();
+  // global decreasing negative ids for bots (unique while server runs)
+  private nextBotId = -1;
 
   constructor(private gameService: GameService) {}
 
@@ -37,6 +40,19 @@ export class LobbyService {
     const lobby = this.requireLobby(lobbyId);
     lobby.join(userId);
     this.playerLobby.set(userId, lobbyId);
+  }
+
+  addBotToLobby(requesterId: number, kind: ControllerKind = 'random') {
+    const lobby = this.requirePlayerLobby(requesterId);
+    // only host can add bots
+    if (!lobby.isHost(requesterId))
+      throw ApiErrors.forbidden('Only the host can add bots');
+
+    const botId = this.nextBotId--;
+    lobby.addBot(botId, kind);
+    // register bot in playerLobby for consistent lookup (eject/resync)
+    this.playerLobby.set(botId, lobby.id);
+    return botId;
   }
 
   leaveLobby(userId: number) {
@@ -85,14 +101,20 @@ export class LobbyService {
       tickMs: 150,
       players: players.map((userId, index) => {
         const spawn = this.getSpawnPosition(index, 40, 20);
+        // detect bot ids (negative numbers) and ask lobby for their kind
+        let kind: ControllerKind = index === 1 ? 'human2' : 'human1';
+        if (userId < 0) {
+          const botKind = lobby.getBotKind(userId);
+          kind = botKind ?? 'random';
+        }
         return {
           id: userId.toString(),
-          kind: index === 1 ? 'human2' : 'human1',
+          kind,
           startX: spawn.x,
           startY: spawn.y,
           startDirection: spawn.dir,
           color: '',
-          label: `Player ${userId}`,
+          label: userId < 0 ? `Bot ${Math.abs(userId)}` : `Player ${userId}`,
         };
       }),
     };
