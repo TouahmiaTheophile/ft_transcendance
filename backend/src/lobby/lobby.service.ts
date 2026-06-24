@@ -5,6 +5,7 @@ import { GameService } from "src/game/game.service";
 import { GameOptions } from "src/game/gameInstance.entity";
 import { Direction } from "src/game/game.types";
 import type { ControllerKind } from "src/game/types";
+import { EventEmitter } from "stream";
 
 @Injectable()
 export class LobbyService {
@@ -12,6 +13,7 @@ export class LobbyService {
   private playerLobby = new Map<number, string>();
   // global decreasing negative ids for bots (unique while server runs)
   private nextBotId = -1;
+  public events = new EventEmitter();
 
   constructor(private gameService: GameService) {}
 
@@ -21,6 +23,8 @@ export class LobbyService {
       throw ApiErrors.conflict("You already are in a lobby");
 
     const lobby = new Lobby(userId);
+
+    lobby.join(userId);
 
     this.lobbies.set(lobby.id, lobby);
     this.playerLobby.set(userId, lobby.id);
@@ -40,6 +44,11 @@ export class LobbyService {
     const lobby = this.requireLobby(lobbyId);
     lobby.join(userId);
     this.playerLobby.set(userId, lobbyId);
+
+    // notify listeners that a user joined
+    this.events.emit('lobby.joined', { lobby, userId });
+
+    return lobby;
   }
 
   addBotToLobby(requesterId: number, kind: ControllerKind = 'random') {
@@ -67,6 +76,15 @@ export class LobbyService {
     if (lobby.leave(userId))
       this.lobbies.delete(lobbyId);
     this.playerLobby.delete(userId);
+
+    // notify listeners that a user left
+    try {
+      this.events.emit('lobby.left', { lobby, userId });
+    } catch (err) {
+      // no-op
+    }
+
+    return lobby;
   }
 
   ejectFromLobby(ejecterId: number, ejectedId: number) {
@@ -84,6 +102,15 @@ export class LobbyService {
     if (lobby.eject(ejecterId, ejectedId))
       this.lobbies.delete(lobby.id);  // shouldn't happen for now, this prevents future oversights
     this.playerLobby.delete(ejectedId);
+
+    // notify listeners that a user was removed from the lobby
+    try {
+      this.events.emit('lobby.left', { lobby, userId: ejectedId });
+    } catch (err) {
+      // no-op
+    }
+
+    return lobby;
   }
 
   startGame(requesterId: number) {
@@ -92,8 +119,8 @@ export class LobbyService {
     lobby.assertCanStart(requesterId);
 
     const players = lobby.players;
-    if (players.length < 2)
-      throw ApiErrors.conflict("A game requires at least 2 players");
+    // if (players.length < 2)    // moved in Lobby.assertCanStart
+    //   throw ApiErrors.conflict("A game requires at least 2 players");
 
     const options: GameOptions = {
       width: 40,

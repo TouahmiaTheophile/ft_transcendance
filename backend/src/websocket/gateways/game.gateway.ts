@@ -5,11 +5,13 @@ import {
   ConnectedSocket,
   MessageBody,
 } from '@nestjs/websockets';
+import { OnEvent } from '@nestjs/event-emitter';
 
 import { Server, Socket } from 'socket.io';
 import { LobbyService } from 'src/lobby/lobby.service';
 import { PlayerInputDto } from '../dto/game.dto';
 import { GameService } from 'src/game/game.service';
+import { Lobby } from 'src/lobby/entities/lobby.entity';
 
 @WebSocketGateway({
   cors: {
@@ -80,4 +82,45 @@ export class GameGateway {
       dto.direction,
     );
   }
+
+  updateLobby(lobby: Lobby) {
+    this.server.to(`lobby:${lobby.id}`)
+      .emit(
+        'lobby.state',
+        lobby.toDto()
+      );
+  }
+
+  @OnEvent('lobby.changed')
+  handleLobbyChanged(lobby: Lobby) {
+    this.server
+      .to(`lobby:${lobby.id}`)
+      .emit('lobby.state', lobby.toDto());
+  }
+
+  @OnEvent('lobby.joined')
+  handleLobbyJoined(event: { lobby: Lobby; userId: number }) {
+
+    this.server
+      .to(`user:${event.userId}`)
+      .socketsJoin(`lobby:${event.lobby.id}`);
+
+    this.updateLobby(event.lobby);
+  }
+
+  @OnEvent('lobby.left')
+  handleLobbyLeft(event: { lobby: Lobby; userId: number }) {
+    // remove all sockets associated with the given user from the lobby room
+    this.server
+      .in(`user:${event.userId}`)
+      .socketsLeave(`lobby:${event.lobby.id}`);
+
+    // update remaining clients about lobby state
+    try {
+      this.updateLobby(event.lobby);
+    } catch (err) {
+      // ignore
+    }
+  }
+
 }

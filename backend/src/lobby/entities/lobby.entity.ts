@@ -94,6 +94,9 @@ export class Lobby {
 
     if (this.status !== 'open' && this.status !== 'locked')
       throw ApiErrors.conflict("Lobby is not startable");
+
+    if (this._players.size < 2)
+      throw ApiErrors.conflict("Lobby must contain at least 2 players to launch game");
   }
 
   assertCanInvite(requesterId: number, targetId: number) {
@@ -101,6 +104,15 @@ export class Lobby {
       throw ApiErrors.forbidden("Cannot invite player. You are not in this lobby");
     if (this.players.includes(targetId))
       throw ApiErrors.conflict("Cannot invite player. He is already in this lobby");
+  }
+
+  toDto() {
+    return {
+      id: this.id,
+      maxPlayers: this.maxPlayers,
+      players: [...this.players],
+      status: this.status,
+    }
   }
 
   contains(userId: number) : boolean { return this._players.has(userId); }
