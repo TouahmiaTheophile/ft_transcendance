@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { TokenService } from 'src/auth/token.service';
 import { PresenceService } from '../presence.service';
+import { RealtimeService } from '../realtime.service';
 
 @WebSocketGateway({
   cors: {
@@ -22,6 +23,7 @@ export class WsAuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private tokenService: TokenService,
     private presenceService: PresenceService,
+    private realtimeService: RealtimeService,
   ) {}
 
   private extractAccessToken(client: Socket): string | null {
@@ -36,7 +38,7 @@ export class WsAuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return match?.split('=')[1] ?? null;
   }
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     console.log(`handleConnection`);
     const token = this.extractAccessToken(client);
 
@@ -53,9 +55,14 @@ export class WsAuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log(`payload.sub: ${payload.sub}`);
       console.log(`client.data.userId: ${client.data.userId}`);
 
+      const wasOnline = this.presenceService.isOnline(payload.sub);
       this.presenceService.connect(payload.sub, client.id);
 
       client.join(`user:${payload.sub}`);
+
+      if (!wasOnline) {
+        await this.realtimeService.notifyFriendsOnline(payload.sub);
+      }
     } catch (err) {
       client.disconnect();
     }
@@ -67,6 +74,10 @@ export class WsAuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (userId) {
       this.presenceService.disconnect(userId, client.id);
       console.log(`User ${userId} disconnected`);
+
+      if (!this.presenceService.isOnline(userId)) {
+        await this.realtimeService.notifyFriendsOffline(userId);
+      }
     }
   }
 }
