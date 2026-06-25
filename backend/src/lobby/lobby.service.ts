@@ -24,7 +24,6 @@ export class LobbyService {
 
     const lobby = new Lobby(userId);
 
-    lobby.join(userId);
 
     this.lobbies.set(lobby.id, lobby);
     this.playerLobby.set(userId, lobby.id);

@@ -3,7 +3,7 @@ import LoginCard from "./components/LoginCard";
 
 const page = () => {
   return (
-    <main className="flex flex-col items-center justify-start min-h-screen pt-10 px-4 md:px-0">
+    <main className="flex flex-col items-center justify-start min-h-screen pt-10 px-4">
       <Link
           href="/"
           aria-label="Back to home page"

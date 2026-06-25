@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import styles from './LoginCard.module.css'
-import { useRouter } from 'next/dist/client/components/navigation';
+import { useRouter } from 'next/navigation';
 
 
 const LoginCard = () => {

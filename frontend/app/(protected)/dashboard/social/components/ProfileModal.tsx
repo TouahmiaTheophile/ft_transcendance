@@ -31,8 +31,7 @@ export default function ProfileModal({ user, isMe, onClose, onUpdated }: Props) 
     setError(null)
     setStatus(null)
 
-    // multipart upload: append under "file" (the backend's FileInterceptor name).
-    // No Content-Type header — the browser sets it (with the multipart boundary).
+
     const form = new FormData()
     form.append("file", file)
     const res = await apiFetch("/users/me/avatar", { method: "PATCH", body: form })

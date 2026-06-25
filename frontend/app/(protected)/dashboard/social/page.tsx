@@ -38,7 +38,6 @@ export default function SocialPage() {
   const [pending, setPending] = useState<PendingRequest[]>([])
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
-  // Which profile is open: "me" (editable) or another user (view-only), or none.
   const [profile, setProfile] = useState<{ kind: "me" } | { kind: "user"; user: User } | null>(null)
 
   const loadMe = useCallback(() => {
@@ -81,17 +80,19 @@ export default function SocialPage() {
 
 
   return (
-    <div className="min-h-screen p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="min-h-screen flex flex-col pt-10 px-4 pb-4 gap-6">
+      <Link
+        href="/dashboard"
+        aria-label="Back to dashboard"
+        className="self-start flex items-center gap-2 text-sm text-white/60 hover:text-white w-fit"
+      >
+        <span className="text-lg leading-none">←</span>
+        Dashboard
+      </Link>
 
-      <section className="flex flex-col gap-4 lg:h-[calc(100vh-3rem)]">
-        <Link
-          href="/dashboard"
-          aria-label="Back to dashboard"
-          className="flex items-center gap-2 text-sm text-white/60 hover:text-white w-fit"
-        >
-          <span className="text-lg leading-none">←</span>
-          Dashboard
-        </Link>
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <section className="flex flex-col gap-4 min-h-0 lg:h-full">
         {me && (
           <div className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5">
             <button
@@ -125,13 +126,15 @@ export default function SocialPage() {
         <AddFriend friendIds={friendIds} meId={me?.id ?? null} />
       </section>
 
-      <section className="lg:col-span-2 lg:h-[calc(100vh-3rem)]">
+      <section className="lg:col-span-2 min-h-0 lg:h-full">
         <ChatPanel
           conversation={selectedConversation}
           meId={me?.id ?? null}
           onViewProfile={(user) => setProfile({ kind: "user", user })}
         />
       </section>
+
+      </div>
 
       {profile && me && (
         <ProfileModal
