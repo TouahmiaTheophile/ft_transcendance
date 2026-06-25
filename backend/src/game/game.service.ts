@@ -1,7 +1,7 @@
 import { GameInstance, GameOptions } from "./gameInstance.entity";
 import { Direction, GameState } from "./game.types";
 import { AIController } from "./types";
-import { EventEmitter } from 'events';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RandomAI } from './ai/randomAI';
 import { SmartAI } from './ai/smartAI';
 import { ApiErrors } from "src/common/errors/api-exceptions.helper";
@@ -11,7 +11,11 @@ import { Injectable } from "@nestjs/common";
 export class GameService {
   private games = new Map<string, GameInstance>();
   private playerGame = new Map<number, string>();
-  public events = new EventEmitter();
+  public events: EventEmitter2;
+
+  constructor(private eventEmitter: EventEmitter2) {
+    this.events = eventEmitter;
+  }
 
   startGame(config: GameOptions, controllers: Map<string, AIController>) {
     for (const p of config.players) {

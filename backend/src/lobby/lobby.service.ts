@@ -5,7 +5,7 @@ import { GameService } from "src/game/game.service";
 import { GameOptions } from "src/game/gameInstance.entity";
 import { Direction } from "src/game/game.types";
 import type { ControllerKind } from "src/game/types";
-import { EventEmitter } from "stream";
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class LobbyService {
@@ -13,18 +13,17 @@ export class LobbyService {
   private playerLobby = new Map<number, string>();
   // global decreasing negative ids for bots (unique while server runs)
   private nextBotId = -1;
-  public events = new EventEmitter();
+  public events: EventEmitter2;
 
-  constructor(private gameService: GameService) {}
+  constructor(private gameService: GameService, private eventEmitter: EventEmitter2) { this.events = eventEmitter; }
 
   createLobby(userId: number) {
     this.resyncPlayerLobby(userId);  // Ensure a user is not stuck by an invalid entry, rm
     if (this.playerLobby.has(userId))
       throw ApiErrors.conflict("You already are in a lobby");
 
+    // Creator automatically joins the lobby
     const lobby = new Lobby(userId);
-
-    lobby.join(userId);
 
     this.lobbies.set(lobby.id, lobby);
     this.playerLobby.set(userId, lobby.id);

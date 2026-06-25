@@ -9,6 +9,7 @@ import { CleanupModule } from './cleanup/cleanup.module';
 import { GameService } from './game/game.service';
 import { GameGateway } from './websocket/gateways/game.gateway';
 import { LobbyModule } from './lobby/lobby.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { WsAuthGateway } from './websocket/gateways/ws-auth.gateway';
 import { PresenceService } from './websocket/presence.service';
 
@@ -21,6 +22,7 @@ import { PresenceService } from './websocket/presence.service';
     FriendsModule,
     ChatModule,
     CleanupModule,
+    EventEmitterModule.forRoot(),
     LobbyModule,
   ],
   providers: [
