@@ -14,7 +14,7 @@ export class LobbyController {
     @CurrentUser() user: AccessTokenPayload,
   ) {
     const lobby = this.lobbyService.createLobby(user.sub);
-    return { lobbyId: lobby.id };
+    return lobby.toDto();
   }
 
   @Post('join')
@@ -24,7 +24,8 @@ export class LobbyController {
     @Body('lobbyId') lobbyId: string,
   ) {
     this.lobbyService.joinLobby(lobbyId, user.sub);
-    return { success: true };
+    const lobby = this.lobbyService.requireLobby(lobbyId);
+    return lobby.toDto();
   }
 
   @Post('leave')
