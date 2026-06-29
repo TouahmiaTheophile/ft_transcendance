@@ -1,14 +1,38 @@
 "use client"
 
 import { apiFetch } from "@/app/lib/api"
+import { getSocket } from "@/app/lib/socket"
 import { useParams, useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+
+type Lobby = {
+  id: string
+  maxPlayers: number
+  players: number[]
+  status: "open" | "locked" | "in-game"
+}
 
 const LobbyPage = () => {
   const params = useParams<{ id: string }>()
   const lobbyId = params.id
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+  const [myId, setMyId] = useState<number | null>(null)
+  const [lobby, setLobby] = useState<Lobby | null>(null)
+
+
+  useEffect(() => {
+    apiFetch("/users/me")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data) setMyId(data.id) })
+
+    const socket = getSocket()
+        if (!socket)
+          return
+      
+    socket.emit("lobby:subscribe", { lobbyId })   // needs a backend handler (doesn't exist yet)
+    socket.on("lobby.state", (state) => setLobby(state))
+  }, [])
 
   const leaveLobby = () => {
     apiFetch("/lobby/leave", { method: "POST" })
@@ -39,9 +63,15 @@ const LobbyPage = () => {
 
       {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
 
-      {/* TODO(backend): subscribe to `lobby:state` over the socket and render
-          players / host / status here once the gateway emits it. */}
-      <p className="text-white/60">Connecting…</p>
+      {lobby ? (
+        <div className="text-white/60">
+          {/* <p>Host: {lobby.hostId}</p> */}
+          <p>Max Players: {lobby.maxPlayers}</p>
+          <p>Current Players: {lobby.players.length}</p>
+        </div>
+      ) : (
+        <p className="text-white/60">Connecting…</p>
+      )}
     </div>
   )
 }
