@@ -12,6 +12,7 @@ import { LobbyModule } from './lobby/lobby.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { WsAuthGateway } from './websocket/gateways/ws-auth.gateway';
 import { PresenceService } from './websocket/presence.service';
+import { RealtimeService } from './websocket/realtime.service';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { PresenceService } from './websocket/presence.service';
   ],
   providers: [
     WsAuthGateway,
-    PresenceService,
+    RealtimeService,
     GameService,
     GameGateway,
   ],

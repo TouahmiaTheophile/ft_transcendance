@@ -3,11 +3,12 @@ import { FriendsService } from './friends.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AccessTokenPayload } from '../auth/types/access-token-payload.type';
+import { PresenceService } from 'src/websocket/presence.service';
 
 @Controller('friends')
 @UseGuards(JwtAuthGuard)
 export class FriendsController {
-  constructor(private friends: FriendsService) {}
+  constructor(private friends: FriendsService, private presenceService: PresenceService) {}
 
   @Post('request/:id')
   sendRequest(
@@ -49,5 +50,13 @@ export class FriendsController {
   @Get('pending')
   listPending(@CurrentUser() user: AccessTokenPayload) {
     return this.friends.listPending(user.sub);
+  }
+
+  @Get('online')
+  async listOnline(@CurrentUser() user: AccessTokenPayload) {
+    const friendships = await this.friends.listFriends(user.sub);
+    const friendIds = friendships.map(f => f.friend.id);
+    const online = friendIds.filter(id => this.presenceService.isOnline(id));
+    return online;
   }
 }

@@ -1,7 +1,8 @@
-import { WebSocketServer } from "@nestjs/websockets";
-import { Server } from "socket.io";
-import { FriendsService } from "src/friends/friends.service";
+import { Injectable } from '@nestjs/common';
+import { Server } from 'socket.io';
+import { FriendsService } from 'src/friends/friends.service';
 
+@Injectable()
 export class RealtimeService {
   private server: Server;
 
@@ -15,7 +16,7 @@ export class RealtimeService {
     const friendships = await this.friendService.listFriends(userId);
     const friendIds = friendships.map(f => f.friend.id);
     for (const id of friendIds) {
-      this.server.to(`user:${id}`).emit('friend:status', {
+      this.server?.to(`user:${id}`).emit('friend:status', {
         userId,
         status: 'online',
       });
@@ -26,7 +27,7 @@ export class RealtimeService {
     const friendships = await this.friendService.listFriends(userId);
     const friendIds = friendships.map(f => f.friend.id);
     for (const id of friendIds) {
-      this.server.to(`user:${id}`).emit('friend:status', {
+      this.server?.to(`user:${id}`).emit('friend:status', {
         userId,
         status: 'offline',
       });

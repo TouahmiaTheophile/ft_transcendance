@@ -4,6 +4,7 @@ import {
   SubscribeMessage,
   ConnectedSocket,
   MessageBody,
+  OnGatewayInit,
 } from '@nestjs/websockets';
 import { OnEvent } from '@nestjs/event-emitter';
 
@@ -12,6 +13,7 @@ import { LobbyService } from 'src/lobby/lobby.service';
 import { PlayerInputDto } from '../dto/game.dto';
 import { GameService } from 'src/game/game.service';
 import { Lobby } from 'src/lobby/entities/lobby.entity';
+import { RealtimeService } from '../realtime.service';
 
 @WebSocketGateway({
   cors: {
@@ -19,13 +21,14 @@ import { Lobby } from 'src/lobby/entities/lobby.entity';
     credentials: true,
   },
 })
-export class GameGateway {
+export class GameGateway implements OnGatewayInit {
   @WebSocketServer()
   server: Server;
 
   constructor(
     private lobbyService: LobbyService,
     private gameService: GameService,
+    private realtimeService: RealtimeService,
   ) {
     // subscribe to game state updates and broadcast to game rooms
     this.gameService.events.on('state', ({ gameId, state }) => {
@@ -33,6 +36,10 @@ export class GameGateway {
         this.server.to(`game:${gameId}`).emit('game:state', state);
       }
     });
+  }
+
+  afterInit(server: Server) {
+    this.realtimeService.setServer(server);
   }
 
   @SubscribeMessage('start_game')
