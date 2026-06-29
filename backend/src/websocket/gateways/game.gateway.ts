@@ -55,9 +55,9 @@ export class GameGateway implements OnGatewayInit {
     if (res?.gameId) {
       try {
         const lobby = this.lobbyService.requireLobby(lobbyId);
-        for (const userId of lobby.players) {
-          // all sockets that joined `user:${userId}` will be made join `game:{gameId}`
-          this.server.in(`user:${userId}`).socketsJoin(`game:${res.gameId}`);
+        for (const player of lobby.players) {
+          // all sockets that joined `user:${player.id}` will be made join `game:{gameId}`
+          this.server.in(`user:${player.id}`).socketsJoin(`game:${res.gameId}`);
         }
       } catch (err) {
         // ignore if lobby cannot be retrieved here
