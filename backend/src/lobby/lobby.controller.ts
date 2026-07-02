@@ -10,20 +10,20 @@ export class LobbyController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  createLobby(
+  async createLobby(
     @CurrentUser() user: AccessTokenPayload,
   ) {
-    const lobby = this.lobbyService.createLobby(user.sub);
+    const lobby = await this.lobbyService.createLobby(user.sub);
     return lobby.toDto();
   }
 
   @Post('join')
   @UseGuards(JwtAuthGuard)
-  joinLobby(
+  async joinLobby(
     @CurrentUser() user: AccessTokenPayload,
     @Body('lobbyId') lobbyId: string,
   ) {
-    this.lobbyService.joinLobby(lobbyId, user.sub);
+    await this.lobbyService.joinLobby(lobbyId, user.sub);
     const lobby = this.lobbyService.requireLobby(lobbyId);
     return lobby.toDto();
   }
@@ -62,5 +62,12 @@ export class LobbyController {
     @Query('limit', ParseIntPipe) limit = 10,
   ) {
     return this.lobbyService.getJoinableLobbies(limit);
+  }
+
+  @Get('state')
+  getLobbyState(
+    @Body('lobbyId') lobbyId: string,
+  ) {
+    return this.lobbyService.getState(lobbyId);
   }
 }

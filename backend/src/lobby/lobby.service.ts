@@ -1,11 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { Lobby } from "./entities/lobby.entity";
+import { Lobby, mapLobbyPlayerFromBot, mapLobbyPlayerFromUser } from "./entities/lobby.entity";
 import { ApiErrors } from "src/common/errors/api-exceptions.helper";
 import { GameService } from "src/game/game.service";
 import { GameOptions } from "src/game/gameInstance.entity";
 import { Direction } from "src/game/game.types";
 import type { ControllerKind } from "src/game/types";
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UsersService } from "src/users/users.service";
 
 @Injectable()
 export class LobbyService {
@@ -15,15 +16,23 @@ export class LobbyService {
   private nextBotId = -1;
   public events: EventEmitter2;
 
-  constructor(private gameService: GameService, private eventEmitter: EventEmitter2) { this.events = eventEmitter; }
+  constructor(
+    private gameService: GameService,
+    private eventEmitter: EventEmitter2,
+    private usersService: UsersService,
+  ) { this.events = eventEmitter; }
 
-  createLobby(userId: number) {
+  async createLobby(userId: number) {
     this.resyncPlayerLobby(userId);  // Ensure a user is not stuck by an invalid entry, rm
     if (this.playerLobby.has(userId))
       throw ApiErrors.conflict("You already are in a lobby");
 
+    const user = await this.usersService.findById(userId);
+    if (!user)
+      throw ApiErrors.notFound("User not found");
+
     // Creator automatically joins the lobby
-    const lobby = new Lobby(userId);
+    const lobby = new Lobby(userId, 4, mapLobbyPlayerFromUser(user));
 
     this.lobbies.set(lobby.id, lobby);
     this.playerLobby.set(userId, lobby.id);
@@ -31,7 +40,7 @@ export class LobbyService {
     return lobby;
   }
 
-  joinLobby(lobbyId: string, userId: number) {
+  async joinLobby(lobbyId: string, userId: number) {
     this.resyncPlayerLobby(userId);  // Ensure a user is not stuck by an invalid entry, rm
     const currentLobbyId = this.playerLobby.get(userId);
     if (currentLobbyId !== undefined) {
@@ -40,8 +49,12 @@ export class LobbyService {
       throw ApiErrors.conflict("You must leave your current lobby first");
     }
 
+    const user = await this.usersService.findById(userId);
+    if (!user)
+      throw ApiErrors.notFound("User not found");
+
     const lobby = this.requireLobby(lobbyId);
-    lobby.join(userId);
+    lobby.join(mapLobbyPlayerFromUser(user));
     this.playerLobby.set(userId, lobbyId);
 
     // notify listeners that a user joined
@@ -57,7 +70,7 @@ export class LobbyService {
       throw ApiErrors.forbidden('Only the host can add bots');
 
     const botId = this.nextBotId--;
-    lobby.addBot(botId, kind);
+    lobby.addBot(mapLobbyPlayerFromBot(botId), kind);
     // register bot in playerLobby for consistent lookup (eject/resync)
     this.playerLobby.set(botId, lobby.id);
     return botId;
@@ -125,22 +138,22 @@ export class LobbyService {
       width: 40,
       height: 20,
       tickMs: 150,
-      players: players.map((userId, index) => {
+      players: players.map((player, index) => {
         const spawn = this.getSpawnPosition(index, 40, 20);
         // detect bot ids (negative numbers) and ask lobby for their kind
         let kind: ControllerKind = index === 1 ? 'human2' : 'human1';
-        if (userId < 0) {
-          const botKind = lobby.getBotKind(userId);
+        if (player.id < 0) {
+          const botKind = lobby.getBotKind(player.id);
           kind = botKind ?? 'random';
         }
         return {
-          id: userId.toString(),
+          id: player.id.toString(),
           kind,
           startX: spawn.x,
           startY: spawn.y,
           startDirection: spawn.dir,
           color: '',
-          label: userId < 0 ? `Bot ${Math.abs(userId)}` : `Player ${userId}`,
+          label: player.id < 0 ? `Bot ${Math.abs(player.id)}` : player.username,
         };
       }),
     };
@@ -225,4 +238,10 @@ export class LobbyService {
       this.playerLobby.delete(userId);
     }
   }
+
+  getState(lobbyId: string) {
+    const lobby = this.requireLobby(lobbyId);
+    return lobby.toDto();
+  }
+
 }
