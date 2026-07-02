@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { apiFetch } from "@/app/lib/api"
+import { getSocket } from "@/app/lib/socket"
 import Avatar from "./components/Avatar"
 import FriendList from "./components/FriendList"
 import PendingRequests from "./components/PendingRequests"
@@ -39,6 +40,7 @@ export default function SocialPage() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [profile, setProfile] = useState<{ kind: "me" } | { kind: "user"; user: User } | null>(null)
+  const [onlineIds, setOnlineIds] = useState<Set<number>>(new Set())
 
   const loadMe = useCallback(() => {
     apiFetch("/users/me")
@@ -64,12 +66,37 @@ export default function SocialPage() {
       .then(data => { if (data) setPending(data) })
   }, [])
 
+  const loadOnline = useCallback(() => {
+    apiFetch("/friends/online")
+      .then(res => res.ok ? res.json() : null)
+      .then((data: number[] | null) => { if (data) setOnlineIds(new Set(data)) })
+  }, [])
+
   useEffect(() => {
     loadMe()
     loadFriends()
     loadPending()
     loadConversations()
-  }, [loadMe, loadFriends, loadPending, loadConversations])
+    loadOnline()
+  }, [loadMe, loadFriends, loadPending, loadConversations, loadOnline])
+
+  // live online/offline updates for friends
+  useEffect(() => {
+    const socket = getSocket()
+    if (!socket) return
+
+    const onStatus = ({ userId, status }: { userId: number; status: "online" | "offline" }) => {
+      setOnlineIds(prev => {
+        const next = new Set(prev)
+        if (status === "online") next.add(userId)
+        else next.delete(userId)
+        return next
+      })
+    }
+
+    socket.on("friend:status", onStatus)
+    return () => { socket.off("friend:status", onStatus) }
+  }, [])
 
   const logout = async () => {
     await apiFetch("/auth/logout", { method: "POST" })
@@ -113,10 +140,12 @@ export default function SocialPage() {
         <div className="flex-1 min-h-0 overflow-y-auto">
           <FriendList
             friends={friends}
+            onlineIds={onlineIds}
             onConversationSelect={(friendId) => {
               const convo = conversations.find(c => c.friend.id === friendId)
               if (convo) setSelectedConversation(convo)
-            }}
+            }
+          }
           />
         </div>
         <PendingRequests

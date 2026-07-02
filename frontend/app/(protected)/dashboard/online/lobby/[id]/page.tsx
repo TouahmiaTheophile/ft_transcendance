@@ -30,9 +30,15 @@ const LobbyPage = () => {
         if (!socket)
           return
       
+    const onLobbyState = (state: Lobby) => setLobby(state)
+
     socket.emit("lobby:subscribe", { lobbyId })   // needs a backend handler (doesn't exist yet)
-    socket.on("lobby.state", (state) => setLobby(state))
-  }, [])
+    socket.on("lobby.state", onLobbyState)
+
+    return () => {
+    socket.off("lobby.state", onLobbyState)
+    }
+  }, [lobbyId])
 
   const leaveLobby = () => {
     apiFetch("/lobby/leave", { method: "POST" })
