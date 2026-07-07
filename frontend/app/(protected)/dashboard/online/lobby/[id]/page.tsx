@@ -45,11 +45,13 @@ const LobbyPage = () => {
       .then(async res => {
         if (res.ok) {
           setError(null)
-          router.push("/dashboard/online")
         } else {
           const err = await res.json().catch(() => null)
           setError(err?.message ?? "Could not leave lobby")
         }
+      })
+      .finally(() => {
+        router.push("/dashboard/online")
       })
   }
 

@@ -90,6 +90,18 @@ export class GameGateway implements OnGatewayInit {
     );
   }
 
+  // TEMP: lets a client (re)join the lobby room and get the current snapshot.
+  // Sending the snapshot here also survives page refresh, where no lobby.joined fires.
+  @SubscribeMessage('lobby:subscribe')
+  handleLobbySubscribe(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody('lobbyId') lobbyId: string,
+  ) {
+    const lobby = this.lobbyService.requireLobby(lobbyId);
+    socket.join(`lobby:${lobbyId}`);           // join room first, so no update is missed
+    socket.emit('lobby.state', lobby.toDto()); // snapshot to this socket only
+  }
+
   updateLobby(lobby: Lobby) {
     this.server.to(`lobby:${lobby.id}`)
       .emit(
