@@ -4,11 +4,20 @@ import { apiFetch } from "@/app/lib/api"
 import { getSocket } from "@/app/lib/socket"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import LeaveButton from "./components/LeaveButton"
+import PlayerList from "./components/PlayerList"
+import StartButton from "./components/StartButton"
+
+type LobbyPlayer = {
+  id: number
+  username: string
+}
 
 type Lobby = {
   id: string
+  hostId: number
   maxPlayers: number
-  players: number[]
+  players: LobbyPlayer[]
   status: "open" | "locked" | "in-game"
 }
 
@@ -20,25 +29,30 @@ const LobbyPage = () => {
   const [myId, setMyId] = useState<number | null>(null)
   const [lobby, setLobby] = useState<Lobby | null>(null)
 
-
   useEffect(() => {
     apiFetch("/users/me")
       .then(res => res.ok ? res.json() : null)
       .then(data => { if (data) setMyId(data.id) })
 
     const socket = getSocket()
-        if (!socket)
-          return
-      
-    const onLobbyState = (state: Lobby) => setLobby(state)
+    if (!socket)
+      return
 
-    socket.emit("lobby:subscribe", { lobbyId })   // needs a backend handler (doesn't exist yet)
+    const onLobbyState = (state: Lobby) => setLobby(state)
+    const onGameState = () => router.push("/game")        // game started → go play
+    const onException = (e: { message?: string }) => setError(e?.message ?? "Something went wrong")
+
+    socket.emit("lobby:subscribe", { lobbyId })
     socket.on("lobby.state", onLobbyState)
+    socket.on("game:state", onGameState)
+    socket.on("exception", onException)
 
     return () => {
-    socket.off("lobby.state", onLobbyState)
+      socket.off("lobby.state", onLobbyState)
+      socket.off("game:state", onGameState)
+      socket.off("exception", onException)
     }
-  }, [lobbyId])
+  }, [lobbyId, router])
 
   const leaveLobby = () => {
     apiFetch("/lobby/leave", { method: "POST" })
@@ -55,16 +69,20 @@ const LobbyPage = () => {
       })
   }
 
+  const startGame = () => {
+    const socket = getSocket()
+    if (!socket)
+      return
+    setError(null)
+    socket.emit("start_game")
+  }
+
+  const isHost = myId !== null && lobby?.hostId === myId
+  const canStart = (lobby?.players.length ?? 0) >= 2
+
   return (
     <div className="min-h-screen flex flex-col items-center pt-10 px-4">
-      <button
-        onClick={leaveLobby}
-        aria-label="Leave lobby"
-        className="self-start flex items-center gap-2 text-sm text-white/60 hover:text-white w-fit cursor-pointer"
-      >
-        <span className="text-lg leading-none">←</span>
-        Leave lobby
-      </button>
+      <LeaveButton onLeave={leaveLobby} />
 
       <h1 className="text-2xl font-bold text-white mb-2">Lobby</h1>
       <p className="text-sm text-white/40 mb-6">{lobbyId}</p>
@@ -72,10 +90,15 @@ const LobbyPage = () => {
       {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
 
       {lobby ? (
-        <div className="text-white/60">
-          {/* <p>Host: {lobby.hostId}</p> */}
-          <p>Max Players: {lobby.maxPlayers}</p>
-          <p>Current Players: {lobby.players.length}</p>
+        <div className="w-full max-w-sm flex flex-col gap-3">
+          <PlayerList
+            players={lobby.players}
+            maxPlayers={lobby.maxPlayers}
+            hostId={lobby.hostId}
+            myId={myId}
+          />
+
+          {isHost && <StartButton canStart={canStart} onStart={startGame} />}
         </div>
       ) : (
         <p className="text-white/60">Connecting…</p>

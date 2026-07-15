@@ -1,0 +1,37 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 24rem;
+}
+
+.count {
+  font-size: 0.875rem;
+  color: rgb(255 255 255 / 0.4);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.05);
+  color: white;
+}
+
+.username {
+  flex: 1;
+}
+
+.host {
+  font-size: 0.75rem;
+  color: #fde047;
+}
+
+.you {
+  font-size: 0.75rem;
+  color: rgb(255 255 255 / 0.4);
+}

@@ -123,6 +123,7 @@ export class Lobby {
   toDto() {
     return {
       id: this.id,
+      hostId: this._hostId,
       maxPlayers: this.maxPlayers,
       players: this.players.map((player) => ({ ...player })),
       status: this.status,
