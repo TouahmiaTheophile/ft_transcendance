@@ -26,3 +26,17 @@ curl http://localhost:3000/users -X POST -H "Content-Type: Application/json" -d 
 curl http://localhost:3000/users -X POST -H "Content-Type: Application/json" -d '{"username": "thomas", "publicUsername": "thomas_public", "email": "thomas@example.com", "password": "password123"}'
 
 curl "http://localhost:3000/users/search?query=e&max=2"
+
+
+
+------ create user1 and user2 ------
+curl -X POST http://localhost:3000/users -H 'Content-Type: application/json' -d '{"username":"user1","email":"user1@example.com","password":"password123"}'
+curl -X POST http://localhost:3000/users -H 'Content-Type: application/json' -d '{"username":"user2","email":"user2@example.com","password":"password123"}'
+
+------ auth user1 and user2 ------
+curl -X POST http://localhost:3000/auth/login -H 'Content-Type: application/json' -d '{"email":"user1@example.com","password":"password123"}' -c user1Cookies
+curl -X POST http://localhost:3000/auth/login -H 'Content-Type: application/json' -d '{"email":"user2@example.com","password":"password123"}' -c user2Cookies
+
+------ create lobby with user1 and join with user2 ------
+curl -X POST http://localhost:3000/lobby -b user1Cookies
+curl -X POST http://localhost:3000/lobby/join -H 'Content-Type: application/json' -b user2Cookies -d '{"lobbyId":"LOBBY_ID"}'

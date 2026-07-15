@@ -1,0 +1,26 @@
+{
+    "name": "light-cycle",
+    "version": "1.0.0",
+    "description": "Light Cycle",
+    "main": "main.ts",
+    "scripts": {
+        "test": "jest",
+        "start": "ts-node main.ts",
+        "play": "ts-node main.ts"
+    },
+    "jest": {
+        "preset": "ts-jest",
+        "testEnvironment": "node"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/jest": "^29.5.14",
+        "@types/node": "^22.19.19",
+        "jest": "^30.3.0",
+        "ts-jest": "^29.4.9",
+        "ts-node": "^10.9.2",
+        "typescript": "5.6"
+    }
+}

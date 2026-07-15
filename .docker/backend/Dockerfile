@@ -60,4 +60,4 @@ COPY --from=shared-build /app/shared /app/shared
 
 ENV NODE_ENV=production
 
-CMD sh -c "npx prisma db push --accept-data-loss && node dist/main"
+CMD sh -c "npx prisma db push --accept-data-loss && node dist/backend/src/main.js"

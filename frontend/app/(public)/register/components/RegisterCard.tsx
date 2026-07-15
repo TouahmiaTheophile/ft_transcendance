@@ -52,12 +52,12 @@ const RegisterCard = () => {
       setErrors(validationErrors)
       return
     }
-    
+
     setLoading(true)
     setErrors({});
 
     try {
-      const res = await fetch('http://localhost:3000/users', {
+      const res = await fetch('/users', {
         method: 'POST',
         headers: {
         'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ const RegisterCard = () => {
         setErrors({ general: 'Server unreachable, please try again later' })
       } finally {
         // always runs, whether success or error
-        setLoading(false) 
+        setLoading(false)
       }
       }
 

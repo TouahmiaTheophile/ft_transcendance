@@ -19,9 +19,9 @@ const router = useRouter()
         e.preventDefault()
         setLoading(true)
         setErrors({})
-        
+
         try {
-            const res = await fetch('http://localhost:3000/auth/login', {
+            const res = await fetch('/auth/login', {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
@@ -32,7 +32,7 @@ const router = useRouter()
             })
             if (res.ok) {
                 const data = await res.json();
-                
+
                 console.log('Login successful:', data);
                 router.push('/dashboard')
               }
@@ -60,7 +60,7 @@ const router = useRouter()
 
                   default:
                     // INTERNAL_ERROR, UNAUTHORIZED, or anything unknown
-                    fieldErrors.general = err.message || 'Something went wrong'    
+                    fieldErrors.general = err.message || 'Something went wrong'
                 }
                 setErrors(fieldErrors)
             }

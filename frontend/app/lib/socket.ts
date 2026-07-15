@@ -5,10 +5,18 @@ let socket: Socket | null = null;
 export function getSocket() {
   if (typeof window === "undefined") return null;
   if (!socket) {
-    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:3000", {
-      autoConnect: false,
-      withCredentials: true,
-    });
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL
+    socket = socketUrl
+      ? io(socketUrl, {
+          autoConnect: false,
+          withCredentials: true,
+          path: "/socket.io",
+        })
+      : io({
+          autoConnect: false,
+          withCredentials: true,
+          path: "/socket.io",
+        });
   }
   return socket;
 }
