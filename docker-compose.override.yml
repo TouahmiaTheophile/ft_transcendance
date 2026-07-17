@@ -1,3 +1,5 @@
+#WE CAN LEAVE BACKEND AND FRONTEND PORTS FOR DEBUGGING 
+
 services:
   mariadb:
     ports:

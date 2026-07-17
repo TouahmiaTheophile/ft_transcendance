@@ -21,3 +21,47 @@ pnpm-debug.log*
 
 # Tests
 coverage/
+
+
+#Nginx CERTIFICATS HAS TO BE IGNORED WHEN WE PUSH
+.docker/nginx/certs/*.key
+.docker/nginx/certs/*.crt
+#in order to git clone an empty folder we touch .docker/nginx/certs/.gitkeep  then :
+!.docker/nginx/certs/.gitkeep
+
+
+
+
+
+
+
+
+
+
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+shared/node_modules/
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Builds
+backend/dist/
+shared/dist/
+dist/
+build/
+
+# Cache / coverage
+.cache/
+.turbo/
+coverage/
+backend/coverage/
+frontend/coverage/
+shared/coverage/
+
+
+/RAPH
+/test_vide

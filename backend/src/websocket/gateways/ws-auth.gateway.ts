@@ -12,7 +12,12 @@ import { RealtimeService } from '../realtime.service';
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3001', 'http://127.0.0.1:3001'],
+    origin: [
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'https://localhost',
+    'https://127.0.0.1',
+  ],
     credentials: true,
   },
 })

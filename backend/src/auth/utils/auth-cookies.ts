@@ -22,6 +22,15 @@ export function setAuthCookies(res: Response, tokens: AuthTokens) {
 }
 
 export function clearAuthCookies(res: Response) {
-  res.clearCookie('accessToken', { path: '/' });
-  res.clearCookie('refreshToken', { path: '/auth/refresh' });
+  res.clearCookie('accessToken', {
+    path: '/',
+    sameSite: 'lax',
+  });
+
+  res.clearCookie('refreshToken', {
+    path: '/auth/refresh',
+    sameSite: 'lax',
+  });
 }
+
+//correction 6

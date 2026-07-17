@@ -1,3 +1,254 @@
+
+
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import styles from "./LoginCard.module.css";
+import { apiUrl, readApiError } from "@/app/lib/api";
+
+const LoginCard = () => {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+
+  async function handlesSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    if (loading) return;
+
+    setLoading(true);
+    setErrors({});
+
+    try {
+      const res = await fetch(apiUrl("/auth/login"), {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
+
+      if (res.ok) {
+        router.push("/dashboard");
+        router.refresh();
+        return;
+      }
+
+      const err = await readApiError(res);
+      const fieldErrors: Record<string, string> = {};
+
+      if (err.code === "VALIDATION_ERROR") {
+        const fields = err.details?.fields;
+
+        if (fields && typeof fields === "object") {
+          for (const [field, msgs] of Object.entries(fields)) {
+            if (Array.isArray(msgs) && msgs.length > 0) {
+              fieldErrors[field] = String(msgs[0]);
+            }
+          }
+        } else {
+          fieldErrors.general = err.message || "Validation failed";
+        }
+      } else if (err.code === "UNAUTHORIZED" || err.code === "INVALID_CREDENTIALS") {
+        fieldErrors.general = err.message || "Invalid credentials";
+      } else {
+        fieldErrors.general = err.message || "Something went wrong";
+      }
+
+      setErrors(fieldErrors);
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrors({
+        general: "Network error. Open the app with https://localhost and check nginx/backend.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form className={styles.form} onSubmit={handlesSubmit} noValidate>
+      <label htmlFor="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        placeholder="your@email.com"
+        value={form.email}
+        onChange={(e) => setForm({ ...form, email: e.target.value })}
+      />
+      {errors.email && <p className={styles.error}>{errors.email}</p>}
+
+      <label htmlFor="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        placeholder="••••••••"
+        value={form.password}
+        onChange={(e) => setForm({ ...form, password: e.target.value })}
+      />
+      {errors.password && <p className={styles.error}>{errors.password}</p>}
+
+      {errors.general && <p className={styles.generalError}>{errors.general}</p>}
+
+      <button type="submit" disabled={loading}>
+        {loading ? "Signing in..." : "Sign In"}
+      </button>
+    </form>
+  );
+};
+
+export default LoginCard;
+
+
+
+
+
+
+
+
+
+
+/*
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import styles from "./LoginCard.module.css";
+import { apiUrl, readApiError } from "@/app/lib/api";
+
+const LoginCard = () => {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+
+  async function handlesSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    setLoading(true);
+    setErrors({});
+
+    try {
+      const res = await fetch(apiUrl("/auth/login"), {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
+
+      if (res.ok) {
+        router.push("/dashboard");
+        router.refresh();
+        return;
+      }
+
+      const err = await readApiError(res);
+      const fieldErrors: Record<string, string> = {};
+
+      switch (err.code) {
+        case "VALIDATION_ERROR": {
+          const fields = err.details?.fields;
+
+          if (fields && typeof fields === "object") {
+            for (const [field, msgs] of Object.entries(fields)) {
+              if (Array.isArray(msgs) && msgs.length > 0) {
+                fieldErrors[field] = String(msgs[0]);
+              }
+            }
+          } else {
+            fieldErrors.general = err.message || "Validation failed";
+          }
+
+          break;
+        }
+
+        case "UNAUTHORIZED":
+        case "INVALID_CREDENTIALS":
+          fieldErrors.general = err.message || "Invalid credentials";
+          break;
+
+        case "BAD_REQUEST":
+          fieldErrors.general =
+            err.details?.reason || err.message || "Bad request";
+          break;
+
+        default:
+          fieldErrors.general = err.message || "Something went wrong";
+      }
+
+      setErrors(fieldErrors);
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrors({
+        general: "Network error. Check that nginx/backend are running.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form className={styles.form} onSubmit={handlesSubmit} noValidate>
+      <label htmlFor="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        placeholder="your@email.com"
+        value={form.email}
+        onChange={(e) => setForm({ ...form, email: e.target.value })}
+      />
+      {errors.email && <p className={styles.error}>{errors.email}</p>}
+
+      <label htmlFor="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        placeholder="••••••••"
+        value={form.password}
+        onChange={(e) => setForm({ ...form, password: e.target.value })}
+      />
+      {errors.password && <p className={styles.error}>{errors.password}</p>}
+
+      {errors.general && (
+        <p className={styles.generalError}>{errors.general}</p>
+      )}
+
+      <button type="submit" disabled={loading}>
+        {loading ? "Signing in..." : "Sign In"}
+      </button>
+    </form>
+  );
+};
+
+export default LoginCard;
+
+*/
+
+
+
+
+/*
 'use client'
 import React, { useState } from 'react'
 import styles from './LoginCard.module.css'
@@ -104,3 +355,5 @@ const router = useRouter()
 }
 
 export default LoginCard
+
+*/

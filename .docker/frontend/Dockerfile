@@ -3,7 +3,7 @@ FROM node:22-alpine AS base
 
 WORKDIR /app
 
-# ─── Frontend deps installer ──────────────────────────────────────────────────
+# ─── Frontend deps installer ─────────────────────────────────────────────────
 FROM base AS frontend-deps
 
 WORKDIR /app/frontend
@@ -11,7 +11,7 @@ WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm install
 
-# ─── Shared builder ───────────────────────────────────────────────────────────
+# ─── Shared builder ──────────────────────────────────────────────────────────
 FROM base AS shared-build
 
 WORKDIR /app/shared
@@ -38,18 +38,23 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 CMD ["npm", "run", "dev"]
 
-# ─── Builder (prod) ───────────────────────────────────────────────────────────
+# ─── Builder production ──────────────────────────────────────────────────────
 FROM base AS builder
 
 WORKDIR /app
+
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SOCKET_URL
+
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
+ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=shared-build /app/shared /app/shared
 COPY --from=frontend-deps /app/frontend/node_modules /app/frontend/node_modules
 COPY frontend/ /app/frontend/
 
 WORKDIR /app/frontend
-
-ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
 
@@ -58,7 +63,12 @@ FROM base AS production
 
 WORKDIR /app/frontend
 
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SOCKET_URL
+
 ENV NODE_ENV=production
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
 ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=builder /app/frontend/.next/standalone ./
