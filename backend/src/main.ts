@@ -33,7 +33,9 @@ async function bootstrap() {
 
 
   // Allow to deliver static files
-  app.useStaticAssets(join(__dirname, '..', 'uploads/avatars'), {
+  // process.cwd() et non __dirname : users.service.ts ecrit les avatars la, et
+  // __dirname depend de la profondeur de dist/ (imbriquee a cause de @shared).
+  app.useStaticAssets(join(process.cwd(), 'uploads/avatars'), {
     prefix: '/uploads/avatars',
   });
 
