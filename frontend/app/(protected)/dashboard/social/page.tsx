@@ -3,16 +3,19 @@
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { apiFetch } from "@/app/lib/api"
+import { getSocket } from "@/app/lib/socket"
 import Avatar from "./components/Avatar"
 import FriendList from "./components/FriendList"
 import PendingRequests from "./components/PendingRequests"
 import AddFriend from "./components/AddFriend"
 import ChatPanel from "./components/ChatPanel"
+import ProfileModal from "./components/ProfileModal"
 
 type User = {
   id: number
   username: string
   avatarUrl: string | null
+  email?: string | null
 }
 
 type Friend = {
@@ -36,6 +39,14 @@ export default function SocialPage() {
   const [pending, setPending] = useState<PendingRequest[]>([])
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
+  const [profile, setProfile] = useState<{ kind: "me" } | { kind: "user"; user: User } | null>(null)
+  const [onlineIds, setOnlineIds] = useState<Set<number>>(new Set())
+
+  const loadMe = useCallback(() => {
+    apiFetch("/users/me")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data) setMe(data) })
+  }, [])
 
   const loadFriends = useCallback(() => {
     apiFetch("/friends")
@@ -55,14 +66,37 @@ export default function SocialPage() {
       .then(data => { if (data) setPending(data) })
   }, [])
 
-  useEffect(() => {
-    apiFetch("/users/me")
+  const loadOnline = useCallback(() => {
+    apiFetch("/friends/online")
       .then(res => res.ok ? res.json() : null)
-      .then(data => { if (data) setMe(data) })
+      .then((data: number[] | null) => { if (data) setOnlineIds(new Set(data)) })
+  }, [])
+
+  useEffect(() => {
+    loadMe()
     loadFriends()
     loadPending()
     loadConversations()
-  }, [loadFriends, loadPending, loadConversations])
+    loadOnline()
+  }, [loadMe, loadFriends, loadPending, loadConversations, loadOnline])
+
+  // live online/offline updates for friends
+  useEffect(() => {
+    const socket = getSocket()
+    if (!socket) return
+
+    const onStatus = ({ userId, status }: { userId: number; status: "online" | "offline" }) => {
+      setOnlineIds(prev => {
+        const next = new Set(prev)
+        if (status === "online") next.add(userId)
+        else next.delete(userId)
+        return next
+      })
+    }
+
+    socket.on("friend:status", onStatus)
+    return () => { socket.off("friend:status", onStatus) }
+  }, [])
 
   const logout = async () => {
     await apiFetch("/auth/logout", { method: "POST" })
@@ -73,21 +107,28 @@ export default function SocialPage() {
 
 
   return (
-    <div className="min-h-screen p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="min-h-screen flex flex-col pt-10 px-4 pb-4 gap-6">
+      <Link
+        href="/dashboard"
+        aria-label="Back to dashboard"
+        className="self-start flex items-center gap-2 text-sm text-white/60 hover:text-white w-fit"
+      >
+        <span className="text-lg leading-none">←</span>
+        Dashboard
+      </Link>
 
-      <section className="flex flex-col gap-4 lg:h-[calc(100vh-3rem)]">
-        <Link
-          href="/dashboard"
-          aria-label="Back to dashboard"
-          className="flex items-center gap-2 text-sm text-white/60 hover:text-white w-fit"
-        >
-          <span className="text-lg leading-none">←</span>
-          Dashboard
-        </Link>
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <section className="flex flex-col gap-4 min-h-0 lg:h-full">
         {me && (
           <div className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5">
-            <Avatar username={me.username} avatarUrl={me.avatarUrl} size={40} />
-            <span className="text-white font-semibold">{me.username}</span>
+            <button
+              onClick={() => setProfile({ kind: "me" })}
+              className="flex items-center gap-3 hover:opacity-80 cursor-pointer"
+            >
+              <Avatar username={me.username} avatarUrl={me.avatarUrl} size={40} />
+              <span className="text-white font-semibold">{me.username}</span>
+            </button>
             <button
               onClick={logout}
               className="ml-auto text-sm text-blue-200/70 hover:text-blue-200 cursor-pointer"
@@ -99,10 +140,12 @@ export default function SocialPage() {
         <div className="flex-1 min-h-0 overflow-y-auto">
           <FriendList
             friends={friends}
+            onlineIds={onlineIds}
             onConversationSelect={(friendId) => {
               const convo = conversations.find(c => c.friend.id === friendId)
               if (convo) setSelectedConversation(convo)
-            }}
+            }
+          }
           />
         </div>
         <PendingRequests
@@ -112,9 +155,24 @@ export default function SocialPage() {
         <AddFriend friendIds={friendIds} meId={me?.id ?? null} />
       </section>
 
-      <section className="lg:col-span-2 lg:h-[calc(100vh-3rem)]">
-        <ChatPanel conversation={selectedConversation} meId={me?.id ?? null} />
+      <section className="lg:col-span-2 min-h-0 lg:h-full">
+        <ChatPanel
+          conversation={selectedConversation}
+          meId={me?.id ?? null}
+          onViewProfile={(user) => setProfile({ kind: "user", user })}
+        />
       </section>
+
+      </div>
+
+      {profile && me && (
+        <ProfileModal
+          user={profile.kind === "me" ? me : profile.user}
+          isMe={profile.kind === "me"}
+          onClose={() => setProfile(null)}
+          onUpdated={loadMe}
+        />
+      )}
 
     </div>
   )

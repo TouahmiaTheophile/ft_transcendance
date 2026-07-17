@@ -1,6 +1,5 @@
 import { FriendshipResponseDto, FriendResponseDto } from '@shared/friendship/friendship-response.dto';
 import { FriendshipSnapshot } from '@shared/friendship/friendship-snapshot.type';
-import { UserResponseDto } from '@shared/users/user-response.dto';
 import { toUserResponse } from 'src/users/mappers/user.mapper';
 
 export function toFriendshipResponse(friendship: any): FriendshipResponseDto {

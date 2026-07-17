@@ -1,9 +1,11 @@
 import React from 'react'
 import GameMenuCard from './components/GameMenuCard'
+import LogoutButton from './components/LogoutButton'
 
 const page = () => {
   return (
-    <main className="flex flex-col items-center justify-start pt-10 px-4 md:px-0">
+    <main className="flex flex-col items-center justify-start pt-10 px-4">
+      <LogoutButton />
       <h1
         className="title title-log"
         style={{ fontSize: 'clamp(4rem, 7vw, 7rem)' }}
