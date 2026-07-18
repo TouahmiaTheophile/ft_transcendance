@@ -50,7 +50,22 @@ export class GameService {
       this.playerGame.set(Number(p.id), game.id);
     }
 
-    game.start();
+    // Compte à rebours 3-2-1-GO SERVEUR
+    // moteur tique pas avant la fin -> personne peut bouger/mourir + tous les clients sont syc
+    const COUNTDOWN_S = 3;
+    let remaining = COUNTDOWN_S;
+    // état émis une fois au début : un client qui arrive en retard
+    this.events.emit('state', { gameId: game.id, state: game.getState() });
+    this.events.emit('game.countdown', { gameId: game.id, value: remaining });
+    const timer = setInterval(() => {
+      if (!this.games.has(game.id)) return clearInterval(timer); // partie annulée
+      remaining--;
+      this.events.emit('game.countdown', { gameId: game.id, value: remaining });
+      if (remaining === 0) {
+        clearInterval(timer);
+        game.start(); // GO !
+      }
+    }, 1000);
 
     return game;
   }
@@ -80,6 +95,12 @@ export class GameService {
     }
 
     this.games.delete(gameId);
+    // fin de partie : LobbyService rouvre le lobby des joueurs
+    // permettre de relancer une partie ("retour au lobby")
+    this.events.emit('game.ended', {
+      playerIds: players.map((p) => Number(p.id)),
+    });
+
   }
 
   applyInput(userId: number, direction: Direction) {

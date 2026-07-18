@@ -5,7 +5,7 @@ import { GameService } from "src/game/game.service";
 import { GameOptions } from "src/game/gameInstance.entity";
 import { Direction } from "src/game/game.types";
 import type { ControllerKind } from "src/game/types";
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { UsersService } from "src/users/users.service";
 
 @Injectable()
@@ -73,6 +73,7 @@ export class LobbyService {
     lobby.addBot(mapLobbyPlayerFromBot(botId), kind);
     // register bot in playerLobby for consistent lookup (eject/resync)
     this.playerLobby.set(botId, lobby.id);
+    this.events.emit('lobby.changed', lobby); //maj quand ajout bot
     return botId;
   }
 
@@ -210,6 +211,23 @@ export class LobbyService {
       throw ApiErrors.notFound("Lobby not found");
 
     return lobby;
+  }
+
+  // lobby passe 'open'
+  // prévient la room via 'lobby.changed' (rebroadcast par le gateway).
+  @OnEvent('game.ended')
+  handleGameEnded(event: { playerIds: number[] }) {
+    for (const id of event.playerIds) {
+      const lobbyId = this.playerLobby.get(id);
+      if (!lobbyId) continue;
+
+      const lobby = this.lobbies.get(lobbyId);
+      if (!lobby) continue;
+
+      lobby.reopen();
+      this.events.emit('lobby.changed', lobby);
+      break; // tous les joueurs de la partie sont dans le même lobby
+    }
   }
 
   requirePlayerLobbyId(userId: number) : string {

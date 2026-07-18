@@ -36,6 +36,12 @@ export class GameGateway implements OnGatewayInit {
         this.server.to(`game:${gameId}`).emit('game:state', state);
       }
     });
+    // relaie compte à rebours serveur vers room jeu
+    this.gameService.events.on('game.countdown', ({ gameId, value }) => {
+      if (this.server) {
+        this.server.to(`game:${gameId}`).emit('game:countdown', { value });
+      }
+    });
   }
 
   afterInit(server: Server) {
@@ -62,6 +68,9 @@ export class GameGateway implements OnGatewayInit {
       } catch (err) {
         // ignore if lobby cannot be retrieved here
       }
+      // front (page lobby) écoute 'game:started' et redirige vers /game.
+      this.server.to(`lobby:${lobbyId}`).emit('game:started', { gameId: res.gameId });
+
     }
 
     return res;
