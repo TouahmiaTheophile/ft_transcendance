@@ -1,0 +1,12 @@
+.bar {
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.muted {
+  color: #737373;
+}
+
+.dead {
+  color: #f87171;
+}
