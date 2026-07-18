@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { FriendsModule } from './friends/friends.module';
 import { ChatModule } from './chat/chat.module';
 import { CleanupModule } from './cleanup/cleanup.module';
-import { GameService } from './game/game.service';
+import { GameModule } from './game/game.module';
 import { GameGateway } from './websocket/gateways/game.gateway';
 import { LobbyModule } from './lobby/lobby.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -25,11 +25,11 @@ import { RealtimeService } from './websocket/realtime.service';
     CleanupModule,
     EventEmitterModule.forRoot(),
     LobbyModule,
+    GameModule,
   ],
   providers: [
     WsAuthGateway,
     RealtimeService,
-    GameService,
     GameGateway,
   ],
 })
