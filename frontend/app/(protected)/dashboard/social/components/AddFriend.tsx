@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { apiFetch } from "@/app/lib/api"
 import Avatar from "./Avatar"
 import styles from "./AddFriend.module.css"
+import { useTranslation } from "@/app/lib/i18n/useTranslation"
 
 type SearchUser = {
   id: number
@@ -17,6 +18,7 @@ type Props = {
 }
 
 export default function AddFriend({ friendIds, meId }: Props) {
+  const { t } = useTranslation()
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<SearchUser[]>([])
   const [sent, setSent] = useState<Set<number>>(new Set())
@@ -44,17 +46,17 @@ export default function AddFriend({ friendIds, meId }: Props) {
 
   return (
     <div className={styles.section}>
-      <h3 className={styles.label}>Add friend</h3>
+      <h3 className={styles.label}>{t("social.addFriendLabel")}</h3>
       <input
         type="text"
         value={query}
         onChange={e => setQuery(e.target.value)}
-        placeholder="Search username..."
+        placeholder={t("social.searchPlaceholder")}
         className={styles.input}
       />
       {query.trim() && (
         <div className={styles.results}>
-          {results.length === 0 && <p className={styles.empty}>No users found.</p>}
+          {results.length === 0 && <p className={styles.empty}>{t("social.noUsersFound")}</p>}
           {results.map(user => (
             <div key={user.id} className={styles.row}>
               <Avatar username={user.username} avatarUrl={user.avatarUrl} size={28} />
@@ -64,7 +66,7 @@ export default function AddFriend({ friendIds, meId }: Props) {
                 disabled={sent.has(user.id)}
                 className={styles.inviteBtn}
               >
-                {sent.has(user.id) ? "Sent ✓" : "Invite"}
+                {sent.has(user.id) ? t("social.invited") : t("social.invite")}
               </button>
             </div>
           ))}

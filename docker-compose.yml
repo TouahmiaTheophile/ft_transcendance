@@ -29,6 +29,8 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME}-backend
     restart: unless-stopped
     env_file: .env
+    volumes:
+      - backend_uploads:/app/backend/uploads
     depends_on:
       mariadb:
         condition: service_healthy
@@ -74,6 +76,7 @@ services:
 
 volumes:
   mariadb_data:
+  backend_uploads:
 
 networks:
   app_network:

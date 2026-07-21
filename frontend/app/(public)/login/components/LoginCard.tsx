@@ -6,9 +6,11 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./LoginCard.module.css";
 import { apiUrl, readApiError } from "@/app/lib/api";
+import { useTranslation } from "@/app/lib/i18n/useTranslation";
 
 const LoginCard = () => {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [form, setForm] = useState({
     email: "",
@@ -58,19 +60,19 @@ const LoginCard = () => {
             }
           }
         } else {
-          fieldErrors.general = err.message || "Validation failed";
+          fieldErrors.general = t("login.errors.validationFailed");
         }
       } else if (err.code === "UNAUTHORIZED" || err.code === "INVALID_CREDENTIALS") {
-        fieldErrors.general = err.message || "Invalid credentials";
+        fieldErrors.general = t("login.errors.invalidCredentials");
       } else {
-        fieldErrors.general = err.message || "Something went wrong";
+        fieldErrors.general = t("login.errors.generic");
       }
 
       setErrors(fieldErrors);
     } catch (error) {
       console.error("Login error:", error);
       setErrors({
-        general: "Network error. Open the app with https://localhost and check nginx/backend.",
+        general: t("login.errors.network"),
       });
     } finally {
       setLoading(false);
@@ -79,7 +81,7 @@ const LoginCard = () => {
 
   return (
     <form className={styles.form} onSubmit={handlesSubmit} noValidate>
-      <label htmlFor="email">Email</label>
+      <label htmlFor="email">{t("login.emailLabel")}</label>
       <input
         type="email"
         id="email"
@@ -89,7 +91,7 @@ const LoginCard = () => {
       />
       {errors.email && <p className={styles.error}>{errors.email}</p>}
 
-      <label htmlFor="password">Password</label>
+      <label htmlFor="password">{t("login.passwordLabel")}</label>
       <input
         type="password"
         id="password"
@@ -102,19 +104,13 @@ const LoginCard = () => {
       {errors.general && <p className={styles.generalError}>{errors.general}</p>}
 
       <button type="submit" disabled={loading}>
-        {loading ? "Signing in..." : "Sign In"}
+        {loading ? t("login.submitting") : t("login.submit")}
       </button>
     </form>
   );
 };
 
 export default LoginCard;
-
-
-
-
-
-
 
 
 
@@ -249,7 +245,7 @@ export default LoginCard;
 
 
 /*
-'use client'
+'use client';
 import React, { useState } from 'react'
 import styles from './LoginCard.module.css'
 import { useRouter } from 'next/navigation';
@@ -270,7 +266,7 @@ const router = useRouter()
         e.preventDefault()
         setLoading(true)
         setErrors({})
-        
+
         try {
             const res = await fetch('http://localhost:3000/auth/login', {
                 method: 'POST',
@@ -283,7 +279,7 @@ const router = useRouter()
             })
             if (res.ok) {
                 const data = await res.json();
-                
+
                 console.log('Login successful:', data);
                 router.push('/dashboard')
               }
@@ -311,7 +307,7 @@ const router = useRouter()
 
                   default:
                     // INTERNAL_ERROR, UNAUTHORIZED, or anything unknown
-                    fieldErrors.general = err.message || 'Something went wrong'    
+                    fieldErrors.general = err.message || 'Something went wrong'
                 }
                 setErrors(fieldErrors)
             }

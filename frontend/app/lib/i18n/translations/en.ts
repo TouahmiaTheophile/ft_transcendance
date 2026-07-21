@@ -1,0 +1,130 @@
+// Source-of-truth dictionary: fr.ts and es.ts are typed with `satisfies
+// Dictionary` (see ../translations/index.ts), so a missing or extra key in
+// either of them fails the build.
+const en = {
+  common: {
+    backToHome: "Home",
+    backToHomeAria: "Back to home page",
+    backToDashboard: "Dashboard",
+    backToDashboardAria: "Back to dashboard",
+    logout: "Logout",
+  },
+  home: {
+    welcome: "Welcome to",
+    loginCta: "Login",
+    registerCta: "Register",
+  },
+  login: {
+    heading: "LOGIN",
+    emailLabel: "Email",
+    passwordLabel: "Password",
+    submit: "Sign In",
+    submitting: "Signing in...",
+    errors: {
+      validationFailed: "Validation failed",
+      invalidCredentials: "Invalid credentials",
+      generic: "Something went wrong",
+      network: "Network error. Open the app with https://localhost and check nginx/backend.",
+    },
+  },
+  register: {
+    heading: "REGISTER",
+    usernameLabel: "Username",
+    usernamePlaceholder: "Choose your username",
+    emailLabel: "Email",
+    passwordLabel: "Password",
+    submit: "Sign Up",
+    submitting: "Signing up...",
+    errors: {
+      usernameTooShort: "Username must be at least 3 characters",
+      emailRequired: "Email is required",
+      emailTooLong: "Email is too long",
+      emailInvalid: "Invalid email format",
+      passwordTooShort: "Password must be at least 8 characters",
+      validationFailed: "Validation failed",
+      alreadyTaken: "{{field}} already taken",
+      alreadyExists: "Resource already exists",
+      generic: "Something went wrong",
+      network: "Network error. Open the app with https://localhost and check nginx/backend.",
+    },
+  },
+  dashboard: {
+    play: "Play",
+    social: "Social",
+  },
+  online: {
+    title: "Multiplayer",
+    lobbyListTitle: "Lobby List",
+    noLobbies: "No lobbies available.",
+    lobby: "Lobby",
+    join: "Join",
+    createLobby: "Create Lobby",
+    errors: {
+      joinFailed: "Could not join lobby",
+      createFailed: "Could not create lobby",
+    },
+  },
+  lobby: {
+    title: "Lobby",
+    connecting: "Connecting…",
+    leave: "Leave lobby",
+    players: "{{count}}/{{max}} players",
+    host: "host",
+    you: "you",
+    startGame: "Start game",
+    needMorePlayers: "Need at least 2 players",
+    errors: {
+      leaveFailed: "Could not leave lobby",
+      generic: "Something went wrong",
+    },
+  },
+  social: {
+    addFriendLabel: "Add friend",
+    searchPlaceholder: "Search username...",
+    noUsersFound: "No users found.",
+    invite: "Invite",
+    invited: "Sent ✓",
+    friendsTitle: "Friends",
+    noFriends: "No friends yet.",
+    online: "Online",
+    offline: "Offline",
+    friendRequestsLabel: "Friend requests",
+    accept: "Accept",
+    reject: "Reject",
+  },
+  chat: {
+    title: "Chat",
+    emptyState: "Select a friend to start chatting",
+    placeholder: "start typing...",
+    send: "Send",
+  },
+  profile: {
+    title: "Profile",
+    changePhoto: "Change photo",
+    removePhoto: "Remove",
+    usernameLocked: "Username (cannot be changed)",
+    emailLabel: "Email",
+    currentPasswordLabel: "Current password (to confirm)",
+    saveEmail: "Save email",
+    matchHistoryTitle: "Match history",
+    comingSoon: "Coming soon.",
+    status: {
+      photoUpdated: "Photo updated",
+      photoRemoved: "Photo removed",
+      emailUpdated: "Email updated",
+    },
+    errors: {
+      photoUpdateFailed: "Couldn't update photo (must be an image under 2 MB)",
+      photoRemoveFailed: "Couldn't remove photo",
+      emailUpdateFailed: "Couldn't update email",
+    },
+  },
+  game: {
+    placeholder: "Coming soon.",
+  },
+  languageSwitcher: {
+    label: "Language",
+  },
+};
+
+export default en;

@@ -28,6 +28,9 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     transition: all 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .card a:hover {

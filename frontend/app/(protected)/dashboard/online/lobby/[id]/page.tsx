@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import LeaveButton from "./components/LeaveButton"
 import PlayerList from "./components/PlayerList"
 import StartButton from "./components/StartButton"
+import { useTranslation } from "@/app/lib/i18n/useTranslation"
 
 type LobbyPlayer = {
   id: number
@@ -25,6 +26,7 @@ const LobbyPage = () => {
   const params = useParams<{ id: string }>()
   const lobbyId = params.id
   const router = useRouter()
+  const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
   const [myId, setMyId] = useState<number | null>(null)
   const [lobby, setLobby] = useState<Lobby | null>(null)
@@ -40,7 +42,7 @@ const LobbyPage = () => {
 
     const onLobbyState = (state: Lobby) => setLobby(state)
     const onGameState = () => router.push("/game")        // game started → go play
-    const onException = (e: { message?: string }) => setError(e?.message ?? "Something went wrong")
+    const onException = () => setError(t("lobby.errors.generic"))
 
     socket.emit("lobby:subscribe", { lobbyId })
     socket.on("lobby.state", onLobbyState)
@@ -60,8 +62,7 @@ const LobbyPage = () => {
         if (res.ok) {
           setError(null)
         } else {
-          const err = await res.json().catch(() => null)
-          setError(err?.message ?? "Could not leave lobby")
+          setError(t("lobby.errors.leaveFailed"))
         }
       })
       .finally(() => {
@@ -84,7 +85,7 @@ const LobbyPage = () => {
     <div className="min-h-screen flex flex-col items-center pt-10 px-4">
       <LeaveButton onLeave={leaveLobby} />
 
-      <h1 className="text-2xl font-bold text-white mb-2">Lobby</h1>
+      <h1 className="text-2xl font-bold text-white mb-2">{t("lobby.title")}</h1>
       <p className="text-sm text-white/40 mb-6">{lobbyId}</p>
 
       {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
@@ -101,7 +102,7 @@ const LobbyPage = () => {
           {isHost && <StartButton canStart={canStart} onStart={startGame} />}
         </div>
       ) : (
-        <p className="text-white/60">Connecting…</p>
+        <p className="text-white/60">{t("lobby.connecting")}</p>
       )}
     </div>
   )

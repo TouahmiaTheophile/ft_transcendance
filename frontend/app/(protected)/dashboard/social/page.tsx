@@ -10,6 +10,7 @@ import PendingRequests from "./components/PendingRequests"
 import AddFriend from "./components/AddFriend"
 import ChatPanel from "./components/ChatPanel"
 import ProfileModal from "./components/ProfileModal"
+import { useTranslation } from "@/app/lib/i18n/useTranslation"
 
 type User = {
   id: number
@@ -34,6 +35,7 @@ type PendingRequest = {
 }
 
 export default function SocialPage() {
+  const { t } = useTranslation()
   const [me, setMe] = useState<User | null>(null)
   const [friends, setFriends] = useState<Friend[]>([])
   const [pending, setPending] = useState<PendingRequest[]>([])
@@ -110,11 +112,11 @@ export default function SocialPage() {
     <div className="min-h-screen flex flex-col pt-10 px-4 pb-4 gap-6">
       <Link
         href="/dashboard"
-        aria-label="Back to dashboard"
+        aria-label={t("common.backToDashboardAria")}
         className="self-start flex items-center gap-2 text-sm text-white/60 hover:text-white w-fit"
       >
         <span className="text-lg leading-none">←</span>
-        Dashboard
+        {t("common.backToDashboard")}
       </Link>
 
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -133,7 +135,7 @@ export default function SocialPage() {
               onClick={logout}
               className="ml-auto text-sm text-blue-200/70 hover:text-blue-200 cursor-pointer"
             >
-              Logout
+              {t("common.logout")}
             </button>
           </div>
         )}

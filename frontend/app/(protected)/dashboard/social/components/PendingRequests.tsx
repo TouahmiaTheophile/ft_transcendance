@@ -3,6 +3,7 @@
 import { apiFetch } from "@/app/lib/api"
 import Avatar from "./Avatar"
 import styles from "./PendingRequests.module.css"
+import { useTranslation } from "@/app/lib/i18n/useTranslation"
 
 type User = {
   id: number
@@ -16,6 +17,8 @@ type Props = {
 }
 
 export default function PendingRequests({ requests, onResolved }: Props) {
+  const { t } = useTranslation()
+
   if (requests.length === 0) return null
 
   const respond = async (friendshipId: number, action: "accept" | "reject") => {
@@ -25,15 +28,19 @@ export default function PendingRequests({ requests, onResolved }: Props) {
 
   return (
     <div className={styles.section}>
-      <h3 className={styles.label}>Friend requests</h3>
+      <h3 className={styles.label}>{t("social.friendRequestsLabel")}</h3>
       {requests.map(r => (
         <div key={r.id} className={styles.row}>
           <Avatar username={r.requester.username} avatarUrl={r.requester.avatarUrl} size={28} />
           <span className={styles.username}>{r.requester.username}</span>
           <button onClick={() => respond(r.id, "accept")} className={styles.acceptBtn}>
-            Accept
+            {t("social.accept")}
           </button>
-          <button onClick={() => respond(r.id, "reject")} className={styles.rejectBtn}>
+          <button
+            onClick={() => respond(r.id, "reject")}
+            aria-label={t("social.reject")}
+            className={styles.rejectBtn}
+          >
             ✕
           </button>
         </div>
