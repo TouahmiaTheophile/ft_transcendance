@@ -16,6 +16,7 @@ const es = {
   login: {
     heading: "INICIAR SESIÓN",
     emailLabel: "Correo electrónico",
+    emailPlaceholder: "tu@correo.com",
     passwordLabel: "Contraseña",
     submit: "Iniciar sesión",
     submitting: "Iniciando sesión...",
@@ -31,6 +32,7 @@ const es = {
     usernameLabel: "Nombre de usuario",
     usernamePlaceholder: "Elige tu nombre de usuario",
     emailLabel: "Correo electrónico",
+    emailPlaceholder: "tu@correo.com",
     passwordLabel: "Contraseña",
     submit: "Registrarse",
     submitting: "Registrando...",

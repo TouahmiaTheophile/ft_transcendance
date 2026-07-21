@@ -85,7 +85,7 @@ const LoginCard = () => {
       <input
         type="email"
         id="email"
-        placeholder="your@email.com"
+        placeholder={t("login.emailPlaceholder")}
         value={form.email}
         onChange={(e) => setForm({ ...form, email: e.target.value })}
       />

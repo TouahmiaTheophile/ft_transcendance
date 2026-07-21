@@ -16,6 +16,7 @@ const fr = {
   login: {
     heading: "CONNEXION",
     emailLabel: "E-mail",
+    emailPlaceholder: "votre@email.com",
     passwordLabel: "Mot de passe",
     submit: "Se connecter",
     submitting: "Connexion en cours...",
@@ -31,6 +32,7 @@ const fr = {
     usernameLabel: "Nom d'utilisateur",
     usernamePlaceholder: "Choisissez un nom d'utilisateur",
     emailLabel: "E-mail",
+    emailPlaceholder: "votre@email.com",
     passwordLabel: "Mot de passe",
     submit: "S'inscrire",
     submitting: "Inscription en cours...",

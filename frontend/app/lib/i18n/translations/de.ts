@@ -16,6 +16,7 @@ const de = {
   login: {
     heading: "ANMELDUNG",
     emailLabel: "E-Mail",
+    emailPlaceholder: "deine@email.com",
     passwordLabel: "Passwort",
     submit: "Anmelden",
     submitting: "Anmeldung läuft...",
@@ -31,6 +32,7 @@ const de = {
     usernameLabel: "Benutzername",
     usernamePlaceholder: "Wähle deinen Benutzernamen",
     emailLabel: "E-Mail",
+    emailPlaceholder: "deine@email.com",
     passwordLabel: "Passwort",
     submit: "Registrieren",
     submitting: "Registrierung läuft...",
