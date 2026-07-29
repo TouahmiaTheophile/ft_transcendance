@@ -11,6 +11,7 @@ type User = {
   username: string
   avatarUrl: string | null
   email?: string | null
+  age?: number | null
 }
 
 type Props = {
@@ -24,6 +25,10 @@ export default function ProfileModal({ user, isMe, onClose, onUpdated }: Props) 
   const { t } = useTranslation()
   const [email, setEmail] = useState(user.email ?? "")
   const [currentPassword, setCurrentPassword] = useState("")
+  // -rbauerMod2- user.age is `number | null | undefined`: turn it into the
+  // empty string for the input when there's nothing to show yet
+  // (null/undefined), or into its text form otherwise ("25").
+  const [age, setAge] = useState(user.age != null ? String(user.age) : "")
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState<string | null>(null)
 
@@ -73,6 +78,38 @@ export default function ProfileModal({ user, isMe, onClose, onUpdated }: Props) 
       onUpdated()
     } else {
       setError(t("profile.errors.emailUpdateFailed"))
+    }
+  }
+
+  const saveAge = async () => {
+    setError(null)
+    setStatus(null)
+
+    // -rbauerMod2- Same range check as the backend (0 to 150, see
+    // backend/src/users/dto/update-user.dto.ts) -- this is just instant
+    // feedback so we don't fire a network request for an obviously invalid
+    // value; the backend still re-checks it independently.
+    const trimmed = age.trim()
+    const ageNumber = Number(trimmed)
+    if (!trimmed || !Number.isInteger(ageNumber) || ageNumber < 0 || ageNumber > 150) {
+      setError(t("profile.errors.ageUpdateFailed"))
+      return
+    }
+
+    // -rbauerMod2- Unlike saveEmail() above, no currentPassword is sent:
+    // age isn't sensitive data, so the backend (UsersService.update)
+    // doesn't ask for one to change it.
+    const res = await apiFetch("/users/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ age: ageNumber }),
+    })
+
+    if (res.ok) {
+      setStatus(t("profile.status.ageUpdated"))
+      onUpdated()
+    } else {
+      setError(t("profile.errors.ageUpdateFailed"))
     }
   }
 
@@ -128,6 +165,27 @@ export default function ProfileModal({ user, isMe, onClose, onUpdated }: Props) 
               </label>
               <button onClick={saveEmail} className={styles.saveBtn}>
                 {t("profile.saveEmail")}
+              </button>
+            </div>
+
+            <div className={styles.ageSection}>
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>{t("profile.ageLabel")}</span>
+                {/* -rbauerMod2- type="text" (not "number"): a native number
+                    input silently swallows non-digit keystrokes before React
+                    sees them, so typing letters leaves the field empty
+                    instead of letting saveAge()'s own check reject it with a
+                    clear message. */}
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={age}
+                  onChange={e => setAge(e.target.value)}
+                  className={styles.input}
+                />
+              </label>
+              <button onClick={saveAge} className={styles.saveBtn}>
+                {t("profile.saveAge")}
               </button>
             </div>
           </div>

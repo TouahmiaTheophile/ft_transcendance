@@ -1,3 +1,9 @@
+// ============================================================================
+// -rbauer- German dictionary.
+//
+// See the comment at the top of fr.ts -- same idea: `satisfies Dictionary`
+// forces this file to have exactly the same keys as en.ts.
+// ============================================================================
 import type { Dictionary } from "./index";
 
 const de = {
@@ -21,6 +27,9 @@ const de = {
     submit: "Anmelden",
     submitting: "Anmeldung läuft...",
     errors: {
+      emailRequired: "E-Mail ist erforderlich",
+      emailInvalid: "Ungültiges E-Mail-Format",
+      passwordRequired: "Passwort ist erforderlich",
       validationFailed: "Validierung fehlgeschlagen",
       invalidCredentials: "Ungültige Anmeldedaten",
       generic: "Etwas ist schiefgelaufen",
@@ -34,14 +43,19 @@ const de = {
     emailLabel: "E-Mail",
     emailPlaceholder: "deine@email.com",
     passwordLabel: "Passwort",
+    ageLabel: "Alter",
+    agePlaceholder: "Dein Alter",
     submit: "Registrieren",
     submitting: "Registrierung läuft...",
     errors: {
       usernameTooShort: "Der Benutzername muss mindestens 3 Zeichen lang sein",
+      usernameInvalidChars: "Der Benutzername darf nur Buchstaben, Zahlen, Punkte und Bindestriche enthalten",
       emailRequired: "E-Mail ist erforderlich",
       emailTooLong: "E-Mail ist zu lang",
       emailInvalid: "Ungültiges E-Mail-Format",
       passwordTooShort: "Das Passwort muss mindestens 8 Zeichen lang sein",
+      ageRequired: "Alter ist erforderlich",
+      ageInvalid: "Das Alter muss eine ganze Zahl zwischen 0 und 150 sein",
       validationFailed: "Validierung fehlgeschlagen",
       alreadyTaken: "{{field}} bereits vergeben",
       alreadyExists: "Diese Ressource existiert bereits",
@@ -92,6 +106,23 @@ const de = {
     friendRequestsLabel: "Freundschaftsanfragen",
     accept: "Annehmen",
     reject: "Ablehnen",
+
+    search: {
+      filtersToggle: "Filter",
+      hideFilters: "Filter ausblenden",
+      ageMinPlaceholder: "Alter min.",
+      ageMaxPlaceholder: "Alter max.",
+      sortByLabel: "Sortieren nach",
+      sortByUsername: "Benutzername",
+      sortByCreatedAt: "Beitrittsdatum",
+      orderLabel: "Reihenfolge",
+      orderAsc: "Aufsteigend",
+      orderDesc: "Absteigend",
+      resultsCount: "{{count}} Ergebnis(se)",
+      prev: "Zurück",
+      next: "Weiter",
+      pageIndicator: "Seite {{page}} / {{totalPages}}",
+    },
   },
   chat: {
     title: "Chat",
@@ -107,17 +138,21 @@ const de = {
     emailLabel: "E-Mail",
     currentPasswordLabel: "Aktuelles Passwort (zur Bestätigung)",
     saveEmail: "E-Mail speichern",
+    ageLabel: "Alter",
+    saveAge: "Alter speichern",
     matchHistoryTitle: "Spielverlauf",
     comingSoon: "Demnächst verfügbar.",
     status: {
       photoUpdated: "Foto aktualisiert",
       photoRemoved: "Foto entfernt",
       emailUpdated: "E-Mail aktualisiert",
+      ageUpdated: "Alter aktualisiert",
     },
     errors: {
       photoUpdateFailed: "Foto konnte nicht aktualisiert werden (muss ein Bild unter 2 MB sein)",
       photoRemoveFailed: "Foto konnte nicht entfernt werden",
       emailUpdateFailed: "E-Mail konnte nicht aktualisiert werden",
+      ageUpdateFailed: "Alter konnte nicht aktualisiert werden (muss eine ganze Zahl zwischen 0 und 150 sein)",
     },
   },
   game: {

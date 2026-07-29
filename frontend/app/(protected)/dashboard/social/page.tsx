@@ -17,6 +17,12 @@ type User = {
   username: string
   avatarUrl: string | null
   email?: string | null
+  // -rbauerMod2- Only present when this User object came from GET
+  // /users/me (your own, private profile) -- other users' objects
+  // (friends, chat...) never carry an age, the same way they never carry
+  // an email. `null` means the account exists but never set an age
+  // (created before this field did).
+  age?: number | null
 }
 
 type Friend = {

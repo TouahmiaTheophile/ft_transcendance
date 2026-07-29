@@ -42,6 +42,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} ${rajdhani.variable} ${orbitron.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/*
+          -rbauer-
+          LanguageProvider makes the current language available to every
+          page (see app/lib/i18n/LanguageContext.tsx). It's a Client
+          Component wrapping `children`, which lets the rest of the app
+          (including plain Server Components) keep working exactly as
+          before -- only the translation system itself runs on the client.
+          LanguageSwitcher is placed here, once, so the picker shows up on
+          literally every page instead of being added to each one.
+        */}
         <LanguageProvider>
           <LanguageSwitcher />
           {children}

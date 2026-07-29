@@ -147,6 +147,16 @@ prod-stop: ## Stop production services
 prod-logs: ## Follow production logs
 	$(DC_PROD) logs -f $(s)
 
+.PHONY: prod-users
+prod-users: ## Seed 20 demo users into a running prod stack (run 'make prod' first) — for testing search filters/sorting
+	@RUNNING=$$(docker inspect -f '{{.State.Running}}' $(COMPOSE_PROJECT_NAME)-backend 2>/dev/null); \
+	if [ "$$RUNNING" != "true" ]; then \
+		echo "❌  The production backend container ('$(COMPOSE_PROJECT_NAME)-backend') is not running."; \
+		echo "    Run 'make prod' first, then retry 'make prod-users'."; \
+		exit 1; \
+	fi
+	$(DC_PROD) exec backend node dist/backend/src/scripts/seed-users.js
+
 # ─── Build ────────────────────────────────────────────────────────────────────
 .PHONY: build
 build: ## Build Docker images in dev

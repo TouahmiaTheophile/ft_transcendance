@@ -1,3 +1,9 @@
+// ============================================================================
+// -rbauer- Spanish dictionary.
+//
+// See the comment at the top of fr.ts -- same idea: `satisfies Dictionary`
+// forces this file to have exactly the same keys as en.ts.
+// ============================================================================
 import type { Dictionary } from "./index";
 
 const es = {
@@ -21,6 +27,9 @@ const es = {
     submit: "Iniciar sesión",
     submitting: "Iniciando sesión...",
     errors: {
+      emailRequired: "El correo electrónico es obligatorio",
+      emailInvalid: "Formato de correo electrónico inválido",
+      passwordRequired: "La contraseña es obligatoria",
       validationFailed: "Error de validación",
       invalidCredentials: "Credenciales inválidas",
       generic: "Algo salió mal",
@@ -34,14 +43,19 @@ const es = {
     emailLabel: "Correo electrónico",
     emailPlaceholder: "tu@correo.com",
     passwordLabel: "Contraseña",
+    ageLabel: "Edad",
+    agePlaceholder: "Tu edad",
     submit: "Registrarse",
     submitting: "Registrando...",
     errors: {
       usernameTooShort: "El nombre de usuario debe tener al menos 3 caracteres",
+      usernameInvalidChars: "El nombre de usuario solo puede contener letras, números, puntos y guiones",
       emailRequired: "El correo electrónico es obligatorio",
       emailTooLong: "El correo electrónico es demasiado largo",
       emailInvalid: "Formato de correo electrónico inválido",
       passwordTooShort: "La contraseña debe tener al menos 8 caracteres",
+      ageRequired: "La edad es obligatoria",
+      ageInvalid: "La edad debe ser un número entero entre 0 y 150",
       validationFailed: "Error de validación",
       alreadyTaken: "{{field}} ya está en uso",
       alreadyExists: "Este recurso ya existe",
@@ -92,6 +106,23 @@ const es = {
     friendRequestsLabel: "Solicitudes de amistad",
     accept: "Aceptar",
     reject: "Rechazar",
+
+    search: {
+      filtersToggle: "Filtros",
+      hideFilters: "Ocultar filtros",
+      ageMinPlaceholder: "Edad mín.",
+      ageMaxPlaceholder: "Edad máx.",
+      sortByLabel: "Ordenar por",
+      sortByUsername: "Nombre de usuario",
+      sortByCreatedAt: "Fecha de registro",
+      orderLabel: "Orden",
+      orderAsc: "Ascendente",
+      orderDesc: "Descendente",
+      resultsCount: "{{count}} resultado(s)",
+      prev: "Anterior",
+      next: "Siguiente",
+      pageIndicator: "Página {{page}} / {{totalPages}}",
+    },
   },
   chat: {
     title: "Chat",
@@ -107,17 +138,21 @@ const es = {
     emailLabel: "Correo electrónico",
     currentPasswordLabel: "Contraseña actual (para confirmar)",
     saveEmail: "Guardar correo",
+    ageLabel: "Edad",
+    saveAge: "Guardar edad",
     matchHistoryTitle: "Historial de partidas",
     comingSoon: "Próximamente.",
     status: {
       photoUpdated: "Foto actualizada",
       photoRemoved: "Foto eliminada",
       emailUpdated: "Correo actualizado",
+      ageUpdated: "Edad actualizada",
     },
     errors: {
       photoUpdateFailed: "No se pudo actualizar la foto (debe ser una imagen de menos de 2 MB)",
       photoRemoveFailed: "No se pudo eliminar la foto",
       emailUpdateFailed: "No se pudo actualizar el correo",
+      ageUpdateFailed: "No se pudo actualizar la edad (debe ser un número entero entre 0 y 150)",
     },
   },
   game: {
