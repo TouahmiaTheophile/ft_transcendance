@@ -1,7 +1,10 @@
+"use client";
+
 import { apiFetch } from '@/app/lib/api';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import styles from './LobbyList.module.css';
+import { useTranslation } from '@/app/lib/i18n/useTranslation';
 
 type Lobby = {
     id: string;
@@ -13,6 +16,7 @@ type Lobby = {
 
 const LobbyList = () => {
     const router = useRouter();
+    const { t } = useTranslation();
     const [lobbies, setLobbies] = useState<Lobby[]>([]);
     const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +44,7 @@ const LobbyList = () => {
                     router.push(`/dashboard/online/lobby/${lobbyId}`)
                     return
                 }
-                setError(err?.message ?? "Could not join lobby")
+                setError(t("online.errors.joinFailed"))
                 loadLobbies()
             }
         })
@@ -59,8 +63,7 @@ const LobbyList = () => {
                     router.push(`/dashboard/online/lobby/${data.id}`)
                 }
             } else {
-                const err = await res.json().catch(() => null)
-                setError(err?.message ?? "Could not create lobby")
+                setError(t("online.errors.createFailed"))
                 loadLobbies()
             }
         })
@@ -74,22 +77,22 @@ const LobbyList = () => {
 
   return (
     <div className={styles.section}>
-        <h2 className={styles.title}>Lobby List</h2>
+        <h2 className={styles.title}>{t("online.lobbyListTitle")}</h2>
         {error && <p className={styles.error}>{error}</p>}
         {lobbies.length === 0 && (
-            <p className={styles.empty}>No lobbies available.</p>
+            <p className={styles.empty}>{t("online.noLobbies")}</p>
         )}
         {lobbies.map(l => (
             <div key={l.id} className={styles.row}>
-                <span>Lobby</span>
+                <span>{t("online.lobby")}</span>
                 <span className={styles.count}>{l.currentPlayers}/{l.maxPlayers}</span>
                 <button onClick={() => joinLobby(l.id)} className={styles.joinBtn}>
-                    Join
+                    {t("online.join")}
                 </button>
             </div>
         ))}
         <button onClick={() => createLobby()} className={styles.createBtn}>
-            Create Lobby
+            {t("online.createLobby")}
         </button>
     </div>
   )

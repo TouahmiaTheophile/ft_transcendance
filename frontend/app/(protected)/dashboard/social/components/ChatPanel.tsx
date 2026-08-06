@@ -4,6 +4,7 @@ import styles from "./ChatPanel.module.css"
 import { useCallback, useEffect, useState } from "react"
 import { apiFetch } from "@/app/lib/api"
 import { getSocket } from "@/app/lib/socket"
+import { useTranslation } from "@/app/lib/i18n/useTranslation"
 
 
 type User = {
@@ -32,6 +33,7 @@ type Message = {
 }
 
 export default function ChatPanel({ conversation, meId, onViewProfile }: Props) {
+  const { t } = useTranslation()
 
   const [messages, setMessages] = useState<Message[]>([])
   const [text, setText] = useState("")
@@ -88,7 +90,7 @@ export default function ChatPanel({ conversation, meId, onViewProfile }: Props) 
             {conversation.friend.username}
           </button>
         ) : (
-          <h2 className={styles.title}>Chat</h2>
+          <h2 className={styles.title}>{t("chat.title")}</h2>
         )}
       </div>
       <div className={styles.body}>
@@ -106,7 +108,7 @@ export default function ChatPanel({ conversation, meId, onViewProfile }: Props) 
             </div>
           ))
         ) : (
-          <div className={styles.empty}>Select a friend to start chatting</div>
+          <div className={styles.empty}>{t("chat.emptyState")}</div>
         )}
       </div>
       {error && <div className={styles.error}>{error}</div>}
@@ -115,11 +117,11 @@ export default function ChatPanel({ conversation, meId, onViewProfile }: Props) 
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter") sendMessage() }}
-          placeholder="start typing..."
+          placeholder={t("chat.placeholder")}
           className={styles.input}
         />
         <button onClick={sendMessage} className={styles.inviteBtn}>
-          Send
+          {t("chat.send")}
         </button>
       </div>
     </div>

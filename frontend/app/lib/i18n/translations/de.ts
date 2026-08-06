@@ -1,0 +1,167 @@
+// ============================================================================
+// -rbauer- German dictionary.
+//
+// See the comment at the top of fr.ts -- same idea: `satisfies Dictionary`
+// forces this file to have exactly the same keys as en.ts.
+// ============================================================================
+import type { Dictionary } from "./index";
+
+const de = {
+  common: {
+    backToHome: "Startseite",
+    backToHomeAria: "Zurück zur Startseite",
+    backToDashboard: "Übersicht",
+    backToDashboardAria: "Zurück zur Übersicht",
+    logout: "Abmelden",
+  },
+  home: {
+    welcome: "Willkommen bei",
+    loginCta: "Anmelden",
+    registerCta: "Registrieren",
+  },
+  login: {
+    heading: "ANMELDUNG",
+    emailLabel: "E-Mail",
+    emailPlaceholder: "deine@email.com",
+    passwordLabel: "Passwort",
+    submit: "Anmelden",
+    submitting: "Anmeldung läuft...",
+    errors: {
+      emailRequired: "E-Mail ist erforderlich",
+      emailInvalid: "Ungültiges E-Mail-Format",
+      passwordRequired: "Passwort ist erforderlich",
+      validationFailed: "Validierung fehlgeschlagen",
+      invalidCredentials: "Ungültige Anmeldedaten",
+      generic: "Etwas ist schiefgelaufen",
+      network: "Netzwerkfehler. Öffne die App über https://localhost und überprüfe nginx/backend.",
+    },
+  },
+  register: {
+    heading: "REGISTRIEREN",
+    usernameLabel: "Benutzername",
+    usernamePlaceholder: "Wähle deinen Benutzernamen",
+    emailLabel: "E-Mail",
+    emailPlaceholder: "deine@email.com",
+    passwordLabel: "Passwort",
+    ageLabel: "Alter",
+    agePlaceholder: "Dein Alter",
+    submit: "Registrieren",
+    submitting: "Registrierung läuft...",
+    errors: {
+      usernameTooShort: "Der Benutzername muss mindestens 3 Zeichen lang sein",
+      usernameInvalidChars: "Der Benutzername darf nur Buchstaben, Zahlen, Punkte und Bindestriche enthalten",
+      emailRequired: "E-Mail ist erforderlich",
+      emailTooLong: "E-Mail ist zu lang",
+      emailInvalid: "Ungültiges E-Mail-Format",
+      passwordTooShort: "Das Passwort muss mindestens 8 Zeichen lang sein",
+      ageRequired: "Alter ist erforderlich",
+      ageInvalid: "Das Alter muss eine ganze Zahl zwischen 0 und 150 sein",
+      validationFailed: "Validierung fehlgeschlagen",
+      alreadyTaken: "{{field}} bereits vergeben",
+      alreadyExists: "Diese Ressource existiert bereits",
+      generic: "Etwas ist schiefgelaufen",
+      network: "Netzwerkfehler. Öffne die App über https://localhost und überprüfe nginx/backend.",
+    },
+  },
+  dashboard: {
+    play: "Spielen",
+    social: "Sozial",
+  },
+  online: {
+    title: "Mehrspieler",
+    lobbyListTitle: "Lobby-Liste",
+    noLobbies: "Keine Lobbys verfügbar.",
+    lobby: "Lobby",
+    join: "Beitreten",
+    createLobby: "Lobby erstellen",
+    errors: {
+      joinFailed: "Beitritt zur Lobby fehlgeschlagen",
+      createFailed: "Lobby konnte nicht erstellt werden",
+    },
+  },
+  lobby: {
+    title: "Lobby",
+    connecting: "Verbindung wird hergestellt…",
+    leave: "Lobby verlassen",
+    players: "{{count}}/{{max}} Spieler",
+    host: "Gastgeber",
+    you: "du",
+    startGame: "Spiel starten",
+    needMorePlayers: "Mindestens 2 Spieler erforderlich",
+    errors: {
+      leaveFailed: "Lobby konnte nicht verlassen werden",
+      generic: "Etwas ist schiefgelaufen",
+    },
+  },
+  social: {
+    addFriendLabel: "Freund hinzufügen",
+    searchPlaceholder: "Benutzernamen suchen...",
+    noUsersFound: "Keine Benutzer gefunden.",
+    invite: "Einladen",
+    invited: "Gesendet ✓",
+    friendsTitle: "Freunde",
+    noFriends: "Noch keine Freunde.",
+    online: "Online",
+    offline: "Offline",
+    removeFriend: "Freund entfernen",
+    friendRequestsLabel: "Freundschaftsanfragen",
+    accept: "Annehmen",
+    reject: "Ablehnen",
+
+    search: {
+      filtersToggle: "Filter",
+      hideFilters: "Filter ausblenden",
+      ageMinPlaceholder: "Alter min.",
+      ageMaxPlaceholder: "Alter max.",
+      sortByLabel: "Sortieren nach",
+      sortByUsername: "Benutzername",
+      sortByCreatedAt: "Beitrittsdatum",
+      orderLabel: "Reihenfolge",
+      orderAsc: "Aufsteigend",
+      orderDesc: "Absteigend",
+      resultsCount: "{{count}} Ergebnis(se)",
+      prev: "Zurück",
+      next: "Weiter",
+      pageIndicator: "Seite {{page}} / {{totalPages}}",
+    },
+  },
+  chat: {
+    title: "Chat",
+    emptyState: "Wähle einen Freund, um zu chatten",
+    placeholder: "Nachricht eingeben...",
+    send: "Senden",
+  },
+  profile: {
+    title: "Profil",
+    changePhoto: "Foto ändern",
+    removePhoto: "Entfernen",
+    usernameLocked: "Benutzername (nicht änderbar)",
+    emailLabel: "E-Mail",
+    currentPasswordLabel: "Aktuelles Passwort (zur Bestätigung)",
+    saveEmail: "E-Mail speichern",
+    ageLabel: "Alter",
+    saveAge: "Alter speichern",
+    matchHistoryTitle: "Spielverlauf",
+    comingSoon: "Demnächst verfügbar.",
+    status: {
+      photoUpdated: "Foto aktualisiert",
+      photoRemoved: "Foto entfernt",
+      emailUpdated: "E-Mail aktualisiert",
+      ageUpdated: "Alter aktualisiert",
+    },
+    errors: {
+      photoUpdateFailed: "Foto konnte nicht aktualisiert werden (muss ein Bild unter 2 MB sein)",
+      photoRemoveFailed: "Foto konnte nicht entfernt werden",
+      emailUpdateFailed: "E-Mail konnte nicht aktualisiert werden",
+      ageUpdateFailed: "Alter konnte nicht aktualisiert werden (muss eine ganze Zahl zwischen 0 und 150 sein)",
+    },
+  },
+  game: {
+    placeholder: "Demnächst verfügbar.",
+  },
+  languageSwitcher: {
+    label: "Sprache",
+  },
+} satisfies Dictionary;
+
+export default de;

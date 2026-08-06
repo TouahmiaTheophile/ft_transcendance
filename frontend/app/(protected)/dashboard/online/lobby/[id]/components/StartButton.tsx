@@ -1,4 +1,7 @@
+"use client";
+
 import styles from "./StartButton.module.css"
+import { useTranslation } from "@/app/lib/i18n/useTranslation"
 
 type Props = {
   canStart: boolean
@@ -6,9 +9,11 @@ type Props = {
 }
 
 export default function StartButton({ canStart, onStart }: Props) {
+  const { t } = useTranslation()
+
   return (
     <button onClick={onStart} disabled={!canStart} className={styles.button}>
-      {canStart ? "Start game" : "Need at least 2 players"}
+      {canStart ? t("lobby.startGame") : t("lobby.needMorePlayers")}
     </button>
   )
 }

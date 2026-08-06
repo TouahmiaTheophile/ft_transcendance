@@ -84,6 +84,26 @@ export class FriendsService {
     return toFriendshipResponse(deleted);
   }
 
+  async remove(friendshipId: number, userId: number): Promise<FriendshipResponseDto> {
+    const friendship = await this.prisma.friendship.findUnique({
+      where: { id: friendshipId },
+    });
+
+    if (!friendship) throw ApiErrors.notFound('Friendship not found');
+
+    this.friendshipPolicy.assertRemove(friendship, userId);
+
+    // No explicit conversation cleanup here (unlike block): Conversation has
+    // onDelete: Cascade on friendshipId, so the conversation and its messages
+    // go away with the row.
+    const deleted = await this.prisma.friendship.delete({
+      where: { id: friendshipId },
+      include: FRIENDSHIP_USERS_INCLUDE,
+    });
+
+    return toFriendshipResponse(deleted);
+  }
+
   async block(friendshipId: number, userId: number): Promise<FriendshipResponseDto> {
     const friendship = await this.prisma.friendship.findUnique({
       where: { id: friendshipId },

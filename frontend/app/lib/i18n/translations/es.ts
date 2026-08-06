@@ -1,0 +1,167 @@
+// ============================================================================
+// -rbauer- Spanish dictionary.
+//
+// See the comment at the top of fr.ts -- same idea: `satisfies Dictionary`
+// forces this file to have exactly the same keys as en.ts.
+// ============================================================================
+import type { Dictionary } from "./index";
+
+const es = {
+  common: {
+    backToHome: "Inicio",
+    backToHomeAria: "Volver al inicio",
+    backToDashboard: "Panel",
+    backToDashboardAria: "Volver al panel",
+    logout: "Cerrar sesión",
+  },
+  home: {
+    welcome: "Bienvenido a",
+    loginCta: "Iniciar sesión",
+    registerCta: "Registrarse",
+  },
+  login: {
+    heading: "INICIAR SESIÓN",
+    emailLabel: "Correo electrónico",
+    emailPlaceholder: "tu@correo.com",
+    passwordLabel: "Contraseña",
+    submit: "Iniciar sesión",
+    submitting: "Iniciando sesión...",
+    errors: {
+      emailRequired: "El correo electrónico es obligatorio",
+      emailInvalid: "Formato de correo electrónico inválido",
+      passwordRequired: "La contraseña es obligatoria",
+      validationFailed: "Error de validación",
+      invalidCredentials: "Credenciales inválidas",
+      generic: "Algo salió mal",
+      network: "Error de red. Abre la aplicación con https://localhost y verifica nginx/backend.",
+    },
+  },
+  register: {
+    heading: "REGISTRARSE",
+    usernameLabel: "Nombre de usuario",
+    usernamePlaceholder: "Elige tu nombre de usuario",
+    emailLabel: "Correo electrónico",
+    emailPlaceholder: "tu@correo.com",
+    passwordLabel: "Contraseña",
+    ageLabel: "Edad",
+    agePlaceholder: "Tu edad",
+    submit: "Registrarse",
+    submitting: "Registrando...",
+    errors: {
+      usernameTooShort: "El nombre de usuario debe tener al menos 3 caracteres",
+      usernameInvalidChars: "El nombre de usuario solo puede contener letras, números, puntos y guiones",
+      emailRequired: "El correo electrónico es obligatorio",
+      emailTooLong: "El correo electrónico es demasiado largo",
+      emailInvalid: "Formato de correo electrónico inválido",
+      passwordTooShort: "La contraseña debe tener al menos 8 caracteres",
+      ageRequired: "La edad es obligatoria",
+      ageInvalid: "La edad debe ser un número entero entre 0 y 150",
+      validationFailed: "Error de validación",
+      alreadyTaken: "{{field}} ya está en uso",
+      alreadyExists: "Este recurso ya existe",
+      generic: "Algo salió mal",
+      network: "Error de red. Abre la aplicación con https://localhost y verifica nginx/backend.",
+    },
+  },
+  dashboard: {
+    play: "Jugar",
+    social: "Social",
+  },
+  online: {
+    title: "Multijugador",
+    lobbyListTitle: "Lista de salas",
+    noLobbies: "No hay salas disponibles.",
+    lobby: "Sala",
+    join: "Unirse",
+    createLobby: "Crear sala",
+    errors: {
+      joinFailed: "No se pudo unir a la sala",
+      createFailed: "No se pudo crear la sala",
+    },
+  },
+  lobby: {
+    title: "Sala",
+    connecting: "Conectando…",
+    leave: "Salir de la sala",
+    players: "{{count}}/{{max}} jugadores",
+    host: "anfitrión",
+    you: "tú",
+    startGame: "Iniciar partida",
+    needMorePlayers: "Se necesitan al menos 2 jugadores",
+    errors: {
+      leaveFailed: "No se pudo salir de la sala",
+      generic: "Algo salió mal",
+    },
+  },
+  social: {
+    addFriendLabel: "Añadir amigo",
+    searchPlaceholder: "Buscar nombre de usuario...",
+    noUsersFound: "No se encontraron usuarios.",
+    invite: "Invitar",
+    invited: "Enviado ✓",
+    friendsTitle: "Amigos",
+    noFriends: "Aún no tienes amigos.",
+    online: "En línea",
+    offline: "Desconectado",
+    removeFriend: "Eliminar amigo",
+    friendRequestsLabel: "Solicitudes de amistad",
+    accept: "Aceptar",
+    reject: "Rechazar",
+
+    search: {
+      filtersToggle: "Filtros",
+      hideFilters: "Ocultar filtros",
+      ageMinPlaceholder: "Edad mín.",
+      ageMaxPlaceholder: "Edad máx.",
+      sortByLabel: "Ordenar por",
+      sortByUsername: "Nombre de usuario",
+      sortByCreatedAt: "Fecha de registro",
+      orderLabel: "Orden",
+      orderAsc: "Ascendente",
+      orderDesc: "Descendente",
+      resultsCount: "{{count}} resultado(s)",
+      prev: "Anterior",
+      next: "Siguiente",
+      pageIndicator: "Página {{page}} / {{totalPages}}",
+    },
+  },
+  chat: {
+    title: "Chat",
+    emptyState: "Selecciona un amigo para chatear",
+    placeholder: "Escribe un mensaje...",
+    send: "Enviar",
+  },
+  profile: {
+    title: "Perfil",
+    changePhoto: "Cambiar foto",
+    removePhoto: "Eliminar",
+    usernameLocked: "Nombre de usuario (no se puede cambiar)",
+    emailLabel: "Correo electrónico",
+    currentPasswordLabel: "Contraseña actual (para confirmar)",
+    saveEmail: "Guardar correo",
+    ageLabel: "Edad",
+    saveAge: "Guardar edad",
+    matchHistoryTitle: "Historial de partidas",
+    comingSoon: "Próximamente.",
+    status: {
+      photoUpdated: "Foto actualizada",
+      photoRemoved: "Foto eliminada",
+      emailUpdated: "Correo actualizado",
+      ageUpdated: "Edad actualizada",
+    },
+    errors: {
+      photoUpdateFailed: "No se pudo actualizar la foto (debe ser una imagen de menos de 2 MB)",
+      photoRemoveFailed: "No se pudo eliminar la foto",
+      emailUpdateFailed: "No se pudo actualizar el correo",
+      ageUpdateFailed: "No se pudo actualizar la edad (debe ser un número entero entre 0 y 150)",
+    },
+  },
+  game: {
+    placeholder: "Próximamente.",
+  },
+  languageSwitcher: {
+    label: "Idioma",
+  },
+} satisfies Dictionary;
+
+export default es;

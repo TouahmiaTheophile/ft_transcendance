@@ -20,6 +20,7 @@ import { toPrivateUserResponse, toUserResponse } from './mappers/user.mapper';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
+import { SearchUsersDto } from './dto/search-users.dto';
 import { ApiErrors } from '../common/errors/api-exceptions.helper';
 
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -88,11 +89,13 @@ export class UsersController {
     return this.usersService.deleteAvatar(user.sub);
   }
 
+  // -rbauerMod2- `@Query() dto: SearchUsersDto` -- unlike `@Query('query') query: string`,
+  // this tells Nest: "take ALL the query params from the URL, build a real
+  // SearchUsersDto instance out of them, and run it through the global
+  // ValidationPipe (see main.ts) before calling this method". That's what
+  // actually enforces every @IsInt/@Min/@Max/@IsIn rule declared in the DTO.
   @Get('search')
-  async searchUsers(
-    @Query('query') query: string,
-    @Query('max') max: number
-  ) {
-    return this.usersService.searchUsers(query, max);
+  async searchUsers(@Query() dto: SearchUsersDto) {
+    return this.usersService.searchUsers(dto);
   }
 }

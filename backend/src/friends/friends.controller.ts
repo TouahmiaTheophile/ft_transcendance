@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Param, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { FriendsService } from './friends.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -32,6 +32,14 @@ export class FriendsController {
     @CurrentUser() user: AccessTokenPayload,
   ) {
     return this.friends.reject(id, user.sub);
+  }
+
+  @Delete(':id')
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: AccessTokenPayload,
+  ) {
+    return this.friends.remove(id, user.sub);
   }
 
   @Post('block/:id')

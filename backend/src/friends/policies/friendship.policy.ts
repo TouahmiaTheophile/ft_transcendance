@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { canTransition } from '@shared/state-machine/create-state-machine';
 import { FRIENDSHIP_TRANSITIONS } from '@shared/friendship/friendship-transitions';
 import { FriendshipErrors } from '../errors/friendship.errors';
-import { Friendship } from '@prisma/client';
+import { Friendship, FriendshipStatus } from '@prisma/client';
 
 @Injectable()
 export class FriendshipPolicy {
@@ -33,6 +33,19 @@ export class FriendshipPolicy {
     }
     if (!canTransition(FRIENDSHIP_TRANSITIONS, friendship.status, 'REJECTED')) {
       throw FriendshipErrors.notPending(friendship);
+    }
+  }
+
+  // Unlike assertReject (addressee only, PENDING only), removing a friend is
+  // symmetric: once the friendship is ACCEPTED both sides are equal, so either
+  // participant can end it. No canTransition() check here because the row is
+  // deleted, not moved to another status.
+  assertRemove(friendship: Friendship, userId: number) {
+    if (friendship.requesterId !== userId && friendship.addresseeId !== userId) {
+      throw FriendshipErrors.forbidden(friendship);
+    }
+    if (friendship.status !== FriendshipStatus.ACCEPTED) {
+      throw FriendshipErrors.cannotRemove(friendship);
     }
   }
 

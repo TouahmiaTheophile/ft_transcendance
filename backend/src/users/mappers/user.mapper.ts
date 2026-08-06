@@ -29,5 +29,6 @@ export function toPrivateUserResponse(user: PrivateUser): PrivateUserResponseDto
       : null,
     email: user.email,
     createdAt: user.createdAt,
+    age: user.age,
   };
 }

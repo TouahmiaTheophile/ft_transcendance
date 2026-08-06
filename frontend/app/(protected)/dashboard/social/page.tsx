@@ -10,12 +10,19 @@ import PendingRequests from "./components/PendingRequests"
 import AddFriend from "./components/AddFriend"
 import ChatPanel from "./components/ChatPanel"
 import ProfileModal from "./components/ProfileModal"
+import { useTranslation } from "@/app/lib/i18n/useTranslation"
 
 type User = {
   id: number
   username: string
   avatarUrl: string | null
   email?: string | null
+  // -rbauerMod2- Only present when this User object came from GET
+  // /users/me (your own, private profile) -- other users' objects
+  // (friends, chat...) never carry an age, the same way they never carry
+  // an email. `null` means the account exists but never set an age
+  // (created before this field did).
+  age?: number | null
 }
 
 type Friend = {
@@ -34,6 +41,7 @@ type PendingRequest = {
 }
 
 export default function SocialPage() {
+  const { t } = useTranslation()
   const [me, setMe] = useState<User | null>(null)
   const [friends, setFriends] = useState<Friend[]>([])
   const [pending, setPending] = useState<PendingRequest[]>([])
@@ -98,6 +106,18 @@ export default function SocialPage() {
     return () => { socket.off("friend:status", onStatus) }
   }, [])
 
+  const removeFriend = async (friendshipId: number) => {
+    const res = await apiFetch(`/friends/${friendshipId}`, { method: "DELETE" })
+    if (!res.ok) return
+
+    // the conversation is gone too (deleted in cascade with the friendship),
+    // so close the chat panel if it was the one being displayed
+    const removed = friends.find(f => f.id === friendshipId)
+    setSelectedConversation(prev => prev?.friend.id === removed?.friend.id ? null : prev)
+    loadFriends()
+    loadConversations()
+  }
+
   const logout = async () => {
     await apiFetch("/auth/logout", { method: "POST" })
     window.location.href = "/login"
@@ -110,11 +130,11 @@ export default function SocialPage() {
     <div className="min-h-screen flex flex-col pt-10 px-4 pb-4 gap-6">
       <Link
         href="/dashboard"
-        aria-label="Back to dashboard"
+        aria-label={t("common.backToDashboardAria")}
         className="self-start flex items-center gap-2 text-sm text-white/60 hover:text-white w-fit"
       >
         <span className="text-lg leading-none">←</span>
-        Dashboard
+        {t("common.backToDashboard")}
       </Link>
 
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -133,7 +153,7 @@ export default function SocialPage() {
               onClick={logout}
               className="ml-auto text-sm text-blue-200/70 hover:text-blue-200 cursor-pointer"
             >
-              Logout
+              {t("common.logout")}
             </button>
           </div>
         )}
@@ -146,6 +166,7 @@ export default function SocialPage() {
               if (convo) setSelectedConversation(convo)
             }
           }
+            onRemove={removeFriend}
           />
         </div>
         <PendingRequests
