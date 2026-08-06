@@ -60,4 +60,6 @@ COPY --from=shared-build /app/shared /app/shared
 
 ENV NODE_ENV=production
 
-CMD sh -c "npx prisma db push --accept-data-loss && node dist/main"
+# Les imports @shared/* pointent hors de backend/, donc tsc remonte le rootDir
+# au parent commun : la sortie est dist/backend/src/, pas dist/.
+CMD sh -c "npx prisma db push --accept-data-loss && node dist/backend/src/main"

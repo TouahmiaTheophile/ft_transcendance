@@ -1,11 +1,59 @@
+
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
 
+const SOCKET_URL = (process.env.NEXT_PUBLIC_SOCKET_URL ?? "").replace(/\/$/, "");
+
+export function getSocket() {
+  if (typeof window === "undefined") return null;
+
+  if (!socket) {
+    socket = io(SOCKET_URL || undefined, {
+      autoConnect: false,
+      withCredentials: true,
+    });
+  }
+
+  return socket;
+}
+
+export function connectSocket() {
+  const s = getSocket();
+  if (!s) return;
+
+  if (!s.connected) {
+    s.connect();
+  }
+}
+
+export function disconnectSocket() {
+  const s = getSocket();
+  if (!s) return;
+
+  if (s.connected) {
+    s.disconnect();
+  }
+}
+
+
+
+
+
+
+
+/*
+import { io, Socket } from "socket.io-client";
+
+let socket: Socket | null = null;
+
+//Nginx WebSocket 
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL ?? "https://localhost";
+
 export function getSocket() {
   if (typeof window === "undefined") return null;
   if (!socket) {
-    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:3000", {
+    socket = io(SOCKET_URL, {
       autoConnect: false,
       withCredentials: true,
     });
@@ -24,3 +72,4 @@ export function disconnectSocket() {
   if (!s) return;
   if (s.connected) s.disconnect();
 }
+  */

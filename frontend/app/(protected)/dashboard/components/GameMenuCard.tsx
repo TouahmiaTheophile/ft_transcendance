@@ -4,8 +4,7 @@ import NavigationLink from '../../../components/NavigationLink';
 const GameMenuCard = () => {
   return (
     <div className={styles.card}>
-      <NavigationLink label="Local" href="/local" />
-      <NavigationLink label="Online" href="/dashboard/online" />
+      <NavigationLink label="Play" href="/dashboard/online" />
       <NavigationLink label="Social" href="/dashboard/social" />
 
     </div>

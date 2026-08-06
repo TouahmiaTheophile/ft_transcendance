@@ -16,14 +16,26 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  //For Nginx https connections
+  app.set('trust proxy', 1);
+
   app.enableCors({
-    origin: ['http://localhost:3001', 'http://127.0.0.1:3001'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
-  });
+  origin: [
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'https://localhost',
+    'https://127.0.0.1',
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  credentials: true,
+});
+
+
 
   // Allow to deliver static files
-  app.useStaticAssets(join(__dirname, '..', 'uploads/avatars'), {
+  // process.cwd() et non __dirname : users.service.ts ecrit les avatars la, et
+  // __dirname depend de la profondeur de dist/ (imbriquee a cause de @shared).
+  app.useStaticAssets(join(process.cwd(), 'uploads/avatars'), {
     prefix: '/uploads/avatars',
   });
 
