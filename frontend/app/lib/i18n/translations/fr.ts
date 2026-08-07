@@ -1,10 +1,9 @@
 // ============================================================================
 // -rbauer- French dictionary.
 //
-// `satisfies Dictionary` at the bottom means: "TypeScript, please check that
-// this object has EXACTLY the same keys as the English one (en.ts)". If a
-// key is missing here, or if one exists here but not in en.ts, the build
-// fails right away -- you can't accidentally ship an incomplete translation.
+// `satisfies Dictionary` at the bottom makes TypeScript require exactly the
+// same keys as en.ts: a missing or extra key fails the build, so an incomplete
+// translation cannot ship.
 //
 // The values themselves are free: only the shape (the keys) has to match,
 // the French text can be as different from the English text as needed.
@@ -18,6 +17,9 @@ const fr = {
     backToDashboard: "Tableau de bord",
     backToDashboardAria: "Retour au tableau de bord",
     logout: "Déconnexion",
+
+    // -rbauerMod3- See en.ts: the {{date}} placeholder is filled in by the page.
+    lastUpdated: "Dernière mise à jour : {{date}}",
   },
   home: {
     welcome: "Bienvenue sur",
@@ -165,6 +167,92 @@ const fr = {
   },
   languageSwitcher: {
     label: "Langue",
+  },
+
+  // -rbauerMod3- French footer and legal pages. Title/body structure explained
+  // in en.ts.
+  footer: {
+    nav: "Liens légaux",
+    privacy: "Politique de confidentialité",
+    terms: "Conditions d'utilisation",
+  },
+
+  privacy: {
+    title: "Politique de confidentialité",
+    intro: {
+      title: "Qui sommes-nous",
+      body: "GRID_RUNNERS est un projet étudiant développé dans le cadre du cursus de l'école 42 (ft_transcendence). Ce n'est pas un service commercial. Cette page explique quelles données personnelles l'application collecte, pourquoi elle les collecte, et quel contrôle vous gardez dessus.",
+    },
+    dataCollected: {
+      title: "Les données que nous collectons",
+      body: "Lors de la création de votre compte, nous enregistrons votre nom d'utilisateur, votre adresse e-mail, votre âge et une version hachée de votre mot de passe : le mot de passe lui-même n'est jamais stocké en clair. Si vous envoyez un avatar, le fichier image est stocké sur notre serveur. Nous enregistrons également la date de création de votre compte. Pendant votre utilisation de l'application, nous conservons les messages que vous envoyez, vos relations d'amitié (en attente, acceptée, refusée ou bloquée) ainsi que votre statut de connexion.",
+    },
+    purpose: {
+      title: "Pourquoi nous utilisons vos données",
+      // -rbauerMod3- See the comment on the same key in en.ts: the age is a
+      // server-side search filter only, it is never returned to other users.
+      body: "Votre e-mail et votre mot de passe servent à vous connecter et à sécuriser votre compte. Votre nom d'utilisateur, votre avatar et votre statut de connexion permettent aux autres joueurs de vous trouver, de vous ajouter en ami et de voir quand vous êtes disponible. Vos messages servent à faire fonctionner le chat. Votre âge sert uniquement de filtre de recherche dans la section « Ajouter un ami » : les autres joueurs peuvent restreindre une recherche à une tranche d'âge, mais votre âge lui-même ne leur est jamais montré. Nous n'utilisons pas vos données à des fins publicitaires, de profilage ou de traçage.",
+    },
+    cookies: {
+      title: "Cookies",
+      body: "Nous n'utilisons que deux cookies strictement nécessaires, nommés accessToken et refreshToken. Ils vous maintiennent connecté d'une page à l'autre et sont le seul moyen pour le serveur de reconnaître votre session. Ils sont HTTP-only, c'est-à-dire illisibles par JavaScript, et ils sont supprimés à la déconnexion. Nous n'utilisons aucun cookie de mesure d'audience, de publicité ou de traçage tiers.",
+    },
+    sharing: {
+      title: "Qui peut voir vos données",
+      body: "Nous ne vendons ni ne partageons jamais vos données à des tiers, et l'application n'envoie aucune donnée à un service externe. À l'intérieur de l'application, les autres utilisateurs connectés voient votre nom d'utilisateur, votre avatar et votre statut de connexion, et les amis avec qui vous discutez voient les messages que vous leur envoyez. Votre adresse e-mail, votre âge et votre mot de passe ne sont jamais montrés aux autres utilisateurs.",
+    },
+    retention: {
+      title: "Combien de temps nous les conservons",
+      body: "Les données de votre compte sont conservées tant que votre compte existe. Les messages sont conservés jusqu'à la suppression de la relation d'amitié correspondante : retirer un ami supprime aussi toute la conversation. Les sessions de connexion expirent automatiquement et sont supprimées lorsque vous vous déconnectez. Comme il s'agit d'un projet scolaire, l'ensemble de la base de données peut être réinitialisé lors de l'évaluation du projet ou de son arrêt.",
+    },
+    security: {
+      title: "Sécurité",
+      body: "Les mots de passe sont stockés hachés, jamais en clair. Tout le trafic entre votre navigateur et le serveur passe par HTTPS. Les jetons de session sont stockés dans des cookies HTTP-only afin de limiter l'impact d'une injection de script. Aucun système n'est parfaitement sûr : utilisez un mot de passe que vous ne réutilisez nulle part ailleurs.",
+    },
+    rights: {
+      title: "Vos droits",
+      body: "Vous pouvez consulter et modifier votre adresse e-mail, votre âge et votre avatar à tout moment depuis votre page de profil. Votre nom d'utilisateur ne peut pas être modifié. Si vous souhaitez une copie de vos données, ou la suppression de votre compte et de toutes les données associées, contactez-nous et nous traiterons votre demande.",
+    },
+    contact: {
+      title: "Contact",
+      body: "Toute question sur cette politique peut être adressée à l'équipe via l'intranet 42 ou Slack : {{logins}}.",
+    },
+  },
+
+  terms: {
+    title: "Conditions d'utilisation",
+    intro: {
+      title: "Acceptation des conditions",
+      body: "GRID_RUNNERS est une plateforme de jeu multijoueur et de chat en ligne, réalisée comme projet étudiant dans le cadre du cursus 42. En créant un compte ou en utilisant l'application, vous acceptez les présentes conditions d'utilisation. Si vous ne les acceptez pas, n'utilisez pas l'application.",
+    },
+    account: {
+      title: "Votre compte",
+      body: "Vous devez fournir une adresse e-mail valide et des informations exactes lors de votre inscription. Vous êtes responsable de la confidentialité de votre mot de passe et de tout ce qui se passe depuis votre compte. Ne partagez votre compte avec personne et n'essayez pas de vous connecter en tant qu'un autre utilisateur.",
+    },
+    conduct: {
+      title: "Usage acceptable",
+      body: "Respectez les autres joueurs. Il est interdit de harceler, menacer ou insulter d'autres utilisateurs, d'envoyer du spam, d'usurper l'identité d'autrui ou de publier des contenus illégaux, haineux ou sexuellement explicites. Il est également interdit de tricher, d'exploiter des bugs pour obtenir un avantage, de perturber les parties, de surcharger les serveurs ou de tenter d'accéder à des parties du système auxquelles vous n'avez pas droit.",
+    },
+    content: {
+      title: "Vos contenus",
+      body: "Vous restez responsable des messages que vous envoyez. En envoyant un message, vous nous autorisez à le stocker et à le transmettre à son destinataire. Nous pouvons supprimer un contenu ou suspendre un compte qui enfreint ces règles. Vous pouvez bloquer n'importe quel utilisateur à tout moment pour ne plus recevoir ses messages.",
+    },
+    availability: {
+      title: "Disponibilité du service",
+      body: "Il s'agit d'un projet étudiant, pas d'un service commercial : il est fourni gratuitement, sans garantie de disponibilité, et peut être interrompu, modifié ou arrêté à tout moment. La base de données peut être réinitialisée sans préavis, ce qui signifie que les comptes, les parties et les messages peuvent être perdus.",
+    },
+    termination: {
+      title: "Suspension et suppression",
+      body: "Nous pouvons suspendre ou supprimer un compte qui enfreint ces conditions. Vous pouvez cesser d'utiliser l'application à tout moment et demander la suppression de votre compte ; consultez la politique de confidentialité pour savoir comment cette demande est traitée.",
+    },
+    liability: {
+      title: "Responsabilité",
+      body: "L'application est fournie en l'état, sans aucune garantie. Dans les limites permises par la loi, les auteurs ne peuvent être tenus responsables d'un dommage, d'une perte de données ou d'une interruption de service résultant de l'utilisation de l'application.",
+    },
+    changes: {
+      title: "Modification des conditions",
+      body: "Ces conditions peuvent évoluer avec le projet. La date affichée en haut de cette page indique la dernière mise à jour. Continuer à utiliser l'application après une modification vaut acceptation de la nouvelle version.",
+    },
   },
 } satisfies Dictionary;
 

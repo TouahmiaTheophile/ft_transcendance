@@ -79,7 +79,15 @@ export default function ChatPanel({ conversation, meId, onViewProfile }: Props) 
   }, [conversation])
 
   return (
-    <div className={`${styles.panel} h-full lg:h-[calc(100vh-3rem)]`}>
+    // -rbauerMod3- Dropped `lg:h-[calc(100vh-3rem)]`: the 3rem underestimated
+    // where this panel starts (pt-10 + back link + gap-6, ~84px, plus the 48px
+    // reserved for the footer), so the panel was too tall and pushed its input
+    // row below the fold.
+    //
+    // `h-full` replaces it with no magic number: the grid cell is already sized
+    // by the parent chain in social/page.tsx, so the browser computes the
+    // height and it survives changes to the header or the padding above.
+    <div className={`${styles.panel} h-full`}>
       <div className={styles.header}>
         {conversation ? (
           <button

@@ -2,6 +2,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { LanguageProvider } from "./lib/i18n/LanguageContext";
 import LanguageSwitcher from "./components/LanguageSwitcher";
+// -rbauerMod3- Site-wide footer holding the Privacy Policy / Terms links.
+import Footer from "./components/Footer";
 
 // Self-hosted fonts: files live in ./fonts and are read at build time, so the
 // build never needs to reach fonts.googleapis.com. Geist, Geist Mono and
@@ -44,17 +46,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col">
         {/*
           -rbauer-
-          LanguageProvider makes the current language available to every
-          page (see app/lib/i18n/LanguageContext.tsx). It's a Client
-          Component wrapping `children`, which lets the rest of the app
-          (including plain Server Components) keep working exactly as
-          before -- only the translation system itself runs on the client.
-          LanguageSwitcher is placed here, once, so the picker shows up on
-          literally every page instead of being added to each one.
+          LanguageProvider exposes the current language to every page
+          (LanguageContext.tsx). It is a Client Component wrapping `children`,
+          so the rest of the app, Server Components included, is unaffected:
+          only the translation system runs on the client. LanguageSwitcher sits
+          here once so the picker appears on every page.
         */}
         <LanguageProvider>
           <LanguageSwitcher />
           {children}
+          {/*
+            -rbauerMod3-
+            Mounted once here for the same reason as LanguageSwitcher: RootLayout
+            wraps every route, so the legal links appear everywhere without
+            editing any page.
+
+            Placement matters twice:
+
+            1. INSIDE <LanguageProvider>: Footer calls useTranslation(), which
+               throws outside the provider.
+
+            2. AFTER {children}: the CSS decides the visual position, but the DOM
+               order decides the tab order, so the legal links come last.
+          */}
+          <Footer />
         </LanguageProvider>
       </body>
     </html>

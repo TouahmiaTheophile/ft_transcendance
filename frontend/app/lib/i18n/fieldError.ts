@@ -1,31 +1,22 @@
 // ============================================================================
 // -rbauer- Helper for form error state (login, register, ...).
 //
-// The bug this file fixes: if you call t("some.key") once when an error
-// happens and store the RESULT (already-translated text) in React state,
-// that text is frozen. If the user changes language afterwards, nothing
-// tells React to re-run t() on it, so the error stays in the old language
-// until the user re-submits the form and a fresh t() call overwrites it.
+// Storing the RESULT of t() in React state freezes the text: a later language
+// change does not re-run t(), so the error stays in the old language until the
+// form is re-submitted.
 //
-// The fix: never store translated text in state. Store a FieldError
-// (a translation KEY, plus optional values for placeholders like
-// "{{field}}") and only call t() at render time, via errorText() below.
-// Since render happens again automatically whenever the language changes
-// (changing the language updates React state in LanguageProvider, which
-// re-renders every component reading it), the displayed text is always
-// re-computed in the current language -- no stale text possible.
+// So state holds a FieldError (a translation key + optional placeholder values)
+// and t() is only called at render time, via errorText(). Changing the language
+// re-renders every consumer, so the text is always current.
 // ============================================================================
 
-// -rbauer- Most errors are ones we authored ourselves: a dictionary key (+ optional
-// values to fill in placeholders). A few errors are raw text sent by the
-// backend (e.g. a validation message we don't control) -- those can't be
-// translated on the frontend, so we allow storing a plain string for them
-// too, and just display it as-is.
+// -rbauer- Most errors are ours: a dictionary key plus optional placeholder
+// values. A few are raw backend text that has no translation key, so a plain
+// string is also accepted and displayed as-is.
 export type FieldError = { key: string; vars?: Record<string, string | number> } | string;
 
-// -rbauer- Converts a FieldError into the actual text to show on screen, using
-// whatever `t` function is currently active (i.e. bound to the current
-// language). Called from JSX, so it re-runs on every render.
+// -rbauer- Converts a FieldError into displayable text with the currently active
+// `t`. Called from JSX, so it re-runs on every render.
 export function errorText(
   error: FieldError | undefined,
   t: (key: string, vars?: Record<string, string | number>) => string,

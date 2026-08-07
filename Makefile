@@ -84,6 +84,17 @@ init: certs ## First-time setup: copy .env.example → .env and create HTTPS cer
 	fi
 
 # ─── HTTPS certificates ───────────────────────────────────────────────────────
+#
+# -rbauerMod3- The certificate carries a subjectAltName listing every name the
+# app answers to: localhost, 127.0.0.1 and ::1.
+#
+# Chrome ignores `CN` since v58 and only trusts SAN entries, so the previous
+# CN-only certificate was invalid for every hostname. The SAN does not remove
+# the self-signed warning, but it lets https://127.0.0.1 reach the nginx
+# redirect instead of failing on a name mismatch (see .docker/nginx/default.conf).
+#
+# `-addext` needs OpenSSL >= 1.1.1. Existing certificates are never overwritten:
+# run `make certs-clean` first to regenerate them.
 .PHONY: certs
 certs: ## Create local self-signed HTTPS certificates if missing
 	@mkdir -p $(CERT_DIR)
@@ -93,7 +104,8 @@ certs: ## Create local self-signed HTTPS certificates if missing
 			-newkey rsa:2048 \
 			-keyout "$(CERT_KEY)" \
 			-out "$(CERT_CRT)" \
-			-subj "/CN=localhost"; \
+			-subj "/CN=localhost" \
+			-addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:::1"; \
 		echo "✅  HTTPS certificates created in $(CERT_DIR)"; \
 	else \
 		echo "ℹ️   HTTPS certificates already exist"; \

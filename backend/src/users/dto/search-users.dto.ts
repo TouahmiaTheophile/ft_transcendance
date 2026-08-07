@@ -1,21 +1,13 @@
 // ============================================================================
-// -rbauerMod2- SearchUsersDto -- describes exactly what a "search users" HTTP
-// request is allowed to contain: which query params exist, what type they
-// must be, and what range of values is acceptable.
+// -rbauerMod2- Describes what a "search users" request may contain: which query
+// params exist, their types and their accepted ranges.
 //
-// WHY THIS IS A *CLASS* AND NOT JUST A `type`/`interface`:
-// A TypeScript `type`/`interface` only exists at compile time -- it vanishes
-// completely once the code is compiled to JavaScript, so it can't protect
-// anything while the server is actually running. A `class`, on the other
-// hand, still exists at runtime, which lets us attach real `class-validator`
-// decorators (@IsInt, @Min, ...) to each field.
+// A class, not a `type`/`interface`: those vanish at compile time, while a
+// class still exists at runtime and can carry class-validator decorators.
 //
-// Nest's global ValidationPipe (see backend/src/main.ts) takes every
-// incoming request, builds a real instance of this class from it, and checks
-// every decorator BEFORE our controller method's code even runs. If a check
-// fails, the caller automatically gets a clean "400 Bad Request" with a
-// clear message -- instead of bad data (e.g. the text "abc" where a page
-// number was expected) reaching Prisma and crashing with a raw 500 error.
+// The global ValidationPipe (main.ts) builds an instance of this class from
+// each request and checks every decorator before the controller runs, so bad
+// input gets a clean 400 instead of reaching Prisma and causing a 500.
 // ============================================================================
 
 import { Type, Transform } from 'class-transformer';
@@ -24,23 +16,20 @@ import { SearchUsersRequest } from '@shared/users/user-request.types';
 
 export class SearchUsersDto implements SearchUsersRequest {
   // ---- FILTER 1: free-text search on the username -------------------------
-  // -rbauerMod2- Optional: an empty search box just means "no text filter,
-  // rely on the other filters (or show everyone) instead".
+  // -rbauerMod2- Optional: an empty search box means no text filter, leaving the
+  // other filters (or nothing) to narrow the results.
   @IsOptional()
   @IsString()
-  @MaxLength(50) // -rbauerMod2- a username can't realistically be longer than this anyway
+  @MaxLength(50) // -rbauerMod2- no username is realistically longer
   query?: string;
 
   // ---- FILTER 2: age range --------------------------------------------------
-  // -rbauerMod2- Two separate optional bounds so the caller can use either
-  // one alone ("18 and older" = ageMin only) or both together (a min-max
-  // range).
+  // -rbauerMod2- Two independent bounds, so the caller can use one alone
+  // ("18 and older" = ageMin) or both as a range.
   //
-  // `@Type(() => Number)` is required because EVERYTHING coming from a URL
-  // query string arrives as plain text (e.g. the characters "25"), never as
-  // a real number. This decorator runs BEFORE validation and converts that
-  // text into an actual JS number. Without it, `@IsInt()` would always
-  // fail, because it would still be checking the text "25", not the number.
+  // `@Type(() => Number)` is required because query-string values always
+  // arrive as text: it converts before validation, otherwise `@IsInt()` would
+  // reject the string "25".
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -55,22 +44,20 @@ export class SearchUsersDto implements SearchUsersRequest {
   ageMax?: number;
 
   // ---- FILTER 3: exclude specific user ids ----------------------------------
-  // -rbauerMod2- Used by the frontend to say "don't show my own account, and
-  // don't show people who are already my friends". The frontend sends this
-  // as ONE comma-separated string in the URL (e.g. "?excludeIds=3,9,14"), so
-  // we convert that single string into a real array of numbers ourselves here.
+  // -rbauerMod2- Used by the frontend to hide the current user and existing
+  // friends. It arrives as one comma-separated string ("?excludeIds=3,9,14"),
+  // converted here into an array of numbers.
   @IsOptional()
   @Transform(({ value }) =>
     value ? String(value).split(',').map((id: string) => Number(id)) : undefined,
   )
   @IsArray()
-  @IsInt({ each: true }) // -rbauerMod2- "each: true" -> check every element of the array, not the array itself
+  @IsInt({ each: true }) // -rbauerMod2- checks each element, not the array itself
   excludeIds?: number[];
 
   // ---- SORTING ----------------------------------------------------------------
-  // -rbauerMod2- `@IsIn([...])` only accepts the exact values listed.
-  // Anything else (a typo, or someone poking the API with curl) is rejected
-  // with a 400 instead of being silently ignored or breaking the Prisma query.
+  // -rbauerMod2- `@IsIn([...])` accepts only the listed values; anything else
+  // (a typo, a hand-made curl call) gets a 400 instead of breaking the query.
   @IsOptional()
   @IsIn(['username', 'createdAt'])
   sortBy: 'username' | 'createdAt' = 'username';
@@ -80,20 +67,17 @@ export class SearchUsersDto implements SearchUsersRequest {
   order: 'asc' | 'desc' = 'asc';
 
   // ---- PAGINATION ---------------------------------------------------------
-  // -rbauerMod2- `page` is 1-based (page 1 = first page) because that's what
-  // makes sense to display in a UI ("Page 1 of 5"), even though Prisma's
-  // `skip` counts from 0 internally -- that conversion happens in the
-  // service, not here.
+  // -rbauerMod2- `page` is 1-based, matching what a UI displays ("Page 1 of 5").
+  // The conversion to Prisma's 0-based `skip` happens in the service.
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
   page: number = 1;
 
-  // -rbauerMod2- `limit` is capped at 50 on purpose: without an upper bound,
-  // a client could ask for an enormous page (e.g. "?limit=999999") and force
-  // the database to read and send back far more rows than any UI could ever
-  // usefully display -- wasted work for no real benefit.
+  // -rbauerMod2- `limit` is capped at 50: without an upper bound a client could
+  // ask for "?limit=999999" and make the database return far more rows than
+  // any UI can display.
   @IsOptional()
   @Type(() => Number)
   @IsInt()

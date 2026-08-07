@@ -21,12 +21,9 @@ export class RegisterUserDto implements RegisterUserRequest {
   @IsDefined({ message: 'Email is required' })
   email: string;
 
-  // -rbauerMod2- Required so the "age" filter of the advanced search module
-  // (see SearchUsersDto) always has real data to filter on for every
-  // account created from now on. `@Type(() => Number)` converts the raw
-  // JSON value to a real number before the checks below run (defensive:
-  // protects against a client sending "25" as a string instead of the
-  // number 25).
+  // -rbauerMod2- Required so the search module's age filter (SearchUsersDto)
+  // always has real data on new accounts. `@Type(() => Number)` converts before
+  // the checks below, in case a client sends "25" as a string.
   @Type(() => Number)
   @IsInt({ message: 'Age must be a whole number' })
   @Min(0, { message: 'Age must be at least 0' })

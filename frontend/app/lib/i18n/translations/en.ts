@@ -1,27 +1,29 @@
 // ============================================================================
-// -rbauer- English dictionary -- this is the SOURCE OF TRUTH for the whole app.
+// -rbauer- English dictionary, the SOURCE OF TRUTH for the whole app.
 //
-// Every other language file (fr.ts, es.ts, de.ts) is checked against the
-// exact shape of this object (see the `Dictionary` type in ./index.ts).
-// If you add, rename, or remove a key here, TypeScript will immediately
-// complain in every other language file until you do the same change there.
+// Every other language file is checked against this exact shape (the
+// `Dictionary` type in ./index.ts), so adding, renaming or removing a key here
+// makes TypeScript complain in each of them until they follow.
 //
-// Organization: one top-level key per page/feature ("login", "social",
-// "lobby"...), so you always know where to look for a given piece of text.
-// Inside each one, an optional "errors" group for error messages.
+// One top-level key per page or feature ("login", "social", "lobby"...), each
+// with an optional "errors" group.
 //
-// A value can contain a placeholder like "{{count}}" -- that gets replaced
-// at runtime by the `t()` function (see ../useTranslation.ts) with a real
-// value, e.g. t("lobby.players", { count: 3, max: 4 }) -> "3/4 players".
+// A value may hold a placeholder like "{{count}}", replaced at runtime by
+// `t()`: t("lobby.players", { count: 3, max: 4 }) -> "3/4 players".
 // ============================================================================
 const en = {
-  // -rbauer- Small bits of text reused on several pages (back links, logout button).
+  // -rbauer- Text reused across pages (back links, logout button).
   common: {
     backToHome: "Home",
     backToHomeAria: "Back to home page",
     backToDashboard: "Dashboard",
     backToDashboardAria: "Back to dashboard",
     logout: "Logout",
+
+    // -rbauerMod3- Shown at the top of the Privacy and Terms pages. The date is
+    // not translated: it is a constant in each page, injected through {{date}}
+    // so it is edited once instead of in all four dictionaries.
+    lastUpdated: "Last updated: {{date}}",
   },
 
   // -rbauer- "/" -- the landing page.
@@ -130,8 +132,8 @@ const en = {
     accept: "Accept",
     reject: "Reject",
 
-    // -rbauerMod2- Advanced search: filters, sorting and pagination on top
-    // of the basic text search above.
+    // -rbauerMod2- Advanced search: filters, sorting and pagination added to the
+    // text search above.
     search: {
       filtersToggle: "Filters",
       hideFilters: "Hide filters",
@@ -193,6 +195,109 @@ const en = {
   // -rbauer- The accessible label on the language <select> itself.
   languageSwitcher: {
     label: "Language",
+  },
+
+  // -rbauerMod3- The footer shown on every page (Footer.tsx). `nav` is not
+  // visible: it labels the <nav> for screen readers, which then announce
+  // "Legal links, navigation".
+  footer: {
+    nav: "Legal links",
+    privacy: "Privacy Policy",
+    terms: "Terms of Service",
+  },
+
+  // -rbauerMod3- "/privacy" -- the Privacy Policy page.
+  //
+  // Every section has the same `title` / `body` shape, which is what lets the
+  // page render them with a single loop instead of nine blocks of JSX.
+  //
+  // The content is specific to this project on purpose: it describes the exact
+  // columns in schema.prisma and the two cookies set in auth-cookies.ts, since
+  // the subject rejects generic legal pages.
+  privacy: {
+    title: "Privacy Policy",
+    intro: {
+      title: "Who we are",
+      body: "GRID_RUNNERS is a student project developed as part of the 42 school curriculum (ft_transcendence). It is not a commercial service. This page explains which personal data the application collects, why it is collected, and what control you have over it.",
+    },
+    dataCollected: {
+      title: "Data we collect",
+      body: "When you create an account we store your username, your email address, your age and a hashed version of your password -- the password itself is never stored in readable form. If you upload an avatar, the image file is stored on our server. We also record the date your account was created. While you use the application we store the chat messages you send, your friend relationships (pending, accepted, rejected or blocked) and your current online status.",
+    },
+    purpose: {
+      title: "Why we use your data",
+      // -rbauerMod3- The wording about age matches the backend: searchUsers()
+      // returns USER_PUBLIC_SELECT, which exposes only id/username/avatar, so
+      // age is a server-side filter never sent back to the searcher. "Narrow a
+      // search to an age range, but the age itself is never shown" is exact --
+      // a range can be inferred, the value never read -- and consistent with
+      // `sharing` below.
+      body: "Your email and password are used to sign you in and to secure your account. Your username, avatar and online status let other players find you, add you as a friend and see when you are available. Your messages are used to deliver the chat feature. Your age is only used as a search filter in the Add Friend section: other players can narrow a search to an age range, but your age itself is never shown to them. We do not use your data for advertising, profiling or tracking.",
+    },
+    cookies: {
+      title: "Cookies",
+      body: "We only use two strictly necessary cookies, named accessToken and refreshToken. They keep you signed in between page loads and are the only way the server can recognise your session. They are HTTP-only, which means JavaScript cannot read them, and they are deleted when you log out. We use no analytics, advertising or third-party tracking cookies.",
+    },
+    sharing: {
+      title: "Who can see your data",
+      body: "We never sell or share your data with third parties, and the application does not send data to any external service. Inside the application, other signed-in users can see your username, your avatar and your online status, and the friends you chat with can see the messages you send them. Your email address, your age and your password are never shown to other users.",
+    },
+    retention: {
+      title: "How long we keep your data",
+      body: "Your account data is kept for as long as your account exists. Chat messages are kept until the corresponding friendship is deleted: removing a friend also deletes the whole conversation. Sign-in sessions expire automatically and are removed when you log out. Because this is a school project, the whole database may be reset when the project is evaluated or taken offline.",
+    },
+    security: {
+      title: "Security",
+      body: "Passwords are stored hashed, never in clear text. All traffic between your browser and the server goes through HTTPS. Session tokens are stored in HTTP-only cookies to limit the impact of a script injection. No system is perfectly secure, so please use a password that you do not reuse anywhere else.",
+    },
+    rights: {
+      title: "Your rights",
+      body: "You can view and change your email address, your age and your avatar at any time from your profile page. Your username cannot be changed. If you want a copy of your data, or want your account and all related data deleted, contact us and we will process your request.",
+    },
+    contact: {
+      // -rbauerMod3- {{logins}} is replaced at runtime by the team logins,
+      // defined once as a constant in the privacy page.
+      title: "Contact",
+      body: "Questions about this policy can be sent to the team through the 42 intranet or Slack: {{logins}}.",
+    },
+  },
+
+  // -rbauerMod3- "/terms" -- the Terms of Service page. Same title/body
+  // structure as `privacy` above, so it renders the same way.
+  terms: {
+    title: "Terms of Service",
+    intro: {
+      title: "Acceptance of these terms",
+      body: "GRID_RUNNERS is an online multiplayer game and chat platform built as a student project for the 42 curriculum. By creating an account or using the application, you agree to these Terms of Service. If you do not agree with them, please do not use the application.",
+    },
+    account: {
+      title: "Your account",
+      body: "You must provide a valid email address and accurate information when you register. You are responsible for keeping your password secret and for everything that happens under your account. Do not share your account with anyone, and do not try to sign in as another user.",
+    },
+    conduct: {
+      title: "Acceptable use",
+      body: "Be respectful of other players. You may not harass, threaten or insult other users, send spam, impersonate someone else, or post illegal, hateful or sexually explicit content. You may not cheat, exploit bugs to gain an advantage, disrupt matches, overload the servers, or try to access parts of the system you are not authorised to access.",
+    },
+    content: {
+      title: "Your content",
+      body: "You remain responsible for the messages you send. By sending a message you allow us to store it and to deliver it to its recipient. We may remove content or suspend an account that breaks these rules. You can block any user at any time to stop receiving messages from them.",
+    },
+    availability: {
+      title: "Availability of the service",
+      body: "This is a student project, not a commercial service: it is provided free of charge, with no guarantee of availability, and it may be interrupted, modified or shut down at any time. The database may be reset without notice, which means accounts, matches and messages can be lost.",
+    },
+    termination: {
+      title: "Suspension and deletion",
+      body: "We may suspend or delete an account that violates these terms. You can stop using the application at any time and ask for your account to be deleted; see the Privacy Policy for how that request is handled.",
+    },
+    liability: {
+      title: "Liability",
+      body: "The application is provided as is, without any warranty. To the extent permitted by law, the authors cannot be held liable for any damage, data loss or service interruption resulting from the use of the application.",
+    },
+    changes: {
+      title: "Changes to these terms",
+      body: "These terms may change as the project evolves. The date shown at the top of this page indicates the last update. Continuing to use the application after a change means that you accept the new version.",
+    },
   },
 };
 

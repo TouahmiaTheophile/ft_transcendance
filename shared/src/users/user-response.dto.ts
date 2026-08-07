@@ -11,15 +11,13 @@ export type PrivateUserResponseDto = {
 
   email: string;
   createdAt: Date;
-  // -rbauerMod2- `null` for accounts created before the age field existed
-  // and never updated since — new registrations always have a real number
-  // here.
+  // -rbauerMod2- `null` for accounts predating the age field and never updated
+  // since; new registrations always carry a real number.
   age: number | null;
 };
 
-// -rbauerMod2- What a paginated search returns: not just the matching
-// users, but enough information for the caller to render pagination
-// controls (current page, total number of matches, total number of pages).
+// -rbauerMod2- A paginated search result: the matching users plus what the
+// caller needs to render pagination controls.
 export type SearchUsersResponse = {
   data: UserResponseDto[];
   total: number;

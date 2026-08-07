@@ -56,33 +56,28 @@ export class UsersService {
     });
   }
 
-  // -rbauerMod2- Advanced user search: combines a text filter, an age-range
-  // filter, an exclude-list filter, sorting, and pagination -- all in one
-  // query.
+  // -rbauerMod2- Advanced search: text filter, age range, exclude list, sorting
+  // and pagination in one query.
   //
-  // `dto` has already been validated and given its default values by
-  // SearchUsersDto (see dto/search-users.dto.ts) before this method is even
-  // called, so we can trust every field here without re-checking anything.
+  // `dto` was already validated and defaulted by SearchUsersDto, so every field
+  // can be trusted here.
   async searchUsers(dto: SearchUsersDto) {
     // --- Step 1: build the "where" clause (the FILTERS) -------------------
-    // -rbauerMod2- We build it as a list of small conditions combined with AND. Each
-    // condition is only added "for real" when the caller actually asked for
-    // it -- an empty `{}` inside an AND array is simply ignored by Prisma,
-    // so filters the caller didn't use have zero effect on the query.
+    // -rbauerMod2- A list of small conditions combined with AND. Prisma ignores an
+    // empty `{}` inside AND, so unused filters have no effect on the query.
     const where = {
       AND: [
-        // -rbauerMod2- Filter: username contains the search text (MariaDB is
-        // case insensitive by default, so "bob" also matches "Bob").
+        // -rbauerMod2- Username contains the search text (MariaDB is case
+        // insensitive by default, so "bob" matches "Bob").
         dto.query ? { username: { contains: dto.query } } : {},
 
-        // -rbauerMod2- Filter: age is at least `ageMin` (if provided).
+        // -rbauerMod2- Age at least `ageMin`, if provided.
         dto.ageMin !== undefined ? { age: { gte: dto.ageMin } } : {},
 
-        // -rbauerMod2- Filter: age is at most `ageMax` (if provided).
+        // -rbauerMod2- Age at most `ageMax`, if provided.
         dto.ageMax !== undefined ? { age: { lte: dto.ageMax } } : {},
 
-        // -rbauerMod2- Filter: hide specific user ids (e.g. the current user
-        // themself, and people who are already their friends).
+        // -rbauerMod2- Hide specific ids (the current user, existing friends).
         dto.excludeIds && dto.excludeIds.length > 0
           ? { id: { notIn: dto.excludeIds } }
           : {},
@@ -90,23 +85,19 @@ export class UsersService {
     };
 
     // --- Step 2: build the "orderBy" clause (the SORTING) ------------------
-    // -rbauerMod2- dto.sortBy is either "username" or "createdAt" (enforced by @IsIn in
-    // the DTO), so this safely becomes { username: "asc" } or similar.
+    // -rbauerMod2- @IsIn in the DTO guarantees dto.sortBy is "username" or
+    // "createdAt", so this safely becomes { username: "asc" } or similar.
     const orderBy = { [dto.sortBy]: dto.order };
 
     // --- Step 3: compute the "skip" value (the PAGINATION) ------------------
-    // -rbauerMod2- Prisma's `skip` counts rows from 0, but `dto.page` counts pages from 1
-    // (page 1 is the first page). Example: page 3 with a limit of 10 means
-    // "skip the first 20 rows, then take the next 10".
+    // -rbauerMod2- Prisma's `skip` counts rows from 0, `dto.page` counts pages
+    // from 1: page 3 with a limit of 10 skips 20 rows and takes the next 10.
     const skip = (dto.page - 1) * dto.limit;
 
     // --- Step 4: run the search and the count at the same time --------------
-    // -rbauerMod2- We need two separate queries: one to fetch this page's rows (`findMany`
-    // with skip/take), and one to know the TOTAL number of matches across
-    // every page (`count`, ignoring skip/take) -- the frontend needs that
-    // total to know how many pages exist. `Promise.all` runs both at once
-    // instead of one after the other, since neither depends on the other's
-    // result.
+    // -rbauerMod2- Two queries: `findMany` for this page's rows, `count` for the
+    // total across all pages, which the frontend needs to know how many pages
+    // exist. `Promise.all` runs them together since neither depends on the other.
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         where,
@@ -119,18 +110,16 @@ export class UsersService {
     ]);
 
     // --- Step 5: shape the response for the frontend -------------------------
-    // -rbauerMod2- `users.map(toUserResponse)` turns each raw database row (which has an
-    // `avatarFilename`) into the public shape the frontend expects (which
-    // has a ready-to-use `avatarUrl`) -- the same mapper already used by
-    // every other endpoint that returns user data.
+    // -rbauerMod2- toUserResponse turns each database row (`avatarFilename`) into
+    // the public shape the frontend expects (`avatarUrl`). Same mapper as every
+    // other endpoint returning user data.
     return {
       data: users.map(toUserResponse),
       total,
       page: dto.page,
       limit: dto.limit,
-      // -rbauerMod2- Math.ceil rounds up: 25 total results with a limit of 10 means 3
-      // pages (10 + 10 + 5), not 2.5. Math.max(1, ...) guarantees we always
-      // report at least 1 page, even when there are 0 results.
+      // -rbauerMod2- Math.ceil rounds up (25 results, limit 10 -> 3 pages) and
+      // Math.max keeps at least 1 page when there is no result at all.
       totalPages: Math.max(1, Math.ceil(total / dto.limit)),
     };
   }
@@ -160,9 +149,8 @@ export class UsersService {
       data.passwordHash = await this.passwordService.hash(dto.newPassword);
     }
 
-    // -rbauerMod2- Age is not part of `sensitiveChange` above — it can be
-    // updated on its own, without re-entering the current password, the same
-    // way a display name or bio would be in most apps.
+    // -rbauerMod2- Age is not part of `sensitiveChange`: like a display name, it
+    // can be updated without re-entering the current password.
     if (dto.age !== undefined) {
       data.age = dto.age;
     }

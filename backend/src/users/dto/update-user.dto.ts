@@ -20,9 +20,8 @@ export class UpdateUserDto implements UpdateUserRequest {
   @IsDefined({ message: 'Current password is required to change email or password' })
   currentPassword?: string;
 
-  // -rbauerMod2- NOT sensitive: unlike email/password above, changing your
-  // age doesn't need `currentPassword` — see the `sensitiveChange` check in
-  // UsersService.update(), which only looks at email/newPassword.
+  // -rbauerMod2- NOT sensitive: changing the age needs no `currentPassword`.
+  // UsersService.update()'s `sensitiveChange` only looks at email/newPassword.
   @Type(() => Number)
   @IsInt({ message: 'Age must be a whole number' })
   @Min(0, { message: 'Age must be at least 0' })

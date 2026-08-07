@@ -7,29 +7,19 @@ import { apiUrl, readApiError } from "@/app/lib/api";
 import { useTranslation } from "@/app/lib/i18n/useTranslation";
 import { errorText, type FieldError } from "@/app/lib/i18n/fieldError";
 
-// -rbauer- These two regexes exist ONLY on the frontend to give instant feedback
-// (no network round-trip needed). The backend re-checks everything with the
-// exact same rules (see backend/src/users/dto/register-user.dto.ts) --
-// client-side validation is a UX nicety, never a security boundary, so the
-// backend must never trust it and always re-validate on its own.
+// -rbauer- Frontend-only, for instant feedback without a round-trip. The backend
+// re-checks the same rules (register-user.dto.ts): client-side validation is
+// UX, never a security boundary.
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const USERNAME_REGEX = /^[a-zA-Z0-9.-]+$/;
 
 // ----------------------------------------------------------------------------
-// -rbauer- Checks the form BEFORE we ever call the backend, and returns a map of
-// "field name" -> FieldError (see app/lib/i18n/fieldError.ts) for every
-// problem found. An empty object means the form is valid.
+// -rbauer- Checks the form before calling the backend. Returns "field" ->
+// FieldError for each problem; an empty object means valid.
 //
-// Why this matters for translations specifically: this function returns
-// translation KEYS (e.g. { key: "register.errors.usernameTooShort" }), never
-// already-translated text. That's what lets the error message shown on
-// screen automatically follow the language switcher -- see fieldError.ts
-// for the full explanation of why storing resolved text would be a bug.
-//
-// It's a plain function (not a React hook) because it no longer needs
-// useTranslation()/t() at all -- returning keys instead of text means it
-// doesn't depend on the current language, so it doesn't need any React
-// hook and can run outside of a component if ever needed (e.g. in a test).
+// It returns translation KEYS, never resolved text, so displayed errors follow
+// the language switcher (see fieldError.ts). Being language-independent, it can
+// stay a plain function rather than a hook.
 // ----------------------------------------------------------------------------
 function validate(form: { username: string; email: string; password: string; age: string }): Record<string, FieldError> {
   const newErrors: Record<string, FieldError> = {};
@@ -39,11 +29,9 @@ function validate(form: { username: string; email: string; password: string; age
   const password = form.password;
   const age = form.age.trim();
 
-  // -rbauer- --- username: two independent rules, checked in order -----------------
-  // We use `else if` (not two separate `if`s) on purpose: showing two error
-  // messages stacked under the same field at once would be confusing, so we
-  // only ever report the FIRST problem found. Length is checked before
-  // character set because "too short" is the more fundamental issue.
+  // -rbauer- --- username: two rules, checked in order ---------------------------
+  // `else if` so only the first problem is reported: stacking two messages under
+  // one field is confusing. Length comes first as the more basic issue.
   if (username.length < 3) {
     newErrors.username = { key: "register.errors.usernameTooShort" };
   } else if (!USERNAME_REGEX.test(username)) {
@@ -58,10 +46,8 @@ function validate(form: { username: string; email: string; password: string; age
   } else if (!EMAIL_REGEX.test(email)) {
     newErrors.email = { key: "register.errors.emailInvalid" };
   } else {
-    // -rbauer- The regex above already rejects most malformed addresses, but it
-    // doesn't check the length of each half of the address on its own
-    // (before/after the "@"). The backend enforces these limits too, so we
-    // mirror them here to catch the mistake before submitting.
+    // -rbauer- The regex does not check the length of each half of the address
+    // (before/after the "@"). Mirrors the backend's limits.
     const parts = email.split("@");
 
     if (parts.length !== 2 || parts[0].length > 64 || parts[1].length > 189) {
@@ -75,9 +61,8 @@ function validate(form: { username: string; email: string; password: string; age
   }
 
   // --- age: required, whole number, 0 to 150 inclusive --------------------
-  // -rbauerMod2- The backend enforces the exact same range (see
-  // backend/src/users/dto/register-user.dto.ts) -- this is purely instant
-  // feedback, never the real security boundary.
+  // -rbauerMod2- Same range as the backend (register-user.dto.ts); instant
+  // feedback only.
   if (!age) {
     newErrors.age = { key: "register.errors.ageRequired" };
   } else {
@@ -92,14 +77,12 @@ function validate(form: { username: string; email: string; password: string; age
 
 const RegisterCard = () => {
   const router = useRouter();
-  // -rbauer- `t` translates a key to text in the CURRENTLY selected language, and
-  // re-computes automatically on every render (including the render caused
-  // by the user switching languages -- see LanguageContext.tsx).
+  // -rbauer- `t` resolves a key in the current language and re-runs on every
+  // render, including the one caused by switching languages.
   const { t } = useTranslation();
 
-  // -rbauer- The 3 form fields, as plain controlled inputs: React state is the
-  // single source of truth for what's currently typed, and every
-  // <input onChange=...> below writes back into it.
+  // -rbauer- Controlled inputs: this state is the single source of truth for
+  // what is typed, written back by each <input onChange=...> below.
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -107,32 +90,24 @@ const RegisterCard = () => {
     age: "",
   });
 
-  // -rbauer- One FieldError per field that currently has a problem ("username",
-  // "email", "password", or "general" for errors that don't belong to one
-  // specific field). Stored as FieldError (translation keys), NOT as
-  // already-translated text -- see app/lib/i18n/fieldError.ts for why.
+  // -rbauer- One FieldError per faulty field ("username", "email", "password",
+  // or "general"). Stored as translation keys, not resolved text (fieldError.ts).
   const [errors, setErrors] = useState<Record<string, FieldError>>({});
 
-  // -rbauer- True while we're waiting for the backend's response to the register
-  // request. Used to disable the submit button (avoids double-submits) and
-  // to show "Signing up..." instead of "Sign Up".
+  // -rbauer- True while the register request is in flight: disables the submit
+  // button (no double-submit) and switches its label.
   const [loading, setLoading] = useState(false);
 
-  // -rbauer- Runs when the form is submitted (Enter key, or clicking the button).
+  // -rbauer- Runs on submit (Enter key or button click).
   async function handlesSubmit(e: React.FormEvent<HTMLFormElement>) {
-    // -rbauer- Stops the browser's default behaviour, which would be to reload the
-    // whole page and send the form the old-fashioned HTML way -- we want to
-    // handle it ourselves with fetch() instead, without a page reload.
+    // -rbauer- Prevents the browser's default full-page-reload submission; we
+    // send the request ourselves with fetch().
     e.preventDefault();
 
     if (loading) return; // -rbauer- ignore a second click while a request is in flight
 
-    // -rbauer- Step 1: check the form ourselves first. If anything's wrong, show the
-    // errors immediately and stop here -- no network request at all. This
-    // is exactly the fix for the bug where a bad username only showed up
-    // once email/password were already valid: now ALL client-checkable
-    // problems (username length AND characters, email, password) are
-    // caught and shown together, on the very first attempt.
+    // -rbauer- Step 1: validate locally and stop before any network request.
+    // Every client-checkable problem is reported at once, on the first attempt.
     const validationErrors = validate(form);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -140,8 +115,7 @@ const RegisterCard = () => {
       return;
     }
 
-    // -rbauer- Step 2: the form looks valid on our side, actually ask the backend
-    // to create the account.
+    // -rbauer- Step 2: valid on our side, ask the backend to create the account.
     setLoading(true);
     setErrors({});
 
@@ -156,10 +130,8 @@ const RegisterCard = () => {
           username: form.username.trim(),
           email: form.email.trim(),
           password: form.password,
-          // -rbauerMod2- validate() already guaranteed this is a whole
-          // number between 0 and 150 before we ever got here -- Number()
-          // just converts the text from the input into the actual number
-          // the backend expects.
+          // -rbauerMod2- validate() already guaranteed a whole number in
+          // [0, 150]; Number() just converts the input text.
           age: Number(form.age.trim()),
         }),
       });
@@ -171,33 +143,24 @@ const RegisterCard = () => {
         return;
       }
 
-      // -rbauer- The backend refused the request (400, 409...). Turn its response
-      // into a typed ApiErrorResponse (see app/lib/api.ts) and figure out
-      // what to show, based on the stable `code` the backend sends --
-      // never based on `err.message`, which is free English text we can't
-      // translate (see the VALIDATION_ERROR branch below for the one place
-      // this rule still has an exception, and why).
+      // -rbauer- The backend refused (400, 409...). readApiError gives a typed
+      // ApiErrorResponse; we branch on the stable `code`, never on `err.message`
+      // (untranslatable English text) -- see the VALIDATION_ERROR exception below.
       const err = await readApiError(res);
       const fieldErrors: Record<string, FieldError> = {};
 
       if (err.code === "VALIDATION_ERROR") {
-        // -rbauer- The backend re-ran its own validation (the DTO's decorators) and
-        // found a problem our client-side `validate()` above didn't catch
-        // -- for example a rule we don't mirror on the frontend. Its
-        // response shape is { fields: { <fieldName>: ["message", ...] } }.
+        // -rbauer- The DTO decorators caught a rule `validate()` does not mirror.
+        // Response shape: { fields: { <fieldName>: ["message", ...] } }.
         const fields = err.details?.fields;
 
         if (fields && typeof fields === "object") {
           for (const [field, msgs] of Object.entries(fields)) {
             if (Array.isArray(msgs) && msgs.length > 0) {
-              // -rbauer- This text was written by the backend (English, hardcoded
-              // in the DTO's decorators), not by us -- we have no
-              // translation key for it. FieldError also accepts a plain
-              // string for exactly this case: it's displayed as-is,
-              // untranslated. This is a known, accepted limitation (see
-              // ERRORS_LIST): fully fixing it would require the backend
-              // to send a stable error code per field instead of English
-              // text, which is a backend change outside this module.
+              // -rbauer- Backend-authored English with no translation key.
+              // FieldError accepts a plain string for this case and shows it
+              // as-is. Known limitation (see ERRORS_LIST): fixing it needs the
+              // backend to send a per-field error code.
               fieldErrors[field] = String(msgs[0]);
             }
           }
@@ -210,9 +173,8 @@ const RegisterCard = () => {
 
         if (Array.isArray(fields)) {
           for (const field of fields) {
-            // -rbauer- `vars: { field }` fills in the "{{field}}" placeholder inside
-            // the "register.errors.alreadyTaken" dictionary entry -- see
-            // interpolate() in useTranslation.ts.
+            // -rbauer- `vars: { field }` fills the "{{field}}" placeholder in the
+            // dictionary entry -- see interpolate() in useTranslation.ts.
             fieldErrors[String(field)] = { key: "register.errors.alreadyTaken", vars: { field: String(field) } };
           }
         } else {
@@ -221,23 +183,20 @@ const RegisterCard = () => {
       } else if (err.code === "CONFLICT") {
         fieldErrors.general = { key: "register.errors.alreadyExists" };
       } else {
-        // -rbauer- Unknown/unexpected error code: show a generic message rather
-        // than nothing, or the raw code.
+        // -rbauer- Unknown code: show a generic message rather than the raw code.
         fieldErrors.general = { key: "register.errors.generic" };
       }
 
       setErrors(fieldErrors);
     } catch (error) {
-      // -rbauer- fetch() itself threw: the request never reached the backend at all
-      // (wrong URL, TLS certificate not trusted, backend down...). This is
-      // different from the backend answering with an error status code.
+      // -rbauer- fetch() threw: the request never reached the backend (wrong URL,
+      // untrusted TLS certificate, backend down) -- not an error status code.
       console.error("Register error:", error);
       setErrors({
         general: { key: "register.errors.network" },
       });
     } finally {
-      // -rbauer- Runs whether we succeeded, failed, or threw -- always re-enable
-      // the submit button at the end.
+      // -rbauer- Runs on success, failure and throw: always re-enable the button.
       setLoading(false);
     }
   }
@@ -252,8 +211,8 @@ const RegisterCard = () => {
         value={form.username}
         onChange={(e) => setForm({ ...form, username: e.target.value })}
       />
-      {/* -rbauer- errorText() turns the stored FieldError into real text, in the
-          CURRENT language, every time this component re-renders. */}
+      {/* -rbauer- errorText() resolves the stored FieldError into text in the
+          current language, on every re-render. */}
       {errors.username && <p className={styles.error}>{errorText(errors.username, t)}</p>}
 
       <label htmlFor="email">{t("register.emailLabel")}</label>
@@ -277,13 +236,10 @@ const RegisterCard = () => {
       {errors.password && <p className={styles.error}>{errorText(errors.password, t)}</p>}
 
       <label htmlFor="age">{t("register.ageLabel")}</label>
-      {/* -rbauerMod2- type="text" (not "number") on purpose: a native
-          number input silently swallows non-numeric keystrokes before React
-          ever sees them, so typing "abc" leaves the field empty and wrongly
-          reports "required" instead of "invalid". Using text +
-          inputMode="numeric" still shows a numeric keyboard on mobile, but
-          lets OUR validate() function below see and reject whatever was
-          actually typed. */}
+      {/* -rbauerMod2- type="text", not "number": a native number input swallows
+          non-numeric keystrokes before React sees them, so "abc" would report
+          "required" instead of "invalid". inputMode="numeric" still gives a
+          numeric keyboard on mobile while validate() sees what was typed. */}
       <input
         type="text"
         inputMode="numeric"

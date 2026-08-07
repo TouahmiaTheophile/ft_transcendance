@@ -7,23 +7,18 @@ import { apiUrl, readApiError } from "@/app/lib/api";
 import { useTranslation } from "@/app/lib/i18n/useTranslation";
 import { errorText, type FieldError } from "@/app/lib/i18n/fieldError";
 
-// -rbauer- Checked on the frontend only for instant feedback. The backend re-checks
-// email format on its own (backend/src/auth/dto/login.dto.ts) and is the
-// only one that actually enforces it -- this regex is a UX nicety, not a
-// security boundary.
+// -rbauer- Frontend-only, for instant feedback. The backend re-checks the email
+// format (auth/dto/login.dto.ts) and is the only real enforcement point.
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // ----------------------------------------------------------------------------
-// -rbauer- Checks the form BEFORE calling the backend. Returns translation KEYS (see
-// app/lib/i18n/fieldError.ts), not resolved text, so the errors stay correct
-// even if the user changes language after they appear on screen.
+// -rbauer- Checks the form before calling the backend. Returns translation KEYS
+// (fieldError.ts), not resolved text, so errors stay correct after a language
+// change.
 //
-// Why this function exists at all: originally this page had NO client-side
-// checks, so a badly formatted email only got caught by the backend, whose
-// answer is always in English (see ERRORS_LIST) -- the error text never
-// matched the selected language. Adding this check means the common case
-// (empty or malformed email) never even reaches the network, and is shown
-// correctly translated immediately.
+// Without it, a malformed email was only caught by the backend, whose answers
+// are always in English (see ERRORS_LIST). The common case is now caught before
+// the network call and shown translated.
 // ----------------------------------------------------------------------------
 function validate(form: { email: string; password: string }): Record<string, FieldError> {
   const newErrors: Record<string, FieldError> = {};
@@ -35,9 +30,8 @@ function validate(form: { email: string; password: string }): Record<string, Fie
     newErrors.email = { key: "login.errors.emailInvalid" };
   }
 
-  // -rbauer- Login only needs to know a password was typed -- unlike registration,
-  // there's no length/strength rule to check here, the backend is the one
-  // that knows if it's actually correct.
+  // -rbauer- Login only checks that a password was typed: no length rule here,
+  // only the backend knows whether it is correct.
   if (!form.password) {
     newErrors.password = { key: "login.errors.passwordRequired" };
   }
@@ -47,9 +41,8 @@ function validate(form: { email: string; password: string }): Record<string, Fie
 
 const LoginCard = () => {
   const router = useRouter();
-  // -rbauer- `t` translates a key to text in the CURRENTLY selected language, and
-  // re-computes automatically on every render (including the render caused
-  // by the user switching languages -- see LanguageContext.tsx).
+  // -rbauer- `t` resolves a key in the current language and re-runs on every
+  // render, including the one caused by switching languages.
   const { t } = useTranslation();
 
   const [form, setForm] = useState({
@@ -57,25 +50,23 @@ const LoginCard = () => {
     password: "",
   });
 
-  // -rbauer- One FieldError per field with a problem ("email", "password", or
-  // "general"). Stored as a translation key (FieldError), never as
-  // already-translated text -- see app/lib/i18n/fieldError.ts for why that
-  // distinction matters.
+  // -rbauer- One FieldError per faulty field ("email", "password", "general"),
+  // stored as a translation key rather than resolved text (fieldError.ts).
   const [errors, setErrors] = useState<Record<string, FieldError>>({});
 
-  // -rbauer- True while waiting for the backend's answer; disables the submit
-  // button so a slow connection can't cause a double request.
+  // -rbauer- True while the request is in flight; disables the submit button so
+  // a slow connection cannot produce a double request.
   const [loading, setLoading] = useState(false);
 
   async function handlesSubmit(e: React.FormEvent<HTMLFormElement>) {
-    // -rbauer- Prevents the browser's default full-page-reload form submission --
-    // we handle everything ourselves with fetch() below.
+    // -rbauer- Prevents the browser's default full-page-reload submission; the
+    // request is sent with fetch() below.
     e.preventDefault();
 
     if (loading) return;
 
-    // -rbauer- Client-side checks first: if anything's wrong, show it immediately
-    // and skip the network call entirely.
+    // -rbauer- Client-side checks first: on failure, report at once and skip the
+    // network call.
     const validationErrors = validate(form);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -100,32 +91,28 @@ const LoginCard = () => {
       });
 
       if (res.ok) {
-        // -rbauer- Logged in: the backend has already set the session cookies,
-        // just navigate to the app.
+        // -rbauer- Logged in: the backend already set the session cookies.
         router.push("/dashboard");
         router.refresh();
         return;
       }
 
-      // -rbauer- The backend refused the request. `err.code` is a stable identifier
-      // we can safely branch on (unlike `err.message`, which is free
-      // English text -- see the VALIDATION_ERROR case below for the one
-      // place we still have to fall back to it, and why).
+      // -rbauer- The backend refused. Branch on `err.code`, a stable identifier,
+      // never on `err.message` (free English text) -- see VALIDATION_ERROR below
+      // for the one remaining exception.
       const err = await readApiError(res);
       const fieldErrors: Record<string, FieldError> = {};
 
       if (err.code === "VALIDATION_ERROR") {
-        // -rbauer- The backend re-validated and rejected something our own
-        // `validate()` above didn't catch. Its response shape is
-        // { fields: { <fieldName>: ["message", ...] } }.
+        // -rbauer- The backend rejected something `validate()` did not catch.
+        // Response shape: { fields: { <fieldName>: ["message", ...] } }.
         const fields = err.details?.fields;
 
         if (fields && typeof fields === "object") {
           for (const [field, msgs] of Object.entries(fields)) {
             if (Array.isArray(msgs) && msgs.length > 0) {
-              // -rbauer- Backend-authored English text, no translation key exists
-              // for it -- stored and shown as-is (FieldError also accepts
-              // a plain string for this exact situation).
+              // -rbauer- Backend-authored English with no translation key:
+              // FieldError accepts a plain string and shows it as-is.
               fieldErrors[field] = String(msgs[0]);
             }
           }
@@ -140,9 +127,8 @@ const LoginCard = () => {
 
       setErrors(fieldErrors);
     } catch (error) {
-      // -rbauer- fetch() itself threw -- the request never reached the backend
-      // (unreachable host, untrusted TLS certificate, etc.), as opposed to
-      // the backend answering with an error status code.
+      // -rbauer- fetch() threw: the request never reached the backend (host
+      // unreachable, untrusted TLS certificate) -- not an error status code.
       console.error("Login error:", error);
       setErrors({
         general: { key: "login.errors.network" },
@@ -162,8 +148,8 @@ const LoginCard = () => {
         value={form.email}
         onChange={(e) => setForm({ ...form, email: e.target.value })}
       />
-      {/* -rbauer- errorText() turns the stored FieldError into real text, in the
-          CURRENT language, every time this component re-renders. */}
+      {/* -rbauer- errorText() resolves the stored FieldError into text in the
+          current language, on every re-render. */}
       {errors.email && <p className={styles.error}>{errorText(errors.email, t)}</p>}
 
       <label htmlFor="password">{t("login.passwordLabel")}</label>

@@ -17,11 +17,9 @@ type User = {
   username: string
   avatarUrl: string | null
   email?: string | null
-  // -rbauerMod2- Only present when this User object came from GET
-  // /users/me (your own, private profile) -- other users' objects
-  // (friends, chat...) never carry an age, the same way they never carry
-  // an email. `null` means the account exists but never set an age
-  // (created before this field did).
+  // -rbauerMod2- Only present when the object comes from GET /users/me: other
+  // users never carry an age, just as they never carry an email. `null` means
+  // the account predates the field and never set one.
   age?: number | null
 }
 
@@ -115,7 +113,11 @@ export default function SocialPage() {
 
 
   return (
-    <div className="min-h-screen flex flex-col pt-10 px-4 pb-4 gap-6">
+    // -rbauerMod3- pb-12 (48px) instead of pb-4: the footer is `position: fixed`,
+    // so it reserves no layout space and paints over the page. With 16px the
+    // AddFriend "Filters" button stayed half-covered at any scroll position.
+    // 48px = the 32px bar + 16px of margin.
+    <div className="min-h-screen flex flex-col pt-10 px-4 pb-12 gap-6">
       <Link
         href="/dashboard"
         aria-label={t("common.backToDashboardAria")}

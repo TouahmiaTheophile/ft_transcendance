@@ -82,7 +82,10 @@ const LobbyPage = () => {
   const canStart = (lobby?.players.length ?? 0) >= 2
 
   return (
-    <div className="min-h-screen flex flex-col items-center pt-10 px-4">
+    // -rbauerMod3- pb-12 (48px) keeps the last player row and the Start button
+    // clear of the fixed footer, which reserves no layout space. The player
+    // list grows as people join.
+    <div className="min-h-screen flex flex-col items-center pt-10 px-4 pb-12">
       <LeaveButton onLeave={leaveLobby} />
 
       <h1 className="text-2xl font-bold text-white mb-2">{t("lobby.title")}</h1>
