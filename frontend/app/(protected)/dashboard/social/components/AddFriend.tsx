@@ -13,9 +13,8 @@ type SearchUser = {
   avatarUrl: string | null
 }
 
-// -rbauerMod2- The full shape of a paginated search response. Mirrors what
-// backend/src/users/users.service.ts -> searchUsers() returns, and the
-// shared type SearchUsersResponse in shared/src/users/user-response.dto.ts.
+// -rbauerMod2- A paginated search response, mirroring what searchUsers() returns
+// and the shared SearchUsersResponse type.
 type SearchUsersResponse = {
   data: SearchUser[]
   total: number
@@ -29,15 +28,13 @@ type Props = {
   meId: number | null
 }
 
-// -rbauerMod2- How many results the backend should return per page. Kept
-// small on purpose so pagination is easy to see and test even with only a
-// handful of users in the database.
+// -rbauerMod2- Results per page. Deliberately small so pagination is visible
+// even with few users in the database.
 const RESULTS_PER_PAGE = 5
 
-// -rbauerMod2- Turns the current filter/sort/page state into the URL for
-// GET /users/search. Keeping this in its own function separates "what are
-// we asking the backend for" from "when do we ask" (the debounce/effect
-// logic lives in the component below).
+// -rbauerMod2- Turns the filter/sort/page state into the GET /users/search URL.
+// Kept separate so "what we ask for" stays apart from "when we ask" (the
+// debounce logic in the component below).
 function buildSearchUrl(options: {
   query: string
   ageMin: string
@@ -49,10 +46,8 @@ function buildSearchUrl(options: {
 }): string {
   const params = new URLSearchParams()
 
-  // -rbauerMod2- Only send a param when it actually has a value. The
-  // backend DTO (SearchUsersDto) treats a missing param as "no filter",
-  // which is exactly what we want for an empty text box or an empty age
-  // field.
+  // -rbauerMod2- Only send a param that has a value: SearchUsersDto reads a
+  // missing param as "no filter", which is what an empty field means.
   if (options.query.trim()) params.set("query", options.query.trim())
   if (options.ageMin.trim()) params.set("ageMin", options.ageMin.trim())
   if (options.ageMax.trim()) params.set("ageMax", options.ageMax.trim())
@@ -72,9 +67,8 @@ export default function AddFriend({ friendIds, meId }: Props) {
   // -rbauerMod2- --- Search text ---
   const [query, setQuery] = useState("")
 
-  // -rbauerMod2- --- Filters: age range. Kept as strings because they're
-  // bound to text inputs directly -- converting to a number only happens
-  // when we build the request URL, in buildSearchUrl(). ---
+  // -rbauerMod2- --- Filters: age range. Strings, because they are bound to
+  // text inputs; conversion happens in buildSearchUrl(). ---
   const [ageMin, setAgeMin] = useState("")
   const [ageMax, setAgeMax] = useState("")
   const [showFilters, setShowFilters] = useState(false)
@@ -88,16 +82,15 @@ export default function AddFriend({ friendIds, meId }: Props) {
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
 
-  // -rbauerMod2- --- Results, and which ones we already sent a friend
-  // request to (unchanged behaviour from before this module was added) ---
+  // -rbauerMod2- --- Results, and which ones already got a friend request
+  // (behaviour unchanged by this module) ---
   const [results, setResults] = useState<SearchUser[]>([])
   const [sent, setSent] = useState<Set<number>>(new Set())
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // -rbauerMod2- Changing the search text or a filter should always jump
-  // back to page 1. Otherwise the user could stay stuck on "page 3" after
-  // typing a new, narrower search that only has 1 page of results.
+  // -rbauerMod2- Any change to the text or a filter jumps back to page 1, so a
+  // narrower search cannot leave the user stuck on an out-of-range page.
   function updateQuery(value: string) { setQuery(value); setPage(1) }
   function updateAgeMin(value: string) { setAgeMin(value); setPage(1) }
   function updateAgeMax(value: string) { setAgeMax(value); setPage(1) }
@@ -111,9 +104,8 @@ export default function AddFriend({ friendIds, meId }: Props) {
     const hasQuery = query.trim().length > 0
     const hasAgeFilter = ageMin.trim() !== "" || ageMax.trim() !== ""
 
-    // -rbauerMod2- Nothing to search for yet (empty box, no filter set):
-    // clear any old results instead of leaving stale data from a previous
-    // search on screen.
+    // -rbauerMod2- Nothing to search for (empty box, no filter): clear the old
+    // results rather than leaving stale data on screen.
     if (!hasQuery && !hasAgeFilter) {
       setResults([])
       setTotal(0)
@@ -121,14 +113,12 @@ export default function AddFriend({ friendIds, meId }: Props) {
       return
     }
 
-    // -rbauerMod2- Debounce: wait 300ms after the user stops typing/changing
-    // filters before actually calling the API. Without this, every single
-    // keystroke would fire its own network request.
+    // -rbauerMod2- Debounce: 300ms after the last change before calling the API,
+    // otherwise every keystroke would fire its own request.
     debounceRef.current = setTimeout(async () => {
-      // -rbauerMod2- Never show the current user themself or people already
-      // on their friends list. We ask the BACKEND to exclude them (via
-      // excludeIds) instead of filtering the results after the fact -- that
-      // way `total`/`totalPages` (used below for pagination) stay accurate.
+      // -rbauerMod2- Hide the current user and existing friends. The backend
+      // excludes them via excludeIds rather than filtering afterwards, so
+      // `total` and `totalPages` stay accurate.
       const excludeIds = [...friendIds, ...(meId !== null ? [meId] : [])]
 
       const url = buildSearchUrl({ query, ageMin, ageMax, excludeIds, sortBy, order, page })

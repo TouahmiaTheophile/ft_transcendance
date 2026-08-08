@@ -89,11 +89,9 @@ export class UsersController {
     return this.usersService.deleteAvatar(user.sub);
   }
 
-  // -rbauerMod2- `@Query() dto: SearchUsersDto` -- unlike `@Query('query') query: string`,
-  // this tells Nest: "take ALL the query params from the URL, build a real
-  // SearchUsersDto instance out of them, and run it through the global
-  // ValidationPipe (see main.ts) before calling this method". That's what
-  // actually enforces every @IsInt/@Min/@Max/@IsIn rule declared in the DTO.
+  // -rbauerMod2- `@Query() dto: SearchUsersDto` (not `@Query('query')`) makes Nest
+  // build a real SearchUsersDto from all query params and run it through the
+  // global ValidationPipe, which is what enforces the DTO's decorators.
   @Get('search')
   async searchUsers(@Query() dto: SearchUsersDto) {
     return this.usersService.searchUsers(dto);

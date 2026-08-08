@@ -1,44 +1,33 @@
 "use client";
 
 // ============================================================================
-// -rbauer- This file exports the `useTranslation()` hook -- the thing every component
-// actually calls to display translated text:
+// -rbauer- Exports `useTranslation()`, the hook every component calls to display
+// translated text:
 //
 //   const { t } = useTranslation();
 //   <button>{t("login.submit")}</button>
 //
-// It's built out of two small, independent pieces:
-//   - resolve()     -> given a key like "login.submit", find the matching
-//                       text inside the current language's dictionary.
-//   - interpolate() -> given a text with placeholders like "{{count}}",
-//                       replace them with real values.
+// Built from two independent pieces:
+//   - resolve()     -> find the text matching a key in the current dictionary.
+//   - interpolate() -> replace "{{placeholders}}" with real values.
 // ============================================================================
 
 import { useLanguage } from "./LanguageContext";
 import { translations } from "./translations";
 
-// -rbauer- Looks up a "dotted path" (e.g. "login.errors.network") inside a nested
-// object, one level at a time.
+// -rbauer- Walks a dotted path ("login.errors.network") through a nested object,
+// one level at a time.
 //
-// Example: resolve(en, "login.errors.network")
-//   1. path.split(".") -> ["login", "errors", "network"]
-//   2. start with `current = en`
-//   3. current = current["login"]          -> the `login` object
-//   4. current = current["errors"]          -> the `errors` object
-//   5. current = current["network"]         -> the actual string
-//   6. return it
-//
-// If at any point the path doesn't exist (typo in the key, for example),
-// we stop and return the key itself instead of crashing -- so a mistake
-// shows up as visible broken-looking text ("login.mispelled") in the UI,
-// which is easy to notice and fix, rather than a blank page or a JS error.
+// If the path does not exist (a typo, say), it returns the key itself instead
+// of crashing: the mistake shows up as visible broken text in the UI rather
+// than a blank page.
 function resolve(dictionary: any, path: string): string {
   const parts = path.split(".");
   let current: any = dictionary;
 
   for (const part of parts) {
     if (current == null || typeof current !== "object") {
-      // -rbauer- We hit a dead end before reaching the last part of the path.
+      // -rbauer- Dead end before the last part of the path.
       return path;
     }
     current = current[part];
@@ -47,21 +36,12 @@ function resolve(dictionary: any, path: string): string {
   return typeof current === "string" ? current : path;
 }
 
-// -rbauer- Replaces "{{name}}" placeholders in a string with real values.
+// -rbauer- Replaces "{{name}}" placeholders with real values.
 //
-// Example: interpolate("{{count}}/{{max}} players", { count: 3, max: 4 })
-//          -> "3/4 players"
+//   interpolate("{{count}}/{{max}} players", { count: 3, max: 4 }) -> "3/4 players"
 //
-// `text.replace(regex, callback)` scans the string for every match of the
-// regex, and calls the callback for each one; whatever the callback
-// returns takes the place of the match.
-//
-// The regex `/\{\{(\w+)\}\}/g` means:
-//   \{\{      -> a literal "{{"
-//   (\w+)     -> capture one or more "word" characters (letters/digits/_) ;
-//                this captured text is the variable name, e.g. "count"
-//   \}\}      -> a literal "}}"
-//   g         -> find ALL matches in the string, not just the first one
+// The regex captures the variable name between literal "{{" and "}}", and `g`
+// matches every occurrence. An unknown name is left untouched.
 function interpolate(text: string, vars?: Record<string, string | number>): string {
   if (!vars) return text;
 
@@ -71,19 +51,16 @@ function interpolate(text: string, vars?: Record<string, string | number>): stri
   });
 }
 
-// -rbauer- The main hook. Every component that needs to display text calls this.
+// -rbauer- The main hook, called by every component that displays text.
 export function useTranslation() {
   const { locale, setLocale } = useLanguage();
 
-  // -rbauer- The dictionary for whichever language is currently active
-  // (translations.en, translations.fr, ...).
+  // -rbauer- The dictionary of the active language (translations.en, .fr, ...).
   const dictionary = translations[locale];
 
-  // -rbauer- `key` is typed as `string` here (not restricted to a fixed list of
-  // valid keys) to keep this file simple to read. The trade-off: if you
-  // typo a key, TypeScript won't catch it at compile time -- but `resolve()`
-  // above handles that gracefully at runtime by showing the broken key
-  // instead of crashing, so it's still easy to spot while testing.
+  // -rbauer- `key` is a plain `string`, not a union of valid keys, to keep this
+  // file simple: a typo is not caught at compile time, but resolve() makes it
+  // visible at runtime instead of crashing.
   function t(key: string, vars?: Record<string, string | number>): string {
     const rawText = resolve(dictionary, key);
     return interpolate(rawText, vars);
