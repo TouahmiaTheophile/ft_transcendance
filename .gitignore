@@ -26,6 +26,8 @@ coverage/
 #Nginx CERTIFICATS HAS TO BE IGNORED WHEN WE PUSH
 .docker/nginx/certs/*.key
 .docker/nginx/certs/*.crt
+#subjectAltName use this, (do not share)
+.docker/nginx/certs/.san
 #in order to git clone an empty folder we touch .docker/nginx/certs/.gitkeep  then :
 !.docker/nginx/certs/.gitkeep
 

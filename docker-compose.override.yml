@@ -33,6 +33,10 @@ services:
     environment:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true
+      # made by makefile (hostname + IP LAN host machine).
+      # used by allowedDevOrigins in next.config.ts : without, no chunk JS
+      # is served when on the website in another machine.
+      - DEV_ORIGINS=${DEV_ORIGINS:-}
 
 volumes:
   backend_node_modules:
