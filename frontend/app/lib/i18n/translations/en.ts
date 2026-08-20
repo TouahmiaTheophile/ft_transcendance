@@ -231,8 +231,8 @@ const en = {
     winsTheGame: "wins the game",
     backToLobby: "back to lobby",
 
-    // -rbauerMod6- The tutorial shown on the game page while waiting for the
-    // host to start (GameTutorial.tsx). It describes the actual engine
+    // -rbauerMod6- Rules text kept for reference (formerly shown by the game
+    // tutorial panel, now removed). It describes the actual engine
     // (backend/src/game/game.engine.ts), not an idealised version of it.
     //
     // `rules` is a flat group of one-line entries: the component walks a list
@@ -243,24 +243,9 @@ const en = {
       title: "How to play",
       goal: "Goal: be the last cycle still riding.",
 
-      // -rbauerMod7- The Play button under the rules (PlayButton.tsx).
-      //
-      // The game used to start on a 3 second countdown, which left no time to
-      // actually read the panel above. It now waits for every human player to
-      // press this button, so `waitingPlayers` covers the in-between moment:
-      // you are ready, someone else is still reading.
-      //
-      // These two labels share one button and are nowhere near the same
-      // length: "Play" is 4 characters, "Spielen" is 7, and the waiting label
-      // is three times that in every language. Rather than let the button
-      // resize under the tutorial every time the language or the state
-      // changes, its box is fixed and anything too long for it is cut with an
-      // ellipsis (see PlayButton.module.css), the full text staying readable
-      // in the native tooltip.
-      //
-      // Hence the word order of `waitingPlayers`: the counter comes early, so
-      // that a translation long enough to be cut loses its tail -- never the
-      // one piece of information the line exists to carry.
+      // Kept for reference (formerly used by the Play/tutorial panel, now
+      // removed -- the game starts its 3-2-1 countdown as soon as the host
+      // starts it from the lobby).
       play: "Play",
       waitingPlayers: "Waiting… {{ready}}/{{total}} ready",
       rules: {

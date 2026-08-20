@@ -47,14 +47,6 @@ export class GameGateway implements OnGatewayInit {
         this.server.to(`game:${gameId}`).emit('game:countdown', { value });
       }
     });
-    // -rbauerMod7- relaie l'avancement des "Play" vers la room jeu : chaque
-    // clic renvoie à tout le monde combien de joueurs sont prêts sur combien,
-    // ce que la page de jeu affiche sous le bouton ("en attente… 1/2").
-    this.gameService.events.on('game.ready', ({ gameId, ready, total }) => {
-      if (this.server) {
-        this.server.to(`game:${gameId}`).emit('game:ready', { ready, total });
-      }
-    });
   }
 
   afterInit(server: Server) {
@@ -99,30 +91,6 @@ export class GameGateway implements OnGatewayInit {
     lobby.assertCanInvite(userId, targetId);
 
     this.server.to(`user:${targetId}`).emit('invite_to_lobby', { lobbyId: lobby.id, inviterId: userId });
-  }
-
-  // -rbauerMod7- Le joueur a cliqué "Play" au bas du tutoriel (PlayButton.tsx).
-  //
-  // Le compte à rebours n'est plus lancé par 'start_game' : il attend ici que
-  // tous les humains de la partie aient cliqué. Aucun contrôle de plus à faire,
-  // markReady() ignore de lui-même un clic qui n'attend rien (partie déjà
-  // lancée, joueur plus en partie).
-  @SubscribeMessage('player_ready')
-  handlePlayerReady(
-    @ConnectedSocket() socket: Socket,
-  ) {
-    const gameId = this.gameService.markReady(socket.data.userId);
-
-    // -rbauerMod7- On (re)fait entrer la socket dans la room de la partie.
-    //
-    // 'start_game' y met les sockets présentes à cet instant, mais une socket
-    // qui se reconnecte ne rejoint que `user:<id>` (cf. WsAuthGateway) : elle
-    // ne recevrait plus ni le 3-2-1 ni les états. Avant, la fenêtre pour que
-    // ça arrive durait les 3 secondes du compte à rebours ; maintenant elle
-    // dure aussi longtemps que la lecture du tutoriel, donc un rafraîchissement
-    // de page pendant la lecture est devenu banal. `join` est idempotent : si
-    // la socket est déjà dans la room, l'appel ne fait rien.
-    if (gameId) socket.join(`game:${gameId}`);
   }
 
   @SubscribeMessage('player_input')
