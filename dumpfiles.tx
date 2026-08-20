@@ -1,6 +1,0 @@
-find backend/src shared/src   -type f   \( -name "*.ts" -o -name "*.js" -o -name "*.json" \)   -print0 | sort -z | xargs -0 -I{} sh -c '
-    echo "===== FILE: {} ====="
-    cat "{}"
-    echo
-    echo
-  ' > sources.txt

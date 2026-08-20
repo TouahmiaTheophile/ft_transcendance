@@ -264,6 +264,15 @@ The project implements the following modules (listed with their point values, ju
   - Implementation: i18n integration in the frontend with language selection; language resources and toggles included in the UI footer and site configuration.
   - Contributors: `rbauer`.
 
+- Implement advanced search functionality with filters, sorting, and pagination — 1 pt (Minor)
+  - Justification: A screen that lists every account stops working as the user base grows: filters narrow the set, sorting makes the result order predictable, and pagination bounds both the query and the interface.
+  - Implementation: A single `GET /users/search` endpoint: parameters declared and validated in `SearchUsersDto`, query built in `UsersService.searchUsers()` (`backend/src/users/`), UI in `AddFriend.tsx`.
+  - Contributors: `rbauer`.
+
+  
+  described by `SearchUsersDto` and served by `UsersService.searchUsers()`. Filters: a text match on the username, an `ageMin`/`ageMax` range, and an `excludeIds` list that hides the current user and existing friends server-side. Sorting: `sortBy` and `order`, both constrained by `@IsIn` because `sortBy` becomes a column name. Pagination: a 1-based `page` and a `limit` capped at 50, mapped to Prisma's `skip`/`take`; `findMany` and `count` run in parallel so the response carries `total` and `totalPages`.
+  - Contributors: `rbauer`.
+
 Total points for implemented modules: 19 pts.
 
 **Individual Contributions**
@@ -283,9 +292,8 @@ Total points for implemented modules: 19 pts.
   - *Challenges & solutions:* Implemented deterministic game logic and synchronization mechanisms to keep server and clients consistent during real-time matches.
 
 - **rbauer:**
-  - *Contributions:* Implemented the Nginx setup to isolate containers and handle HTTPS; added site footer containing Privacy Policy and Terms of Service for easy access; implemented a language module to switch site language; contributed to several frontend parts.
+  - *Contributions:* Implemented the Nginx setup to isolate containers and handle HTTPS; added site footer containing Privacy Policy and Terms of Service for easy access; implemented a language module to switch site language; contributed to several frontend parts and also implemented the advanced search module.
   - *Files / modules:* Primary author of Nginx configuration (`.docker/nginx/`), cert helpers and frontend footer/i18n components.
   - *Challenges & solutions:* Ensured correct HTTPS certificates and reverse-proxy configuration, integrated multi-language support and ensured policies are publicly accessible in the UI footer.
 
 ---
-
