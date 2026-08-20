@@ -15,10 +15,15 @@
     box-sizing: border-box;
 }
 
+/* -rbauerMod5- Same fix as IdentificationCard.module.css, same reason: the
+   fixed 14rem width plus the nowrap/ellipsis pair turned any long translation
+   into "...". min-width keeps the current look for "Play" / "Jouer" and lets
+   the button grow for anything longer. */
 .card a {
-    width: min(100%, 14rem);
-    max-width: 14rem;
-    height: 58px;
+    width: auto;
+    min-width: 14rem;
+    max-width: 100%;
+    min-height: 58px;
     padding: 0 1.25rem;
     background: linear-gradient(135deg, rgba(255, 79, 216, 0.95), rgba(125, 249, 255, 0.9));
     color: #06111a;
@@ -28,9 +33,9 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     transition: all 0.2s ease;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    /* -rbauerMod5- `text-align: center` replaces the removed nowrap/ellipsis:
+       it keeps a label centred if it ever wraps to a second line. */
+    text-align: center;
 }
 
 .card a:hover {

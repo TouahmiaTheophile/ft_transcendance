@@ -1,15 +1,14 @@
 import { Module } from "@nestjs/common";
 import { LobbyController } from "./lobby.controller";
 import { LobbyService } from "./lobby.service";
-import { GameService } from "src/game/game.service";
+import { GameModule } from "src/game/game.module";
 import { UsersModule } from "src/users/users.module";
 
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule, GameModule],
   controllers: [LobbyController],
   providers: [
 	LobbyService,
-	GameService,
   ],
   exports: [LobbyService],
 })

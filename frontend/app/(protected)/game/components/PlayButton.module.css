@@ -1,0 +1,68 @@
+/* -rbauerMod7- Styles for PlayButton.tsx, in the same cyan-on-dark palette as
+   the lobby's Start button (StartButton.module.css) -- it is the same gesture,
+   one step later, so it should look like the same button.
+
+   THE SIZE PROBLEM THIS FILE SOLVES
+   ---------------------------------
+   This one button shows labels of wildly different lengths: "Play" (4 chars),
+   "Spielen" (7), then "En attente… 1/2 prêts" (21) once pressed. Multiply that
+   by four languages plus the X_ pseudo-locale and a button that hugs its text
+   would change width every time the player switches language or presses it,
+   shifting the tutorial panel underneath.
+
+   So the box is fixed instead of the text: `width` is set in `ch` (character
+   widths of the current font, not pixels, so it scales with the font rather
+   than with a guess), and any label too long for it is cut with "…" by
+   text-overflow. The tutorial keeps its layout in every language, and the full
+   sentence stays available in the tooltip (`title` in PlayButton.tsx).
+
+   Note this is the opposite choice from GameTutorial.module.css, deliberately:
+   a rule is a paragraph and must wrap to stay readable, a button is a control
+   and must keep its shape. */
+
+.button {
+  /* -rbauerMod7- Flex so the label can be told to shrink (see .label). */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* -rbauerMod7- The fixed box. 22ch holds the longest of the labels the four
+     dictionaries currently produce; anything longer -- a future translation, or
+     the X_ pseudo-locale, which is exactly what it is there to catch -- gets
+     the ellipsis instead of a wider button. `max-width: 100%` keeps it inside
+     the panel on a narrow phone. */
+  width: 22ch;
+  max-width: 100%;
+
+  margin-top: 0.9rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(34 211 238 / 0.4);
+  color: #22d3ee;
+  background: rgb(34 211 238 / 0.1);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.button:hover:not(:disabled) {
+  background: rgb(34 211 238 / 0.2);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* -rbauerMod7- The truncation itself: one line, no wrapping, "…" on overflow.
+   `min-width: 0` is the part that is easy to forget -- a flex item refuses to
+   shrink below its content by default, so without it the text would simply
+   push the button wider and never be cut. */
+.label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

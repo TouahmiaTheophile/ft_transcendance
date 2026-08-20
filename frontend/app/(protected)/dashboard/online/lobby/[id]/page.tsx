@@ -1,12 +1,13 @@
 "use client"
 
 import { apiFetch } from "@/app/lib/api"
-import { getSocket } from "@/app/lib/socket"
+import { getSocket, connectSocket } from "@/app/lib/socket"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import LeaveButton from "./components/LeaveButton"
 import PlayerList from "./components/PlayerList"
 import StartButton from "./components/StartButton"
+import AddBotButtons from "./components/AddBotButtons"
 import { useTranslation } from "@/app/lib/i18n/useTranslation"
 
 type LobbyPlayer = {
@@ -39,19 +40,24 @@ const LobbyPage = () => {
     const socket = getSocket()
     if (!socket)
       return
+    connectSocket()
 
     const onLobbyState = (state: Lobby) => setLobby(state)
-    const onGameState = () => router.push("/game")        // game started → go play
-    const onException = () => setError(t("lobby.errors.generic"))
+    const onGameStarted = () => {
+      // mem lobby pour bouton "retour au lobby" en fin de partie
+      sessionStorage.setItem("lastLobbyId", lobbyId)
+      router.push("/game")
+    }
+    const onException = (e: { message?: string }) => setError(e?.message ?? t("lobby.errors.generic"))
 
     socket.emit("lobby:subscribe", { lobbyId })
     socket.on("lobby.state", onLobbyState)
-    socket.on("game:state", onGameState)
+    socket.on("game:started", onGameStarted)
     socket.on("exception", onException)
 
     return () => {
       socket.off("lobby.state", onLobbyState)
-      socket.off("game:state", onGameState)
+      socket.off("game:started", onGameStarted)
       socket.off("exception", onException)
     }
   }, [lobbyId, router])
@@ -78,6 +84,25 @@ const LobbyPage = () => {
     socket.emit("start_game")
   }
 
+  const addBot = (kind: "smart" | "random") => {
+    apiFetch("/lobby/add-bot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind }),
+    }).then(async res => {
+      if (res.ok) setError(null)
+      // pas de refresh manuel : le back émet 'lobby.changed' après add-bot
+      // (cf. patch backend_patch/lobby.service.ts) -> tout le lobby reçoit 'lobby.state'
+      else {
+        // -rbauerMod5- The last hardcoded string of this page. Same pattern as
+        // leaveLobby() above: the backend message when there is one, our
+        // translated fallback otherwise.
+        const err = await res.json().catch(() => null)
+        setError(err?.message ?? t("lobby.errors.addBotFailed"))
+      }
+    })
+  }
+
   const isHost = myId !== null && lobby?.hostId === myId
   const canStart = (lobby?.players.length ?? 0) >= 2
 
@@ -102,7 +127,12 @@ const LobbyPage = () => {
             myId={myId}
           />
 
-          {isHost && <StartButton canStart={canStart} onStart={startGame} />}
+          {isHost && (
+            <>
+              <AddBotButtons onAddBot={addBot} />
+              <StartButton canStart={canStart} onStart={startGame} />
+            </>
+          )}
         </div>
       ) : (
         <p className="text-white/60">{t("lobby.connecting")}</p>

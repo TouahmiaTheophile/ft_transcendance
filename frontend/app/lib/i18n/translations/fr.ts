@@ -95,8 +95,13 @@ const fr = {
     you: "vous",
     startGame: "Démarrer la partie",
     needMorePlayers: "Il faut au moins 2 joueurs",
+
+    // -rbauerMod5- Voir en.ts : les deux boutons d'ajout de bot.
+    smartBot: "Bot intelligent",
+    randomBot: "Bot aléatoire",
     errors: {
       leaveFailed: "Impossible de quitter le salon",
+      addBotFailed: "Impossible d'ajouter un bot", // -rbauerMod5-
       generic: "Une erreur est survenue",
     },
   },
@@ -110,6 +115,7 @@ const fr = {
     noFriends: "Aucun ami pour le moment.",
     online: "En ligne",
     offline: "Hors ligne",
+    removeFriend: "Retirer l'ami",
     friendRequestsLabel: "Demandes d'ami",
     accept: "Accepter",
     reject: "Refuser",
@@ -162,8 +168,40 @@ const fr = {
       ageUpdateFailed: "Impossible de mettre à jour l'âge (doit être un nombre entier entre 0 et 150)",
     },
   },
+  // -rbauerMod5- Voir en.ts pour le détail de chaque clé.
   game: {
-    placeholder: "Bientôt disponible.",
+    waiting: "en attente du début de la partie…",
+    you: "vous",
+    eliminated: "éliminé, en spectateur",
+    alive: "en vie : {{alive}}/{{total}}",
+    go: "PARTEZ !",
+    ai: "IA",
+    player: "joueur {{id}}",
+    draw: "égalité",
+    nobodySurvived: "personne n'a survécu",
+    youWin: "vous avez gagné !",
+    winsTheGame: "remporte la partie",
+    backToLobby: "retour au salon",
+
+    // -rbauerMod6- Voir en.ts : le tutoriel affiché en attendant le départ.
+    tutorial: {
+      title: "Comment jouer",
+      goal: "But : être la dernière moto encore en course.",
+
+      // -rbauerMod7- Voir en.ts : les deux états du bouton Play sous les règles.
+      play: "Jouer",
+      waitingPlayers: "En attente… {{ready}}/{{total}} prêts",
+      rules: {
+        move: "Votre moto ne s'arrête jamais : elle avance toute seule, case par case.",
+        trail: "Elle laisse un mur derrière elle, et ce mur reste jusqu'à la fin de la manche.",
+        crash: "Vous êtes éliminé dès que vous touchez un bord ou un mur — le vôtre compris.",
+        headOn: "Si deux motos entrent dans la même case au même instant, les deux sont éliminées.",
+        noReverse: "Impossible de faire demi-tour : le demi-tour est ignoré, anticipez vos virages.",
+        controls: "Dirigez-vous avec les flèches, WASD ou ZQSD.",
+        countdown: "Les touches répondent déjà pendant le 3-2-1 : choisissez votre direction de départ.",
+        win: "Le dernier joueur en vie gagne. Si tout le monde s'écrase au même instant, la manche est nulle.",
+      },
+    },
   },
   languageSwitcher: {
     label: "Langue",

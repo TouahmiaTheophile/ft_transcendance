@@ -48,6 +48,15 @@ export const FriendshipErrors = {
     });
   },
 
+  cannotRemove(friendship: FriendshipSnapshot) {
+    return new ApiException({
+      code: 'FRIENDSHIP_CANNOT_REMOVE',
+      statusCode: 409,
+      message: 'Cannot remove a friendship that is not accepted',
+      details: { friendship: toFriendshipSnapshot(friendship) },
+    });
+  },
+
   cannotSendRequest(friendship: FriendshipSnapshot) {
     return new ApiException({
       code: 'FRIENDSHIP_CANNOT_SEND',

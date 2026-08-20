@@ -13,9 +13,10 @@ type Props = {
   friends: Friend[]
   onlineIds: Set<number>
   onConversationSelect: (friendId: number) => void
+  onRemove: (friendshipId: number) => void
 }
 
-export default function FriendList({ friends, onlineIds, onConversationSelect }: Props) {
+export default function FriendList({ friends, onlineIds, onConversationSelect, onRemove }: Props) {
   const { t } = useTranslation()
 
   return (
@@ -27,14 +28,28 @@ export default function FriendList({ friends, onlineIds, onConversationSelect }:
       {friends.map(current => {
         const isOnline = onlineIds.has(current.friend.id)
         return (
-          <button key={current.id} className={styles.row} onClick={() => onConversationSelect(current.friend.id)}>
-            <Avatar username={current.friend.username} avatarUrl={current.friend.avatarUrl} size={32} />
-            <span className={styles.username}>{current.friend.username}</span>
-            <span
-              title={isOnline ? t("social.online") : t("social.offline")}
-              className={`${styles.status} ${isOnline ? styles.online : ""}`}
-            />
-          </button>
+          // the row is a <div>, not a <button>: the remove button lives inside
+          // it and a button can never be nested in another button
+          <div key={current.id} className={styles.row}>
+            <button className={styles.open} onClick={() => onConversationSelect(current.friend.id)}>
+              <Avatar username={current.friend.username} avatarUrl={current.friend.avatarUrl} size={32} />
+              <span className={styles.username}>{current.friend.username}</span>
+              <span
+                title={isOnline ? t("social.online") : t("social.offline")}
+                className={`${styles.status} ${isOnline ? styles.online : ""}`}
+              />
+            </button>
+            <button
+              // current.id is the FRIENDSHIP id (cf. toFriendResponse), which
+              // is what DELETE /friends/:id expects -- not the friend's user id
+              onClick={() => onRemove(current.id)}
+              aria-label={t("social.removeFriend")}
+              title={t("social.removeFriend")}
+              className={styles.removeBtn}
+            >
+              ✕
+            </button>
+          </div>
         )
       })}
     </div>

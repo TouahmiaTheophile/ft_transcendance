@@ -138,6 +138,7 @@ export class Lobby {
 
   lock() { this.status = 'locked'; }
   inGame() { this.status = 'in-game'; }
+  reopen() { this.status = 'open'; }
 
   get hostId() : number { return this._hostId }
 }

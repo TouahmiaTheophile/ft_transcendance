@@ -111,8 +111,14 @@ const en = {
     you: "you",
     startGame: "Start game",
     needMorePlayers: "Need at least 2 players",
+
+    // -rbauerMod5- The two "add a bot" buttons, visible to the host only
+    // (AddBotButtons.tsx).
+    smartBot: "Smart bot",
+    randomBot: "Random bot",
     errors: {
       leaveFailed: "Could not leave lobby",
+      addBotFailed: "Could not add bot", // -rbauerMod5-
       generic: "Something went wrong",
     },
   },
@@ -128,6 +134,7 @@ const en = {
     noFriends: "No friends yet.",
     online: "Online",
     offline: "Offline",
+    removeFriend: "Remove friend",
     friendRequestsLabel: "Friend requests",
     accept: "Accept",
     reject: "Reject",
@@ -187,9 +194,86 @@ const en = {
     },
   },
 
-  // -rbauer- "/game" -- placeholder page, not implemented yet.
+  // -rbauerMod5- "/game" -- the match itself. The page was written before the
+  // language module existed, so all of its text was hardcoded in English; the
+  // old `placeholder` key (the "Coming soon." page) is replaced by the real
+  // strings below.
+  //
+  // Read in four places:
+  //   - GameStatusBar.tsx    -> waiting / you / eliminated / alive
+  //   - CountdownOverlay.tsx -> go
+  //   - GameOverOverlay.tsx  -> backToLobby
+  //   - page.tsx             -> everything else (winner name and subtitle,
+  //                             computed there because it depends on who won)
   game: {
-    placeholder: "Coming soon.",
+    waiting: "waiting for the game to start…",
+    you: "you",
+    eliminated: "eliminated, spectating",
+
+    // -rbauerMod5- {{alive}} survivors out of {{total}} players. Two separate
+    // placeholders rather than one "3/4" string: some languages put the words
+    // in another order, and each number stays a number.
+    alive: "alive: {{alive}}/{{total}}",
+
+    // -rbauerMod5- Last step of the countdown (3, 2, 1, then this).
+    go: "GO!",
+
+    // -rbauerMod5- Winner name. The game state only carries player ids, so the
+    // page turns an id into: "AI" for a bot (negative id), the username when
+    // the lobby is known, or `player` as a last resort (direct navigation).
+    ai: "AI",
+    player: "player {{id}}",
+
+    // -rbauerMod5- End-of-game overlay: the big label, then its subtitle.
+    draw: "draw",
+    nobodySurvived: "nobody survived",
+    youWin: "you win!",
+    winsTheGame: "wins the game",
+    backToLobby: "back to lobby",
+
+    // -rbauerMod6- The tutorial shown on the game page while waiting for the
+    // host to start (GameTutorial.tsx). It describes the actual engine
+    // (backend/src/game/game.engine.ts), not an idealised version of it.
+    //
+    // `rules` is a flat group of one-line entries: the component walks a list
+    // of these names and prints one <li> per entry, the same way the privacy
+    // page loops over its sections. Adding a rule = one key here (x4
+    // languages) plus its name in the component's RULES array -- no JSX.
+    tutorial: {
+      title: "How to play",
+      goal: "Goal: be the last cycle still riding.",
+
+      // -rbauerMod7- The Play button under the rules (PlayButton.tsx).
+      //
+      // The game used to start on a 3 second countdown, which left no time to
+      // actually read the panel above. It now waits for every human player to
+      // press this button, so `waitingPlayers` covers the in-between moment:
+      // you are ready, someone else is still reading.
+      //
+      // These two labels share one button and are nowhere near the same
+      // length: "Play" is 4 characters, "Spielen" is 7, and the waiting label
+      // is three times that in every language. Rather than let the button
+      // resize under the tutorial every time the language or the state
+      // changes, its box is fixed and anything too long for it is cut with an
+      // ellipsis (see PlayButton.module.css), the full text staying readable
+      // in the native tooltip.
+      //
+      // Hence the word order of `waitingPlayers`: the counter comes early, so
+      // that a translation long enough to be cut loses its tail -- never the
+      // one piece of information the line exists to carry.
+      play: "Play",
+      waitingPlayers: "Waiting… {{ready}}/{{total}} ready",
+      rules: {
+        move: "Your cycle never stops: it moves forward on its own, one cell at a time.",
+        trail: "It leaves a solid wall behind it, and that wall stays until the end of the round.",
+        crash: "You are eliminated the moment you touch a border or a wall — your own included.",
+        headOn: "If two cycles enter the same cell at the same moment, both are eliminated.",
+        noReverse: "You cannot turn back on yourself: a half-turn is ignored, so plan your turns.",
+        controls: "Steer with the arrow keys, WASD or ZQSD.",
+        countdown: "The keys already answer during the 3-2-1: use it to pick your starting direction.",
+        win: "The last player alive wins. If everyone crashes at the same moment, the round is a draw.",
+      },
+    },
   },
 
   // -rbauer- The accessible label on the language <select> itself.

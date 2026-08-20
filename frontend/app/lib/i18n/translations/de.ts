@@ -89,8 +89,13 @@ const de = {
     you: "du",
     startGame: "Spiel starten",
     needMorePlayers: "Mindestens 2 Spieler erforderlich",
+
+    // -rbauerMod5- Siehe en.ts: die beiden Schaltflächen zum Hinzufügen eines Bots.
+    smartBot: "Schlauer Bot",
+    randomBot: "Zufalls-Bot",
     errors: {
       leaveFailed: "Lobby konnte nicht verlassen werden",
+      addBotFailed: "Bot konnte nicht hinzugefügt werden", // -rbauerMod5-
       generic: "Etwas ist schiefgelaufen",
     },
   },
@@ -104,6 +109,7 @@ const de = {
     noFriends: "Noch keine Freunde.",
     online: "Online",
     offline: "Offline",
+    removeFriend: "Freund entfernen",
     friendRequestsLabel: "Freundschaftsanfragen",
     accept: "Annehmen",
     reject: "Ablehnen",
@@ -156,8 +162,40 @@ const de = {
       ageUpdateFailed: "Alter konnte nicht aktualisiert werden (muss eine ganze Zahl zwischen 0 und 150 sein)",
     },
   },
+  // -rbauerMod5- Siehe en.ts für die Bedeutung jedes Schlüssels.
   game: {
-    placeholder: "Demnächst verfügbar.",
+    waiting: "warten auf den Spielstart…",
+    you: "du",
+    eliminated: "ausgeschieden, Zuschauermodus",
+    alive: "am Leben: {{alive}}/{{total}}",
+    go: "LOS!",
+    ai: "KI",
+    player: "Spieler {{id}}",
+    draw: "unentschieden",
+    nobodySurvived: "niemand hat überlebt",
+    youWin: "du gewinnst!",
+    winsTheGame: "gewinnt das Spiel",
+    backToLobby: "zurück zur Lobby",
+
+    // -rbauerMod6- Siehe en.ts: das Tutorial, das vor dem Start angezeigt wird.
+    tutorial: {
+      title: "So wird gespielt",
+      goal: "Ziel: das letzte Bike sein, das noch fährt.",
+
+      // -rbauerMod7- Siehe en.ts: die zwei Zustände des Play-Buttons unter den Regeln.
+      play: "Spielen",
+      waitingPlayers: "Warten… {{ready}}/{{total}} bereit",
+      rules: {
+        move: "Dein Bike hält nie an: Es fährt von selbst weiter, Feld für Feld.",
+        trail: "Es hinterlässt eine feste Wand, und diese Wand bleibt bis zum Ende der Runde.",
+        crash: "Du scheidest aus, sobald du einen Rand oder eine Wand berührst — auch deine eigene.",
+        headOn: "Fahren zwei Bikes im selben Moment auf dasselbe Feld, scheiden beide aus.",
+        noReverse: "Eine Kehrtwende ist nicht möglich: Sie wird ignoriert, plane deine Kurven.",
+        controls: "Lenke mit den Pfeiltasten, WASD oder ZQSD.",
+        countdown: "Die Tasten reagieren schon während des 3-2-1: Wähle so deine Startrichtung.",
+        win: "Der letzte lebende Spieler gewinnt. Verunglücken alle im selben Moment, endet die Runde unentschieden.",
+      },
+    },
   },
   languageSwitcher: {
     label: "Sprache",

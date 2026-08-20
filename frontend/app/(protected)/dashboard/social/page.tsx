@@ -104,6 +104,18 @@ export default function SocialPage() {
     return () => { socket.off("friend:status", onStatus) }
   }, [])
 
+  const removeFriend = async (friendshipId: number) => {
+    const res = await apiFetch(`/friends/${friendshipId}`, { method: "DELETE" })
+    if (!res.ok) return
+
+    // the conversation is gone too (deleted in cascade with the friendship),
+    // so close the chat panel if it was the one being displayed
+    const removed = friends.find(f => f.id === friendshipId)
+    setSelectedConversation(prev => prev?.friend.id === removed?.friend.id ? null : prev)
+    loadFriends()
+    loadConversations()
+  }
+
   const logout = async () => {
     await apiFetch("/auth/logout", { method: "POST" })
     window.location.href = "/login"
@@ -156,6 +168,7 @@ export default function SocialPage() {
               if (convo) setSelectedConversation(convo)
             }
           }
+            onRemove={removeFriend}
           />
         </div>
         <PendingRequests

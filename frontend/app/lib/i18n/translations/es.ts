@@ -89,8 +89,13 @@ const es = {
     you: "tú",
     startGame: "Iniciar partida",
     needMorePlayers: "Se necesitan al menos 2 jugadores",
+
+    // -rbauerMod5- Ver en.ts: los dos botones para añadir un bot.
+    smartBot: "Bot inteligente",
+    randomBot: "Bot aleatorio",
     errors: {
       leaveFailed: "No se pudo salir de la sala",
+      addBotFailed: "No se pudo añadir el bot", // -rbauerMod5-
       generic: "Algo salió mal",
     },
   },
@@ -104,6 +109,7 @@ const es = {
     noFriends: "Aún no tienes amigos.",
     online: "En línea",
     offline: "Desconectado",
+    removeFriend: "Eliminar amigo",
     friendRequestsLabel: "Solicitudes de amistad",
     accept: "Aceptar",
     reject: "Rechazar",
@@ -156,8 +162,40 @@ const es = {
       ageUpdateFailed: "No se pudo actualizar la edad (debe ser un número entero entre 0 y 150)",
     },
   },
+  // -rbauerMod5- Ver en.ts para el detalle de cada clave.
   game: {
-    placeholder: "Próximamente.",
+    waiting: "esperando a que empiece la partida…",
+    you: "tú",
+    eliminated: "eliminado, como espectador",
+    alive: "vivos: {{alive}}/{{total}}",
+    go: "¡YA!",
+    ai: "IA",
+    player: "jugador {{id}}",
+    draw: "empate",
+    nobodySurvived: "nadie sobrevivió",
+    youWin: "¡has ganado!",
+    winsTheGame: "gana la partida",
+    backToLobby: "volver a la sala",
+
+    // -rbauerMod6- Ver en.ts: el tutorial mostrado mientras se espera la salida.
+    tutorial: {
+      title: "Cómo jugar",
+      goal: "Objetivo: ser la última moto que siga rodando.",
+
+      // -rbauerMod7- Ver en.ts: los dos estados del botón Play bajo las reglas.
+      play: "Jugar",
+      waitingPlayers: "Esperando… {{ready}}/{{total}} listos",
+      rules: {
+        move: "Tu moto nunca se detiene: avanza sola, casilla a casilla.",
+        trail: "Deja un muro detrás de ella, y ese muro permanece hasta el final de la ronda.",
+        crash: "Quedas eliminado en cuanto tocas un borde o un muro, incluido el tuyo.",
+        headOn: "Si dos motos entran en la misma casilla en el mismo instante, ambas quedan eliminadas.",
+        noReverse: "No puedes dar media vuelta: el giro de 180° se ignora, anticipa tus curvas.",
+        controls: "Conduce con las flechas, WASD o ZQSD.",
+        countdown: "Las teclas ya responden durante el 3-2-1: elige tu dirección de salida.",
+        win: "Gana el último jugador con vida. Si todos chocan en el mismo instante, la ronda queda en empate.",
+      },
+    },
   },
   languageSwitcher: {
     label: "Idioma",
