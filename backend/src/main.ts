@@ -7,7 +7,6 @@ import { WsExceptionFilter } from './common/filters/ws-exception.filter';
 import { validationExceptionFactory } from './common/validation/validation-exception.factory';
 import { expressErrorMiddleware } from './common/middlewares/express-error.middleware';
 import cookieParser from 'cookie-parser';
-import { corsConfig } from './config/cors.config';
 
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
@@ -20,7 +19,16 @@ async function bootstrap() {
   //For Nginx https connections
   app.set('trust proxy', 1);
 
-  app.enableCors(corsConfig);
+  app.enableCors({
+  origin: [
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'https://localhost',
+    'https://127.0.0.1',
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  credentials: true,
+});
 
 
 
@@ -50,7 +58,7 @@ async function bootstrap() {
 
   app.use(expressErrorMiddleware);
 
-  await app.listen(process.env.BACKEND_PORT || 3000, '0.0.0.0');
+  await app.listen(process.env.BACKEND_PORT || 3000);
   console.log(`Backend running on port ${process.env.BACKEND_PORT || 3000}`);
 }
 bootstrap();

@@ -10,10 +10,17 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
 import { JoinConversationPayload, LeaveConversationPayload, SendMessagePayload } from '../dto/private-chat.dto';
-import { wsCorsConfig } from 'src/config/cors.config';
 
 @WebSocketGateway({
-  cors: wsCorsConfig,
+  cors: {
+    origin: [
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'https://localhost',
+    'https://127.0.0.1',
+  ],
+    credentials: true,
+  },
 })
 export class ChatGateway {
   @WebSocketServer()

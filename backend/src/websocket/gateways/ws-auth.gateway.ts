@@ -9,10 +9,17 @@ import { Server, Socket } from 'socket.io';
 import { TokenService } from 'src/auth/token.service';
 import { PresenceService } from '../presence.service';
 import { RealtimeService } from '../realtime.service';
-import { wsCorsConfig } from 'src/config/cors.config';
 
 @WebSocketGateway({
-  cors: wsCorsConfig,
+  cors: {
+    origin: [
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'https://localhost',
+    'https://127.0.0.1',
+  ],
+    credentials: true,
+  },
 })
 export class WsAuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()

@@ -21,25 +21,6 @@ FRONTEND_CONTAINER := $(COMPOSE_PROJECT_NAME)-frontend-dev
 CERT_DIR := .docker/nginx/certs
 CERT_CRT := $(CERT_DIR)/localhost.crt
 CERT_KEY := $(CERT_DIR)/localhost.key
-CERT_SAN_FILE := $(CERT_DIR)/.san
-
-# ─── Auto-detection host machine ────────────────────────────
-# no edition :  HTTPS and whitelist Next follow.
-# we can use manual edition to add host in .env
-HOST_FQDN  := $(shell hostname 2>/dev/null)
-HOST_SHORT := $(shell hostname -s 2>/dev/null || hostname 2>/dev/null)
-HOST_IPS   := $(shell (hostname -I 2>/dev/null || ipconfig getifaddr en0 2>/dev/null || true) \
-                | tr ' ' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$$' | grep -v '^127\.' | sort -u)
-
-LAN_NAMES := localhost $(HOST_FQDN) $(HOST_SHORT) $(EXTRA_HOSTS)
-LAN_IPS   := 127.0.0.1 $(HOST_IPS)
-
-# Deduplicated "a,b,c" list passed to the frontend container (see next.config.ts)
-DEV_ORIGINS := $(shell echo "$(LAN_NAMES) $(LAN_IPS)" | tr ' ' '\n' | grep -v '^$$' | sort -u | paste -sd, -)
-export DEV_ORIGINS
-
-# Certificate subjectAltName: DNS: for names, IP: for addresses
-CERT_SAN := $(shell echo "$(LAN_NAMES)" | tr ' ' '\n' | grep -v '^$$' | sort -u | sed 's/^/DNS:/' | paste -sd, -),$(shell echo "$(LAN_IPS)" | tr ' ' '\n' | grep -v '^$$' | sort -u | sed 's/^/IP:/' | paste -sd, -),IP:::1
 
 
 LOCAL_GENERATED_DIRS := \
@@ -115,35 +96,33 @@ init: certs ## First-time setup: copy .env.example → .env and create HTTPS cer
 # `-addext` needs OpenSSL >= 1.1.1. Existing certificates are never overwritten:
 # run `make certs-clean` first to regenerate them.
 .PHONY: certs
-certs: ## Create local self-signed HTTPS certificates if missing (or if the host changed)
+certs: ## Create local self-signed HTTPS certificates if missing
 	@mkdir -p $(CERT_DIR)
-	@if [ ! -f "$(CERT_CRT)" ] || [ ! -f "$(CERT_KEY)" ] || [ "$$(cat $(CERT_SAN_FILE) 2>/dev/null)" != "$(CERT_SAN)" ]; then \
+	@if [ ! -f "$(CERT_CRT)" ] || [ ! -f "$(CERT_KEY)" ]; then \
 		echo "🔐  Creating local self-signed HTTPS certificate..."; \
-		echo "    SAN: $(CERT_SAN)"; \
 		openssl req -x509 -nodes -days 365 \
 			-newkey rsa:2048 \
 			-keyout "$(CERT_KEY)" \
 			-out "$(CERT_CRT)" \
-			-subj "/CN=$(HOST_SHORT)" \
-			-addext "subjectAltName=$(CERT_SAN)"; \
-		echo "$(CERT_SAN)" > "$(CERT_SAN_FILE)"; \
+			-subj "/CN=localhost" \
+			-addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:::1"; \
 		echo "✅  HTTPS certificates created in $(CERT_DIR)"; \
 	else \
-		echo "ℹ️   HTTPS certificates already match this host"; \
+		echo "ℹ️   HTTPS certificates already exist"; \
 	fi
 
 .PHONY: certs-clean
 certs-clean: ## Remove local HTTPS certificates
-	rm -f "$(CERT_CRT)" "$(CERT_KEY)" "$(CERT_SAN_FILE)"
+	rm -f "$(CERT_CRT)" "$(CERT_KEY)"
 	@echo "🧹  Local HTTPS certificates removed"
 
 # ─── Dev ──────────────────────────────────────────────────────────────────────
 .PHONY: dev
-dev: certs ## Start all services in dev mode (hot reload)
+dev: ## Start all services in dev mode (hot reload)
 	$(DC_DEV) up --build
 
 .PHONY: dev-d
-dev-d: certs ## Start all services in dev mode (detached)
+dev-d: ## Start all services in dev mode (detached)
 	$(DC_DEV) up --build -d
 
 .PHONY: stop
@@ -163,7 +142,7 @@ shell: ## Open a shell in a dev container (usage: make shell s=backend)
 	$(DC_DEV) exec $(s) sh
 
 .PHONY: fresh
-fresh: certs ## Full clean restart in dev (remove volumes, rebuild everything)
+fresh: ## Full clean restart in dev (remove volumes, rebuild everything)
 	$(DC_DEV) down -v --remove-orphans
 	$(DC_DEV) up --build
 
@@ -192,7 +171,7 @@ prod-users: ## Seed 20 demo users into a running prod stack (run 'make prod' fir
 
 # ─── Build ────────────────────────────────────────────────────────────────────
 .PHONY: build
-build: certs ## Build Docker images in dev
+build: ## Build Docker images in dev
 	$(DC_DEV) build
 
 .PHONY: build-prod
