@@ -1,7 +1,5 @@
 import { UserResponseDto } from '../users/user-response.dto';
 
-// ─── Response DTOs ────────────────────────────────────────────────────────────
-
 export type ConversationResponseDto = {
   id: number;
   friend: UserResponseDto;

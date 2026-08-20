@@ -10,20 +10,6 @@
     align-items: center;
 }
 
-/* -rbauerMod5- Buttons sized for English, cut in other languages.
-   The old rule was `max-width: 12.5rem` + `white-space: nowrap` +
-   `text-overflow: ellipsis`: a hard cap on the width AND an order never to
-   wrap, so anything longer than 200px was simply replaced by "...".
-   "Login" fits; "Iniciar sesión" and "Registrieren" are the ones at risk.
-
-   The fix is one idea: turn the fixed size into a MINIMUM.
-     max-width -> min-width : short labels keep the exact same button as
-                              before, longer ones push it wider instead of
-                              being truncated.
-     height    -> min-height: same thing vertically, so a label that ends up
-                              on two lines is not clipped.
-   `max-width: 100%` keeps the button inside its card, and dropping the
-   ellipsis pair lets the text wrap as a last resort. */
 .link {
     width: auto;
     min-width: 12.5rem;
@@ -46,8 +32,6 @@
         margin-top: 1.5rem;
     }
 
-    /* -rbauerMod5- Same swap on mobile: the card is a column here, so the
-       button takes the full width and only its height needs to stay flexible. */
     .link {
         min-width: 0;
         max-width: 100%;

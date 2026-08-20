@@ -17,9 +17,6 @@ type User = {
   username: string
   avatarUrl: string | null
   email?: string | null
-  // -rbauerMod2- Only present when the object comes from GET /users/me: other
-  // users never carry an age, just as they never carry an email. `null` means
-  // the account predates the field and never set one.
   age?: number | null
 }
 
@@ -86,7 +83,6 @@ export default function SocialPage() {
     loadOnline()
   }, [loadMe, loadFriends, loadPending, loadConversations, loadOnline])
 
-  // live online/offline updates for friends
   useEffect(() => {
     const socket = getSocket()
     if (!socket) return
@@ -108,8 +104,6 @@ export default function SocialPage() {
     const res = await apiFetch(`/friends/${friendshipId}`, { method: "DELETE" })
     if (!res.ok) return
 
-    // the conversation is gone too (deleted in cascade with the friendship),
-    // so close the chat panel if it was the one being displayed
     const removed = friends.find(f => f.id === friendshipId)
     setSelectedConversation(prev => prev?.friend.id === removed?.friend.id ? null : prev)
     loadFriends()
@@ -125,10 +119,6 @@ export default function SocialPage() {
 
 
   return (
-    // -rbauerMod3- pb-12 (48px) instead of pb-4: the footer is `position: fixed`,
-    // so it reserves no layout space and paints over the page. With 16px the
-    // AddFriend "Filters" button stayed half-covered at any scroll position.
-    // 48px = the 32px bar + 16px of margin.
     <div className="min-h-screen flex flex-col pt-10 px-4 pb-12 gap-6">
       <Link
         href="/dashboard"

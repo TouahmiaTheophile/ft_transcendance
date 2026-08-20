@@ -1,4 +1,3 @@
-// Ensures MariaDB user credentials do not contain invalid characters if start.sh is bypass
 export function validateEnvironment() {
   const validPattern = /^[a-zA-Z0-9.-]+$/;
   const requiredVars = ['DB_USER', 'DB_PASSWORD', 'DB_NAME'];

@@ -8,21 +8,15 @@ const OPPOSITE: Record<Direction, Direction> =
     RIGHT: 'LEFT',
 };
 
-//moteur du jeu
-//gérer les regles : positions traces collisions
 export class GameEngine
 {
     readonly width: number;
     readonly height: number;
     private players: Map<string, Player>;
-    private trails: Set<string>; //chaque case occupée est stockée sous la forme "x,y"
+    private trails: Set<string>;
 
-    //file d'attente des inputs, un seul est consommé par tick
-    // deux touches envoyées entre deux ticks se cumulent et font un demi-tour :
     private pendingInputs: Map<string, Direction[]>;
 
-    //ignore : evite qu'un joueur qui bourrine se retrouve
-    //avec des virages en retard de plusieurs ticks
     private static readonly MAX_QUEUED_INPUTS = 2;
 
     constructor(width: number, height: number)
@@ -39,13 +33,9 @@ export class GameEngine
         const player: Player = { id, x, y, direction, alive: true };
         this.players.set(id, player);
         this.pendingInputs.set(id, []);
-        //case de départ est immédiatement une trace : on ne peut pas y revenir
         this.trails.add(`${x},${y}`);
     }
 
-    //empile au lieu d'ecrire player.direction. Validation contre la derniere
-    //intention en file : sinon deux virages dans le meme tick contournent la
-    //garde anti demi-tour (RIGHT + UP + LEFT => LEFT, on rentre dans sa trace).
     applyInput(playerId: string, direction: Direction): void
     {
         const player = this.players.get(playerId);
@@ -60,17 +50,14 @@ export class GameEngine
 
         const reference = queue.length > 0 ? queue[queue.length - 1] : player.direction;
 
-        //rien a faire (touche maintenue / repetition clavier)
         if (direction === reference)
             return;
-        //demi-tour interdit
         if (direction === OPPOSITE[reference])
             return;
 
         queue.push(direction);
     }
 
-    //consomme au plus un input par joueur, juste avant de calculer les mouvements
     private consumePendingInputs(alivePlayers: Player[]): void
     {
         for (const player of alivePlayers)
@@ -80,21 +67,17 @@ export class GameEngine
                 continue;
 
             const next = queue.shift()!;
-            //re-verification defensive : la file a deja ete validee a l'empilage
             if (next !== OPPOSITE[player.direction])
                 player.direction = next;
         }
     }
 
-    //avance la simulation, resol en 3 phases pour gerer les cas de colision tete tete (les 2 meurent)
     tick(): void
     {
         const alivePlayers = Array.from(this.players.values()).filter(p => p.alive);
 
-        //applique les virages en attente (un seul par joueur)
         this.consumePendingInputs(alivePlayers);
 
-        //calcule prochaines positions sans rien boug
         const moves: { player: Player; nx: number; ny: number }[] = [];
         for (const player of alivePlayers)
         {
@@ -110,7 +93,6 @@ export class GameEngine
             moves.push({ player, nx, ny });
         }
 
-        //mort par mur ou par trace existante
         for (const { player, nx, ny } of moves)
         {
             if (nx < 0 || nx >= this.width || ny < 0 || ny >= this.height)
@@ -119,7 +101,6 @@ export class GameEngine
                 player.alive = false;
         }
 
-        //mort par collision frontale (deux joueurs visent mm case)
         const targetCells = new Map<string, Player[]>();
         for (const { player, nx, ny } of moves)
         {
@@ -132,12 +113,10 @@ export class GameEngine
         {
             if (players.length > 1)
             {
-                //2ko
                 for (const p of players) p.alive = false;
             }
         }
 
-        //deplacement des survivants (et ajout trace)
         for (const { player, nx, ny } of moves)
         {
             if (player.alive)
@@ -148,7 +127,6 @@ export class GameEngine
             }
         }
 
-        //on vide la file des morts, plus rien a rejouer
         for (const { player } of moves)
         {
             if (!player.alive)

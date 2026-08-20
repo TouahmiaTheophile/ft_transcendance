@@ -67,8 +67,6 @@ export class AuthService {
     return this.issueTokens(sessionId, userId);
   }
 
-  // Extracts sessionId from a refresh token without full verification.
-  // Used during logout where we want to revoke the session even with an expired token.
   extractSessionId(refreshToken: string): string | null {
     try {
       const payload = this.tokenService.decodeRefreshToken(refreshToken);

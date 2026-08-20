@@ -8,8 +8,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   const [authed, setAuthed] = useState(false)
 
   useEffect(() => {
-    // apiFetch auto-refreshes an expired access token; if the refresh
-    // also fails it redirects to /login on its own.
     apiFetch("/users/me").then(res => {
       if (res.ok) setAuthed(true)
       else window.location.href = "/login"

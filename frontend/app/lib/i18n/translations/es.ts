@@ -1,7 +1,3 @@
-// ============================================================================
-// -rbauer- Spanish dictionary. Like fr.ts, `satisfies Dictionary` forces the
-// same keys as en.ts.
-// ============================================================================
 import type { Dictionary } from "./index";
 
 const es = {
@@ -12,7 +8,6 @@ const es = {
     backToDashboardAria: "Volver al panel",
     logout: "Cerrar sesión",
 
-    // -rbauerMod3- See en.ts: the {{date}} placeholder is filled in by the page.
     lastUpdated: "Última actualización: {{date}}",
   },
   home: {
@@ -90,12 +85,11 @@ const es = {
     startGame: "Iniciar partida",
     needMorePlayers: "Se necesitan al menos 2 jugadores",
 
-    // -rbauerMod5- Ver en.ts: los dos botones para añadir un bot.
     smartBot: "Bot inteligente",
     randomBot: "Bot aleatorio",
     errors: {
       leaveFailed: "No se pudo salir de la sala",
-      addBotFailed: "No se pudo añadir el bot", // -rbauerMod5-
+      addBotFailed: "No se pudo añadir el bot",
       generic: "Algo salió mal",
     },
   },
@@ -162,7 +156,6 @@ const es = {
       ageUpdateFailed: "No se pudo actualizar la edad (debe ser un número entero entre 0 y 150)",
     },
   },
-  // -rbauerMod5- Ver en.ts para el detalle de cada clave.
   game: {
     waiting: "esperando a que empiece la partida…",
     you: "tú",
@@ -177,12 +170,10 @@ const es = {
     winsTheGame: "gana la partida",
     backToLobby: "volver a la sala",
 
-    // -rbauerMod6- Ver en.ts: el tutorial mostrado mientras se espera la salida.
     tutorial: {
       title: "Cómo jugar",
       goal: "Objetivo: ser la última moto que siga rodando.",
 
-      // -rbauerMod7- Ver en.ts: los dos estados del botón Play bajo las reglas.
       play: "Jugar",
       waitingPlayers: "Esperando… {{ready}}/{{total}} listos",
       rules: {
@@ -201,8 +192,6 @@ const es = {
     label: "Idioma",
   },
 
-  // -rbauerMod3- Spanish footer and legal pages. Title/body structure explained
-  // in en.ts.
   footer: {
     nav: "Enlaces legales",
     privacy: "Política de privacidad",
@@ -221,8 +210,6 @@ const es = {
     },
     purpose: {
       title: "Por qué usamos tus datos",
-      // -rbauerMod3- See the comment on the same key in en.ts: the age is a
-      // server-side search filter only, it is never returned to other users.
       body: "Tu correo y tu contraseña sirven para iniciar sesión y proteger tu cuenta. Tu nombre de usuario, tu avatar y tu estado de conexión permiten que otros jugadores te encuentren, te añadan como amigo y vean cuándo estás disponible. Tus mensajes sirven para que funcione el chat. Tu edad solo se usa como filtro de búsqueda en la sección «Añadir amigo»: otros jugadores pueden limitar una búsqueda a un rango de edad, pero tu edad en sí nunca se les muestra. No usamos tus datos con fines publicitarios, de perfilado ni de rastreo.",
     },
     cookies: {

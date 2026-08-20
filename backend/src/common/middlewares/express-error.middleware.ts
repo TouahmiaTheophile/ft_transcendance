@@ -3,7 +3,6 @@ import { createErrorResponse } from '../errors/create-error-response';
 import { Request, Response, NextFunction } from 'express';
 import { ErrorCode } from '@shared/errors/error-codes';
 
-// Handle some of pre-nest-errors due to HTTP request
 export function expressErrorMiddleware(
   err: unknown,
   req: Request,

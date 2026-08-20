@@ -36,10 +36,6 @@ export class FriendshipPolicy {
     }
   }
 
-  // Unlike assertReject (addressee only, PENDING only), removing a friend is
-  // symmetric: once the friendship is ACCEPTED both sides are equal, so either
-  // participant can end it. No canTransition() check here because the row is
-  // deleted, not moved to another status.
   assertRemove(friendship: Friendship, userId: number) {
     if (friendship.requesterId !== userId && friendship.addresseeId !== userId) {
       throw FriendshipErrors.forbidden(friendship);

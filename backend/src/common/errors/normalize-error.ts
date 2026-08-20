@@ -5,28 +5,19 @@ import { ApiException } from './api.exception';
 import { resolveUniqueConstraintFields } from '../../prisma/prisma-error.utils';
 import { ErrorCode } from '@shared/errors/error-codes';
 
-/**
- * Central error normalization layer.
- * ALL errors from Express / Nest / Prisma / ValidationPipe
- * are transformed into a single ApiException format.
- */
 export function normalizeError(error: unknown): ApiException {
-  // 1. Already normalized error (your domain errors)
   if (error instanceof ApiException) {
     return error;
   }
 
-  // 2. Prisma errors
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     return normalizePrismaError(error);
   }
 
-  // 3. Nest HTTP exceptions
   if (error instanceof HttpException) {
     return normalizeHttpException(error);
   }
 
-  // 4. Syntax / body parser errors (Express / Fastify adapter level)
   if (isSyntaxError(error)) {
     return new ApiException({
       code: 'BAD_REQUEST',
@@ -36,10 +27,9 @@ export function normalizeError(error: unknown): ApiException {
     });
   }
 
-  console.log("normalizeError: non-handled error: "); // rm tmp debug
-  console.log(error); // rm tmp debug
+  console.log("normalizeError: non-handled error: ");
+  console.log(error);
 
-  // 5. Fallback (unknown error)
   return new ApiException({
     code: 'INTERNAL_ERROR',
     message: 'Internal server error',
@@ -48,9 +38,6 @@ export function normalizeError(error: unknown): ApiException {
   });
 }
 
-/**
- * Prisma normalization
- */
 function normalizePrismaError(
   error: Prisma.PrismaClientKnownRequestError,
 ): ApiException {
@@ -75,19 +62,9 @@ function normalizePrismaError(
   });
 }
 
-/**
- * Nest HTTP exception normalization
- */
 function normalizeHttpException(error: HttpException): ApiException {
   const response = error.getResponse();
   const status = error.getStatus();
-
-  // const message =
-  //   typeof response === 'string'
-  //     ? response
-  //     : (response as any)?.message ?? 'Request error';
-
-  // const message = "HTTP Error";
 
   return new ApiException({
     code: mapStatusToErrorCode(status),
@@ -97,9 +74,6 @@ function normalizeHttpException(error: HttpException): ApiException {
   });
 }
 
-/**
- * Map HTTP status -> internal error code
- */
 function mapStatusToErrorCode(status: number): ErrorCode {
   switch (status) {
     case HttpStatus.BAD_REQUEST:
@@ -117,9 +91,6 @@ function mapStatusToErrorCode(status: number): ErrorCode {
   }
 }
 
-/**
- * Detect syntax errors from body parsing (Express / adapter level)
- */
 function isSyntaxError(error: unknown): error is SyntaxError {
   return (
     error instanceof SyntaxError &&

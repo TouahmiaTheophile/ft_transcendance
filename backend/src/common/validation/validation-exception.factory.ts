@@ -5,12 +5,10 @@ export function validationExceptionFactory(errors: ValidationError[]) {
   const fields: Record<string, string[]> = {};
 
   for (const error of errors) {
-    // Case 1: class-validator constraints
     if (error.constraints) {
       fields[error.property] = Object.values(error.constraints).map(String);
     }
 
-    // Case 2: nested validation errors (DTO objects)
     if (error.children?.length) {
       for (const child of error.children) {
         if (child.constraints) {

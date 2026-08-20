@@ -28,8 +28,6 @@ export default function FriendList({ friends, onlineIds, onConversationSelect, o
       {friends.map(current => {
         const isOnline = onlineIds.has(current.friend.id)
         return (
-          // the row is a <div>, not a <button>: the remove button lives inside
-          // it and a button can never be nested in another button
           <div key={current.id} className={styles.row}>
             <button className={styles.open} onClick={() => onConversationSelect(current.friend.id)}>
               <Avatar username={current.friend.username} avatarUrl={current.friend.avatarUrl} size={32} />
@@ -40,8 +38,6 @@ export default function FriendList({ friends, onlineIds, onConversationSelect, o
               />
             </button>
             <button
-              // current.id is the FRIENDSHIP id (cf. toFriendResponse), which
-              // is what DELETE /friends/:id expects -- not the friend's user id
               onClick={() => onRemove(current.id)}
               aria-label={t("social.removeFriend")}
               title={t("social.removeFriend")}

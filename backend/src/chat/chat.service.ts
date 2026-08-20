@@ -12,14 +12,12 @@ import {
 export class ChatService {
   constructor(private prisma: PrismaService) {}
 
-  // Called by FriendsService when a friendship is accepted
   async createConversation(friendshipId: number) {
     return this.prisma.conversation.create({
       data: { friendshipId },
     });
   }
 
-  // Called by FriendsService when a friendship is blocked
   async deleteConversationByFriendship(friendshipId: number) {
     await this.prisma.conversation.deleteMany({
       where: { friendshipId },
@@ -66,8 +64,6 @@ export class ChatService {
 
     return toMessageResponse(message);
   }
-
-  // ─── Helpers ──────────────────────────────────────────────────────────────
 
   async assertParticipant(conversationId: number, userId: number) {
     const conversation = await this.prisma.conversation.findUnique({

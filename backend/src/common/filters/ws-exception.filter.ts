@@ -9,9 +9,6 @@ type WsExceptionPayload = {
   details?: unknown;
 };
 
-// Normalizes all WsExceptions into a structured error event
-// matching the APIErrorResponse shape used by REST routes.
-// Applied globally in main.ts — covers all gateways automatically.
 @Catch(WsException)
 export class WsExceptionFilter extends BaseWsExceptionFilter {
   catch(exception: WsException, host: ArgumentsHost) {
@@ -21,10 +18,8 @@ export class WsExceptionFilter extends BaseWsExceptionFilter {
     let payload: WsExceptionPayload;
 
     if (typeof raw === 'object' && raw !== null && 'code' in raw) {
-      // Already structured — cast directly
       payload = raw as WsExceptionPayload;
     } else {
-      // Plain string message — wrap with generic code
       payload = {
         code: 'BAD_REQUEST',
         message: typeof raw === 'string' ? raw : 'WebSocket error',

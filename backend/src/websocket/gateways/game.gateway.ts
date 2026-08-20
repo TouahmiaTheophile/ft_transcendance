@@ -35,13 +35,11 @@ export class GameGateway implements OnGatewayInit {
     private gameService: GameService,
     private realtimeService: RealtimeService,
   ) {
-    // subscribe to game state updates and broadcast to game rooms
     this.gameService.events.on('state', ({ gameId, state }) => {
       if (this.server) {
         this.server.to(`game:${gameId}`).emit('game:state', state);
       }
     });
-    // relaie compte à rebours serveur vers room jeu
     this.gameService.events.on('game.countdown', ({ gameId, value }) => {
       if (this.server) {
         this.server.to(`game:${gameId}`).emit('game:countdown', { value });
@@ -62,18 +60,14 @@ export class GameGateway implements OnGatewayInit {
       socket.data.userId,
     );
 
-    // add all connected sockets for each player to the game room
     if (res?.gameId) {
       try {
         const lobby = this.lobbyService.requireLobby(lobbyId);
         for (const player of lobby.players) {
-          // all sockets that joined `user:${player.id}` will be made join `game:{gameId}`
           this.server.in(`user:${player.id}`).socketsJoin(`game:${res.gameId}`);
         }
       } catch (err) {
-        // ignore if lobby cannot be retrieved here
       }
-      // front (page lobby) écoute 'game:started' et redirige vers /game.
       this.server.to(`lobby:${lobbyId}`).emit('game:started', { gameId: res.gameId });
 
     }
@@ -104,16 +98,14 @@ export class GameGateway implements OnGatewayInit {
     );
   }
 
-  // TEMP: lets a client (re)join the lobby room and get the current snapshot.
-  // Sending the snapshot here also survives page refresh, where no lobby.joined fires.
   @SubscribeMessage('lobby:subscribe')
   handleLobbySubscribe(
     @ConnectedSocket() socket: Socket,
     @MessageBody('lobbyId') lobbyId: string,
   ) {
     const lobby = this.lobbyService.requireLobby(lobbyId);
-    socket.join(`lobby:${lobbyId}`);           // join room first, so no update is missed
-    socket.emit('lobby.state', lobby.toDto()); // snapshot to this socket only
+    socket.join(`lobby:${lobbyId}`);
+    socket.emit('lobby.state', lobby.toDto());
   }
 
   updateLobby(lobby: Lobby) {
@@ -143,16 +135,13 @@ export class GameGateway implements OnGatewayInit {
 
   @OnEvent('lobby.left')
   handleLobbyLeft(event: { lobby: Lobby; userId: number }) {
-    // remove all sockets associated with the given user from the lobby room
     this.server
       .in(`user:${event.userId}`)
       .socketsLeave(`lobby:${event.lobby.id}`);
 
-    // update remaining clients about lobby state
     try {
       this.updateLobby(event.lobby);
     } catch (err) {
-      // ignore
     }
   }
 

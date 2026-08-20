@@ -1,18 +1,4 @@
-// ============================================================================
-// -rbauer- English dictionary, the SOURCE OF TRUTH for the whole app.
-//
-// Every other language file is checked against this exact shape (the
-// `Dictionary` type in ./index.ts), so adding, renaming or removing a key here
-// makes TypeScript complain in each of them until they follow.
-//
-// One top-level key per page or feature ("login", "social", "lobby"...), each
-// with an optional "errors" group.
-//
-// A value may hold a placeholder like "{{count}}", replaced at runtime by
-// `t()`: t("lobby.players", { count: 3, max: 4 }) -> "3/4 players".
-// ============================================================================
 const en = {
-  // -rbauer- Text reused across pages (back links, logout button).
   common: {
     backToHome: "Home",
     backToHomeAria: "Back to home page",
@@ -20,20 +6,15 @@ const en = {
     backToDashboardAria: "Back to dashboard",
     logout: "Logout",
 
-    // -rbauerMod3- Shown at the top of the Privacy and Terms pages. The date is
-    // not translated: it is a constant in each page, injected through {{date}}
-    // so it is edited once instead of in all four dictionaries.
     lastUpdated: "Last updated: {{date}}",
   },
 
-  // -rbauer- "/" -- the landing page.
   home: {
     welcome: "Welcome to",
     loginCta: "Login",
     registerCta: "Register",
   },
 
-  // -rbauer- "/login"
   login: {
     heading: "LOGIN",
     emailLabel: "Email",
@@ -52,7 +33,6 @@ const en = {
     },
   },
 
-  // -rbauer- "/register"
   register: {
     heading: "REGISTER",
     usernameLabel: "Username",
@@ -81,13 +61,11 @@ const en = {
     },
   },
 
-  // -rbauer- "/dashboard" -- the two big buttons (Play / Social).
   dashboard: {
     play: "Play",
     social: "Social",
   },
 
-  // -rbauer- "/dashboard/online" -- the lobby list.
   online: {
     title: "Multiplayer",
     lobbyListTitle: "Lobby List",
@@ -101,7 +79,6 @@ const en = {
     },
   },
 
-  // -rbauer- "/dashboard/online/lobby/[id]" -- inside one lobby.
   lobby: {
     title: "Lobby",
     connecting: "Connecting…",
@@ -112,18 +89,15 @@ const en = {
     startGame: "Start game",
     needMorePlayers: "Need at least 2 players",
 
-    // -rbauerMod5- The two "add a bot" buttons, visible to the host only
-    // (AddBotButtons.tsx).
     smartBot: "Smart bot",
     randomBot: "Random bot",
     errors: {
       leaveFailed: "Could not leave lobby",
-      addBotFailed: "Could not add bot", // -rbauerMod5-
+      addBotFailed: "Could not add bot",
       generic: "Something went wrong",
     },
   },
 
-  // -rbauer- "/dashboard/social" -- friends list, requests, search.
   social: {
     addFriendLabel: "Add friend",
     searchPlaceholder: "Search username...",
@@ -139,8 +113,6 @@ const en = {
     accept: "Accept",
     reject: "Reject",
 
-    // -rbauerMod2- Advanced search: filters, sorting and pagination added to the
-    // text search above.
     search: {
       filtersToggle: "Filters",
       hideFilters: "Hide filters",
@@ -159,7 +131,6 @@ const en = {
     },
   },
 
-  // -rbauer- The chat panel inside the Social page.
   chat: {
     title: "Chat",
     emptyState: "Select a friend to start chatting",
@@ -167,7 +138,6 @@ const en = {
     send: "Send",
   },
 
-  // -rbauer- The "view profile" modal.
   profile: {
     title: "Profile",
     changePhoto: "Change photo",
@@ -194,58 +164,28 @@ const en = {
     },
   },
 
-  // -rbauerMod5- "/game" -- the match itself. The page was written before the
-  // language module existed, so all of its text was hardcoded in English; the
-  // old `placeholder` key (the "Coming soon." page) is replaced by the real
-  // strings below.
-  //
-  // Read in four places:
-  //   - GameStatusBar.tsx    -> waiting / you / eliminated / alive
-  //   - CountdownOverlay.tsx -> go
-  //   - GameOverOverlay.tsx  -> backToLobby
-  //   - page.tsx             -> everything else (winner name and subtitle,
-  //                             computed there because it depends on who won)
   game: {
     waiting: "waiting for the game to start…",
     you: "you",
     eliminated: "eliminated, spectating",
 
-    // -rbauerMod5- {{alive}} survivors out of {{total}} players. Two separate
-    // placeholders rather than one "3/4" string: some languages put the words
-    // in another order, and each number stays a number.
     alive: "alive: {{alive}}/{{total}}",
 
-    // -rbauerMod5- Last step of the countdown (3, 2, 1, then this).
     go: "GO!",
 
-    // -rbauerMod5- Winner name. The game state only carries player ids, so the
-    // page turns an id into: "AI" for a bot (negative id), the username when
-    // the lobby is known, or `player` as a last resort (direct navigation).
     ai: "AI",
     player: "player {{id}}",
 
-    // -rbauerMod5- End-of-game overlay: the big label, then its subtitle.
     draw: "draw",
     nobodySurvived: "nobody survived",
     youWin: "you win!",
     winsTheGame: "wins the game",
     backToLobby: "back to lobby",
 
-    // -rbauerMod6- Rules text kept for reference (formerly shown by the game
-    // tutorial panel, now removed). It describes the actual engine
-    // (backend/src/game/game.engine.ts), not an idealised version of it.
-    //
-    // `rules` is a flat group of one-line entries: the component walks a list
-    // of these names and prints one <li> per entry, the same way the privacy
-    // page loops over its sections. Adding a rule = one key here (x4
-    // languages) plus its name in the component's RULES array -- no JSX.
     tutorial: {
       title: "How to play",
       goal: "Goal: be the last cycle still riding.",
 
-      // Kept for reference (formerly used by the Play/tutorial panel, now
-      // removed -- the game starts its 3-2-1 countdown as soon as the host
-      // starts it from the lobby).
       play: "Play",
       waitingPlayers: "Waiting… {{ready}}/{{total}} ready",
       rules: {
@@ -261,28 +201,16 @@ const en = {
     },
   },
 
-  // -rbauer- The accessible label on the language <select> itself.
   languageSwitcher: {
     label: "Language",
   },
 
-  // -rbauerMod3- The footer shown on every page (Footer.tsx). `nav` is not
-  // visible: it labels the <nav> for screen readers, which then announce
-  // "Legal links, navigation".
   footer: {
     nav: "Legal links",
     privacy: "Privacy Policy",
     terms: "Terms of Service",
   },
 
-  // -rbauerMod3- "/privacy" -- the Privacy Policy page.
-  //
-  // Every section has the same `title` / `body` shape, which is what lets the
-  // page render them with a single loop instead of nine blocks of JSX.
-  //
-  // The content is specific to this project on purpose: it describes the exact
-  // columns in schema.prisma and the two cookies set in auth-cookies.ts, since
-  // the subject rejects generic legal pages.
   privacy: {
     title: "Privacy Policy",
     intro: {
@@ -295,12 +223,6 @@ const en = {
     },
     purpose: {
       title: "Why we use your data",
-      // -rbauerMod3- The wording about age matches the backend: searchUsers()
-      // returns USER_PUBLIC_SELECT, which exposes only id/username/avatar, so
-      // age is a server-side filter never sent back to the searcher. "Narrow a
-      // search to an age range, but the age itself is never shown" is exact --
-      // a range can be inferred, the value never read -- and consistent with
-      // `sharing` below.
       body: "Your email and password are used to sign you in and to secure your account. Your username, avatar and online status let other players find you, add you as a friend and see when you are available. Your messages are used to deliver the chat feature. Your age is only used as a search filter in the Add Friend section: other players can narrow a search to an age range, but your age itself is never shown to them. We do not use your data for advertising, profiling or tracking.",
     },
     cookies: {
@@ -324,15 +246,11 @@ const en = {
       body: "You can view and change your email address, your age and your avatar at any time from your profile page. Your username cannot be changed. If you want a copy of your data, or want your account and all related data deleted, contact us and we will process your request.",
     },
     contact: {
-      // -rbauerMod3- {{logins}} is replaced at runtime by the team logins,
-      // defined once as a constant in the privacy page.
       title: "Contact",
       body: "Questions about this policy can be sent to the team through the 42 intranet or Slack: {{logins}}.",
     },
   },
 
-  // -rbauerMod3- "/terms" -- the Terms of Service page. Same title/body
-  // structure as `privacy` above, so it renders the same way.
   terms: {
     title: "Terms of Service",
     intro: {

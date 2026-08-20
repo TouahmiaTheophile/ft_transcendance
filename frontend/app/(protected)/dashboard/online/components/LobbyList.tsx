@@ -38,7 +38,6 @@ const LobbyList = () => {
                 router.push(`/dashboard/online/lobby/${lobbyId}`)
             } else {
                 const err = await res.json().catch(() => null)
-                // Already a member of THIS lobby: just go to it instead of erroring.
                 if (err?.message?.includes("already are in this lobby")) {
                     setError(null)
                     router.push(`/dashboard/online/lobby/${lobbyId}`)

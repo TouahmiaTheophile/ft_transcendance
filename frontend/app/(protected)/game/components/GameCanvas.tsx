@@ -6,13 +6,12 @@ type Props = {
   state: State | null
   colorOf: (id: string) => string
   borderColor: string
-  children?: ReactNode // overlays (countdown, game over)
+  children?: ReactNode
 }
 
 export default function GameCanvas({ state, colorOf, borderColor, children }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  // full redraw on every server state (simple, and cheap on a grid this size)
   useEffect(() => {
     const cv = canvasRef.current
     if (!cv || !state) return
@@ -37,7 +36,6 @@ export default function GameCanvas({ state, colorOf, borderColor, children }: Pr
 
   return (
     <div className={styles.wrapper}>
-      {/* border takes the local player's color (computed at runtime -> inline) */}
       <canvas ref={canvasRef} className={styles.canvas} style={{ borderColor }} />
       {children}
     </div>

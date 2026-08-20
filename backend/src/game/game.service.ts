@@ -23,7 +23,6 @@ export class GameService {
         throw ApiErrors.conflict("Player already in a game");
     }
 
-    // Build controllers map (use provided controllers as base)
     const ctrls = new Map<string, AIController>(controllers);
     for (const p of config.players) {
       if (!ctrls.has(p.id)) {
@@ -31,8 +30,6 @@ export class GameService {
         else if (p.kind === 'smart') ctrls.set(p.id, new SmartAI());
       }
     }
-
-    // For bot players represented by negative numeric ids, also map their numeric ids in playerGame
 
     let game!: GameInstance;
     game = new GameInstance(
@@ -44,26 +41,21 @@ export class GameService {
 
     this.games.set(game.id, game);
 
-    // IMPORTANT: mapping players → game
     for (const p of config.players) {
-      // allow bots (negative ids) to be looked up by numeric id
       this.playerGame.set(Number(p.id), game.id);
     }
 
-    // Compte à rebours 3-2-1-GO SERVEUR
-    // moteur tique pas avant la fin -> personne peut bouger/mourir + tous les clients sont syc
     const COUNTDOWN_S = 3;
     let remaining = COUNTDOWN_S;
-    // état émis une fois au début : un client qui arrive en retard
     this.events.emit('state', { gameId: game.id, state: game.getState() });
     this.events.emit('game.countdown', { gameId: game.id, value: remaining });
     const timer = setInterval(() => {
-      if (!this.games.has(game.id)) return clearInterval(timer); // partie annulée
+      if (!this.games.has(game.id)) return clearInterval(timer);
       remaining--;
       this.events.emit('game.countdown', { gameId: game.id, value: remaining });
       if (remaining === 0) {
         clearInterval(timer);
-        game.start(); // GO !
+        game.start();
       }
     }, 1000);
 
@@ -95,8 +87,6 @@ export class GameService {
     }
 
     this.games.delete(gameId);
-    // fin de partie : LobbyService rouvre le lobby des joueurs
-    // permettre de relancer une partie ("retour au lobby")
     this.events.emit('game.ended', {
       playerIds: players.map((p) => Number(p.id)),
     });

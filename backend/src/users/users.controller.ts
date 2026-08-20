@@ -89,9 +89,6 @@ export class UsersController {
     return this.usersService.deleteAvatar(user.sub);
   }
 
-  // -rbauerMod2- `@Query() dto: SearchUsersDto` (not `@Query('query')`) makes Nest
-  // build a real SearchUsersDto from all query params and run it through the
-  // global ValidationPipe, which is what enforces the DTO's decorators.
   @Get('search')
   async searchUsers(@Query() dto: SearchUsersDto) {
     return this.usersService.searchUsers(dto);

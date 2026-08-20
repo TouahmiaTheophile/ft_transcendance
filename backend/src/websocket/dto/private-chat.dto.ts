@@ -1,11 +1,9 @@
 
-// ─── WebSocket payloads (client → server) ─────────────────────────────────────
-
 import { MessageResponseDto } from "@shared/chat/chat.types";
 
 export type JoinConversationPayload = {
   conversationId: number;
-  limit: number; // Number of recent messages to receive on join
+  limit: number;
 };
 
 export type LeaveConversationPayload = {
@@ -16,7 +14,5 @@ export type SendMessagePayload = {
   conversationId: number;
   content: string;
 };
-
-// ─── WebSocket events (server → client) ───────────────────────────────────────
 
 export type ServerMessageEvent          = MessageResponseDto;

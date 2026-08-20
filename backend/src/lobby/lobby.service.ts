@@ -12,7 +12,6 @@ import { UsersService } from "src/users/users.service";
 export class LobbyService {
   private lobbies = new Map<string, Lobby>();
   private playerLobby = new Map<number, string>();
-  // global decreasing negative ids for bots (unique while server runs)
   private nextBotId = -1;
   public events: EventEmitter2;
 
@@ -23,7 +22,7 @@ export class LobbyService {
   ) { this.events = eventEmitter; }
 
   async createLobby(userId: number) {
-    this.resyncPlayerLobby(userId);  // Ensure a user is not stuck by an invalid entry, rm
+    this.resyncPlayerLobby(userId);
     if (this.playerLobby.has(userId))
       throw ApiErrors.conflict("You already are in a lobby");
 
@@ -31,7 +30,6 @@ export class LobbyService {
     if (!user)
       throw ApiErrors.notFound("User not found");
 
-    // Creator automatically joins the lobby
     const lobby = new Lobby(userId, 4, mapLobbyPlayerFromUser(user));
 
     this.lobbies.set(lobby.id, lobby);
@@ -41,7 +39,7 @@ export class LobbyService {
   }
 
   async joinLobby(lobbyId: string, userId: number) {
-    this.resyncPlayerLobby(userId);  // Ensure a user is not stuck by an invalid entry, rm
+    this.resyncPlayerLobby(userId);
     const currentLobbyId = this.playerLobby.get(userId);
     if (currentLobbyId !== undefined) {
       if (currentLobbyId === lobbyId)
@@ -57,7 +55,6 @@ export class LobbyService {
     lobby.join(mapLobbyPlayerFromUser(user));
     this.playerLobby.set(userId, lobbyId);
 
-    // notify listeners that a user joined
     this.events.emit('lobby.joined', { lobby, userId });
 
     return lobby;
@@ -65,15 +62,13 @@ export class LobbyService {
 
   addBotToLobby(requesterId: number, kind: ControllerKind = 'random') {
     const lobby = this.requirePlayerLobby(requesterId);
-    // only host can add bots
     if (!lobby.isHost(requesterId))
       throw ApiErrors.forbidden('Only the host can add bots');
 
     const botId = this.nextBotId--;
     lobby.addBot(mapLobbyPlayerFromBot(botId), kind);
-    // register bot in playerLobby for consistent lookup (eject/resync)
     this.playerLobby.set(botId, lobby.id);
-    this.events.emit('lobby.changed', lobby); //maj quand ajout bot
+    this.events.emit('lobby.changed', lobby);
     return botId;
   }
 
@@ -90,11 +85,9 @@ export class LobbyService {
       this.lobbies.delete(lobbyId);
     this.playerLobby.delete(userId);
 
-    // notify listeners that a user left
     try {
       this.events.emit('lobby.left', { lobby, userId });
     } catch (err) {
-      // no-op
     }
 
     return lobby;
@@ -113,14 +106,12 @@ export class LobbyService {
     }
 
     if (lobby.eject(ejecterId, ejectedId))
-      this.lobbies.delete(lobby.id);  // shouldn't happen for now, this prevents future oversights
+      this.lobbies.delete(lobby.id);
     this.playerLobby.delete(ejectedId);
 
-    // notify listeners that a user was removed from the lobby
     try {
       this.events.emit('lobby.left', { lobby, userId: ejectedId });
     } catch (err) {
-      // no-op
     }
 
     return lobby;
@@ -132,8 +123,6 @@ export class LobbyService {
     lobby.assertCanStart(requesterId);
 
     const players = lobby.players;
-    // if (players.length < 2)    // moved in Lobby.assertCanStart
-    //   throw ApiErrors.conflict("A game requires at least 2 players");
 
     const options: GameOptions = {
       width: 40,
@@ -141,7 +130,6 @@ export class LobbyService {
       tickMs: 150,
       players: players.map((player, index) => {
         const spawn = this.getSpawnPosition(index, 40, 20);
-        // detect bot ids (negative numbers) and ask lobby for their kind
         let kind: ControllerKind = index === 1 ? 'human2' : 'human1';
         if (player.id < 0) {
           const botKind = lobby.getBotKind(player.id);
@@ -203,8 +191,6 @@ export class LobbyService {
     return lobbies;
   }
 
-// --------- UTILS -----------
-
   requireLobby(lobbyId: string) : Lobby {
     const lobby = this.lobbies.get(lobbyId);
     if (lobby === undefined)
@@ -213,8 +199,6 @@ export class LobbyService {
     return lobby;
   }
 
-  // lobby passe 'open'
-  // prévient la room via 'lobby.changed' (rebroadcast par le gateway).
   @OnEvent('game.ended')
   handleGameEnded(event: { playerIds: number[] }) {
     for (const id of event.playerIds) {
@@ -226,7 +210,7 @@ export class LobbyService {
 
       lobby.reopen();
       this.events.emit('lobby.changed', lobby);
-      break; // tous les joueurs de la partie sont dans le même lobby
+      break;
     }
   }
 

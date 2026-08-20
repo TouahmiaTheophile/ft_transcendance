@@ -25,8 +25,6 @@ export default function ProfileModal({ user, isMe, onClose, onUpdated }: Props) 
   const { t } = useTranslation()
   const [email, setEmail] = useState(user.email ?? "")
   const [currentPassword, setCurrentPassword] = useState("")
-  // -rbauerMod2- user.age is `number | null | undefined`: the input gets an
-  // empty string when there is nothing to show, its text form otherwise.
   const [age, setAge] = useState(user.age != null ? String(user.age) : "")
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState<string | null>(null)
@@ -84,9 +82,6 @@ export default function ProfileModal({ user, isMe, onClose, onUpdated }: Props) 
     setError(null)
     setStatus(null)
 
-    // -rbauerMod2- Same range as the backend (0 to 150, update-user.dto.ts):
-    // instant feedback that avoids a request for an obviously invalid value.
-    // The backend re-checks it anyway.
     const trimmed = age.trim()
     const ageNumber = Number(trimmed)
     if (!trimmed || !Number.isInteger(ageNumber) || ageNumber < 0 || ageNumber > 150) {
@@ -94,8 +89,6 @@ export default function ProfileModal({ user, isMe, onClose, onUpdated }: Props) 
       return
     }
 
-    // -rbauerMod2- Unlike saveEmail(), no currentPassword: age is not sensitive,
-    // so UsersService.update() does not require one.
     const res = await apiFetch("/users/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -168,10 +161,6 @@ export default function ProfileModal({ user, isMe, onClose, onUpdated }: Props) 
             <div className={styles.ageSection}>
               <label className={styles.field}>
                 <span className={styles.fieldLabel}>{t("profile.ageLabel")}</span>
-                {/* -rbauerMod2- type="text", not "number": a native number input
-                    swallows non-digit keystrokes before React sees them, so
-                    letters would leave the field empty instead of letting
-                    saveAge() reject them with a clear message. */}
                 <input
                   type="text"
                   inputMode="numeric"

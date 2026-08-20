@@ -26,7 +26,6 @@ export function toMessageResponse(message: any): MessageResponseDto {
   };
 }
 
-// Prisma include fragments reused across service and gateway
 export const CONVERSATION_INCLUDE = {
   friendship: {
     include: {

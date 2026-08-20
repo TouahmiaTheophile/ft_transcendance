@@ -8,7 +8,7 @@ export function setAuthCookies(res: Response, tokens: AuthTokens) {
     httpOnly: true,
     secure: IS_PROD,
     sameSite: 'lax',
-    maxAge: 15 * 60 * 1000,            // 15 minutes
+    maxAge: 15 * 60 * 1000,
     path: '/',
   });
 
@@ -16,7 +16,7 @@ export function setAuthCookies(res: Response, tokens: AuthTokens) {
     httpOnly: true,
     secure: IS_PROD,
     sameSite: 'lax',
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    maxAge: 30 * 24 * 60 * 60 * 1000,
     path: '/auth/refresh',
   });
 }
@@ -32,5 +32,3 @@ export function clearAuthCookies(res: Response) {
     sameSite: 'lax',
   });
 }
-
-//correction 6

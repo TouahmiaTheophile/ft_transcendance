@@ -1,16 +1,7 @@
-// =============================================================================
-//  WebSocket Test Script
-//  Usage: node ws-test.js
-//  Requires: npm install socket.io-client node-fetch
-//  Run from project root or anywhere with Node installed
-// =============================================================================
-
 const { io } = require('socket.io-client');
 const fetch = (...args) => import('node-fetch').then(({ default: f }) => f(...args));
 
 const BASE_URL = 'http://localhost:3000';
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 async function register(username, email, password) {
   const res = await fetch(`${BASE_URL}/users`, {
@@ -27,7 +18,6 @@ async function login(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  // Extract cookies from response headers
   const cookies = res.headers.raw()['set-cookie'] || [];
   const accessToken = cookies.find(c => c.startsWith('accessToken='))?.split(';')[0];
   const refreshToken = cookies.find(c => c.startsWith('refreshToken='))?.split(';')[0];
@@ -72,8 +62,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// ─── Main ────────────────────────────────────────────────────────────────────
-
 async function main() {
   console.log('\n=== Setup: register + login ===');
 
@@ -100,8 +88,6 @@ async function main() {
   const convId = conversations[0]?.id;
   console.log('Conversation id:', convId);
 
-  // ─── Connect sockets ───────────────────────────────────────────────────────
-
   console.log('\n=== Connect WebSockets ===');
   const socketAlice = connectSocket(alice.cookieString);
   const socketBob   = connectSocket(bob.cookieString);
@@ -111,20 +97,15 @@ async function main() {
     new Promise(r => socketBob.on('connect',   () => { console.log('Bob socket connected:  ', socketBob.id);   r(); })),
   ]);
 
-  // Listen for all events
   ['message', 'history', 'exception', 'conversationCreated'].forEach(evt => {
     socketAlice.on(evt, data => console.log(`[Alice] ${evt}:`, JSON.stringify(data, null, 2)));
     socketBob.on(evt,   data => console.log(`[Bob]   ${evt}:`, JSON.stringify(data, null, 2)));
   });
 
-  // ─── Test 1: joinConversation + history ────────────────────────────────────
-
   console.log('\n=== Test 1: joinConversation (history should be empty) ===');
   socketAlice.emit('joinConversation', { conversationId: convId, limit: 50 });
   socketBob.emit('joinConversation',   { conversationId: convId, limit: 50 });
   await sleep(500);
-
-  // ─── Test 2: sendMessage ───────────────────────────────────────────────────
 
   console.log('\n=== Test 2: sendMessage (both should receive it) ===');
   const msgPromise = waitForEvent(socketBob, 'message');
@@ -132,15 +113,11 @@ async function main() {
   const received = await msgPromise;
   console.log('Bob received message:', JSON.stringify(received, null, 2));
 
-  // ─── Test 3: history after message ────────────────────────────────────────
-
   console.log('\n=== Test 3: joinConversation again — history should contain 1 message ===');
   const historyPromise = waitForEvent(socketAlice, 'history');
   socketAlice.emit('joinConversation', { conversationId: convId, limit: 50 });
   const history = await historyPromise;
   console.log('History:', JSON.stringify(history, null, 2));
-
-  // ─── Test 4: leaveConversation — Bob leaves, Alice sends, Bob doesn't get it
 
   console.log('\n=== Test 4: Bob leaves — Alice sends, Bob should NOT receive ===');
   socketBob.emit('leaveConversation', { conversationId: convId });
@@ -149,23 +126,17 @@ async function main() {
   await sleep(500);
   console.log('(If no [Bob] message above, leaveConversation works correctly)');
 
-  // ─── Test 5: error — message too long ─────────────────────────────────────
-
   console.log('\n=== Test 5: message too long (should get exception) ===');
   const exceptionPromise = waitForEvent(socketAlice, 'exception');
   socketAlice.emit('sendMessage', { conversationId: convId, content: 'x'.repeat(151) });
   const exception = await exceptionPromise;
   console.log('Exception received:', JSON.stringify(exception, null, 2));
 
-  // ─── Test 6: error — wrong conversation ───────────────────────────────────
-
   console.log('\n=== Test 6: join conversation not participant ===');
   const forbiddenPromise = waitForEvent(socketAlice, 'exception');
   socketAlice.emit('joinConversation', { conversationId: 99999, limit: 10 });
   const forbidden = await forbiddenPromise;
   console.log('Exception received:', JSON.stringify(forbidden, null, 2));
-
-  // ─── Test 7: no token ─────────────────────────────────────────────────────
 
   console.log('\n=== Test 7: connect without token — guarded event should fail ===');
   const socketNoAuth = io(BASE_URL, { transports: ['websocket'] });
@@ -175,8 +146,6 @@ async function main() {
   const noAuthErr = await noAuthException;
   console.log('Exception received:', JSON.stringify(noAuthErr, null, 2));
   socketNoAuth.disconnect();
-
-  // ─── Cleanup ──────────────────────────────────────────────────────────────
 
   console.log('\n=== Done ===');
   socketAlice.disconnect();

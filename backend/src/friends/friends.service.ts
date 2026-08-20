@@ -36,9 +36,6 @@ export class FriendsService {
       if (!friendship) throw ApiErrors.notFound('Friendship not found');
       this.friendshipPolicy.assertAccept(friendship, userId);
 
-      // Conditional update: only affects a row if the status is
-      // still PENDING at the time of the update. Closes the window between
-      // findUnique and update.
       const { count } = await tx.friendship.updateMany({
         where: { id: friendshipId, status: FriendshipStatus.PENDING },
         data: { status: FriendshipStatus.ACCEPTED },
@@ -48,9 +45,6 @@ export class FriendsService {
         throw ApiErrors.conflict('Friendship was modified concurrently');
       }
 
-      // The unique constraint on Conversation.friendshipId
-      // protects against a double creation if two
-      // transactions arrive here in parallel.
       await tx.conversation.create({
         data: { friendshipId },
       });
@@ -98,9 +92,6 @@ export class FriendsService {
     this.friendshipPolicy.assertRemove(friendship, userId);
 
     try {
-      // No explicit conversation cleanup here (unlike block): Conversation has
-      // onDelete: Cascade on friendshipId, so the conversation and its messages
-      // go away with the row.
       const deleted = await this.prisma.friendship.delete({
         where: { id: friendshipId, status: friendship.status },
         include: FRIENDSHIP_USERS_INCLUDE,

@@ -6,16 +6,6 @@
   background: rgb(255 255 255 / 0.05);
   overflow: hidden;
   min-height: 24rem;
-  /*
-    -rbauerMod3- Removed `max-height: calc(100vh - 3rem)`, the same wrong guess
-    as the inline class in ChatPanel.tsx: the panel could exceed the available
-    space and push its input row under the fixed footer. The height now comes
-    from the grid cell in social/page.tsx.
-
-    `min-height: 24rem` is kept: on a narrow screen the grid is a single column
-    with no fixed height, and this stops the chat from collapsing to the height
-    of its messages.
-  */
 }
 
 .header {

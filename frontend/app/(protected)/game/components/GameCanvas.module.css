@@ -5,5 +5,5 @@
 .canvas {
   display: block;
   background: #111;
-  border: 2px solid #333; /* color overridden at runtime (local player's color) */
+  border: 2px solid #333;
 }

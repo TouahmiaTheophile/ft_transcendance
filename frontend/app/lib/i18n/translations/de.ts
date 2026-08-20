@@ -1,7 +1,3 @@
-// ============================================================================
-// -rbauer- German dictionary. Like fr.ts, `satisfies Dictionary` forces the
-// same keys as en.ts.
-// ============================================================================
 import type { Dictionary } from "./index";
 
 const de = {
@@ -12,7 +8,6 @@ const de = {
     backToDashboardAria: "Zurück zur Übersicht",
     logout: "Abmelden",
 
-    // -rbauerMod3- See en.ts: the {{date}} placeholder is filled in by the page.
     lastUpdated: "Zuletzt aktualisiert: {{date}}",
   },
   home: {
@@ -90,12 +85,11 @@ const de = {
     startGame: "Spiel starten",
     needMorePlayers: "Mindestens 2 Spieler erforderlich",
 
-    // -rbauerMod5- Siehe en.ts: die beiden Schaltflächen zum Hinzufügen eines Bots.
     smartBot: "Schlauer Bot",
     randomBot: "Zufalls-Bot",
     errors: {
       leaveFailed: "Lobby konnte nicht verlassen werden",
-      addBotFailed: "Bot konnte nicht hinzugefügt werden", // -rbauerMod5-
+      addBotFailed: "Bot konnte nicht hinzugefügt werden",
       generic: "Etwas ist schiefgelaufen",
     },
   },
@@ -162,7 +156,6 @@ const de = {
       ageUpdateFailed: "Alter konnte nicht aktualisiert werden (muss eine ganze Zahl zwischen 0 und 150 sein)",
     },
   },
-  // -rbauerMod5- Siehe en.ts für die Bedeutung jedes Schlüssels.
   game: {
     waiting: "warten auf den Spielstart…",
     you: "du",
@@ -177,12 +170,10 @@ const de = {
     winsTheGame: "gewinnt das Spiel",
     backToLobby: "zurück zur Lobby",
 
-    // -rbauerMod6- Siehe en.ts: das Tutorial, das vor dem Start angezeigt wird.
     tutorial: {
       title: "So wird gespielt",
       goal: "Ziel: das letzte Bike sein, das noch fährt.",
 
-      // -rbauerMod7- Siehe en.ts: die zwei Zustände des Play-Buttons unter den Regeln.
       play: "Spielen",
       waitingPlayers: "Warten… {{ready}}/{{total}} bereit",
       rules: {
@@ -201,8 +192,6 @@ const de = {
     label: "Sprache",
   },
 
-  // -rbauerMod3- German footer and legal pages. Title/body structure explained
-  // in en.ts.
   footer: {
     nav: "Rechtliche Links",
     privacy: "Datenschutzerklärung",
@@ -221,8 +210,6 @@ const de = {
     },
     purpose: {
       title: "Warum wir Ihre Daten verwenden",
-      // -rbauerMod3- See the comment on the same key in en.ts: the age is a
-      // server-side search filter only, it is never returned to other users.
       body: "Ihre E-Mail-Adresse und Ihr Passwort dienen dazu, Sie anzumelden und Ihr Konto zu schützen. Ihr Benutzername, Ihr Profilbild und Ihr Online-Status ermöglichen es anderen Spielern, Sie zu finden, als Freund hinzuzufügen und zu sehen, wann Sie verfügbar sind. Ihre Nachrichten werden für die Chatfunktion benötigt. Ihr Alter wird ausschließlich als Suchfilter im Bereich „Freund hinzufügen“ verwendet: Andere Spieler können eine Suche auf eine Altersspanne eingrenzen, aber Ihr Alter selbst wird ihnen nie angezeigt. Wir verwenden Ihre Daten nicht für Werbung, Profilbildung oder Tracking.",
     },
     cookies: {

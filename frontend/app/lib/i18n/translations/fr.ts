@@ -1,13 +1,3 @@
-// ============================================================================
-// -rbauer- French dictionary.
-//
-// `satisfies Dictionary` at the bottom makes TypeScript require exactly the
-// same keys as en.ts: a missing or extra key fails the build, so an incomplete
-// translation cannot ship.
-//
-// The values themselves are free: only the shape (the keys) has to match,
-// the French text can be as different from the English text as needed.
-// ============================================================================
 import type { Dictionary } from "./index";
 
 const fr = {
@@ -18,7 +8,6 @@ const fr = {
     backToDashboardAria: "Retour au tableau de bord",
     logout: "Déconnexion",
 
-    // -rbauerMod3- See en.ts: the {{date}} placeholder is filled in by the page.
     lastUpdated: "Dernière mise à jour : {{date}}",
   },
   home: {
@@ -96,12 +85,11 @@ const fr = {
     startGame: "Démarrer la partie",
     needMorePlayers: "Il faut au moins 2 joueurs",
 
-    // -rbauerMod5- Voir en.ts : les deux boutons d'ajout de bot.
     smartBot: "Bot intelligent",
     randomBot: "Bot aléatoire",
     errors: {
       leaveFailed: "Impossible de quitter le salon",
-      addBotFailed: "Impossible d'ajouter un bot", // -rbauerMod5-
+      addBotFailed: "Impossible d'ajouter un bot",
       generic: "Une erreur est survenue",
     },
   },
@@ -168,7 +156,6 @@ const fr = {
       ageUpdateFailed: "Impossible de mettre à jour l'âge (doit être un nombre entier entre 0 et 150)",
     },
   },
-  // -rbauerMod5- Voir en.ts pour le détail de chaque clé.
   game: {
     waiting: "en attente du début de la partie…",
     you: "vous",
@@ -183,12 +170,10 @@ const fr = {
     winsTheGame: "remporte la partie",
     backToLobby: "retour au salon",
 
-    // -rbauerMod6- Voir en.ts : le tutoriel affiché en attendant le départ.
     tutorial: {
       title: "Comment jouer",
       goal: "But : être la dernière moto encore en course.",
 
-      // -rbauerMod7- Voir en.ts : les deux états du bouton Play sous les règles.
       play: "Jouer",
       waitingPlayers: "En attente… {{ready}}/{{total}} prêts",
       rules: {
@@ -207,8 +192,6 @@ const fr = {
     label: "Langue",
   },
 
-  // -rbauerMod3- French footer and legal pages. Title/body structure explained
-  // in en.ts.
   footer: {
     nav: "Liens légaux",
     privacy: "Politique de confidentialité",
@@ -227,8 +210,6 @@ const fr = {
     },
     purpose: {
       title: "Pourquoi nous utilisons vos données",
-      // -rbauerMod3- See the comment on the same key in en.ts: the age is a
-      // server-side search filter only, it is never returned to other users.
       body: "Votre e-mail et votre mot de passe servent à vous connecter et à sécuriser votre compte. Votre nom d'utilisateur, votre avatar et votre statut de connexion permettent aux autres joueurs de vous trouver, de vous ajouter en ami et de voir quand vous êtes disponible. Vos messages servent à faire fonctionner le chat. Votre âge sert uniquement de filtre de recherche dans la section « Ajouter un ami » : les autres joueurs peuvent restreindre une recherche à une tranche d'âge, mais votre âge lui-même ne leur est jamais montré. Nous n'utilisons pas vos données à des fins publicitaires, de profilage ou de traçage.",
     },
     cookies: {

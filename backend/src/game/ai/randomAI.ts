@@ -8,10 +8,8 @@ function opposite(d: Direction): Direction {
 export class RandomAI implements AIController {
   decide(player: Player, state: GameState): Direction {
     const candidates: Direction[] = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
-    // avoid reversing
     const filtered = candidates.filter(d => d !== opposite(player.direction));
 
-    // naive safety check: remove moves that immediately hit wall or trail
     const safe: Direction[] = [];
     for (const d of filtered) {
       let nx = player.x;

@@ -9,10 +9,6 @@ const page = () => {
   const { t } = useTranslation()
 
   return (
-    // -rbauerMod3- pb-12 (48px) keeps the last lobby row clear of the fixed
-    // footer, which reserves no layout space. The list grows with the number of
-    // open lobbies, so the bottom "Join" button would otherwise end up under
-    // the bar.
     <div className="min-h-screen flex flex-col items-center pt-10 px-4 pb-12">
       <Link
           href="/dashboard"

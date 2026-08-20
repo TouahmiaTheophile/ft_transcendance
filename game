@@ -24,7 +24,7 @@ inputs joueurs:
 {
   "type": "input",
   "payload": {
-    "action": "turn_left"	// turn_left | turn_right
+    "action": "turn_left"
   }
 }
 

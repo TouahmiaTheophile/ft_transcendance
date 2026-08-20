@@ -44,7 +44,6 @@ const LobbyPage = () => {
 
     const onLobbyState = (state: Lobby) => setLobby(state)
     const onGameStarted = () => {
-      // mem lobby pour bouton "retour au lobby" en fin de partie
       sessionStorage.setItem("lastLobbyId", lobbyId)
       router.push("/game")
     }
@@ -91,12 +90,7 @@ const LobbyPage = () => {
       body: JSON.stringify({ kind }),
     }).then(async res => {
       if (res.ok) setError(null)
-      // pas de refresh manuel : le back émet 'lobby.changed' après add-bot
-      // (cf. patch backend_patch/lobby.service.ts) -> tout le lobby reçoit 'lobby.state'
       else {
-        // -rbauerMod5- The last hardcoded string of this page. Same pattern as
-        // leaveLobby() above: the backend message when there is one, our
-        // translated fallback otherwise.
         const err = await res.json().catch(() => null)
         setError(err?.message ?? t("lobby.errors.addBotFailed"))
       }
@@ -107,9 +101,6 @@ const LobbyPage = () => {
   const canStart = (lobby?.players.length ?? 0) >= 2
 
   return (
-    // -rbauerMod3- pb-12 (48px) keeps the last player row and the Start button
-    // clear of the fixed footer, which reserves no layout space. The player
-    // list grows as people join.
     <div className="min-h-screen flex flex-col items-center pt-10 px-4 pb-12">
       <LeaveButton onLeave={leaveLobby} />
 

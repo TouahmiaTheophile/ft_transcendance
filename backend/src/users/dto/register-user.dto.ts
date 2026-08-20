@@ -3,7 +3,6 @@ import { Type } from 'class-transformer';
 import { RegisterUserRequest } from '@shared/users/user-request.types';
 
 export class RegisterUserDto implements RegisterUserRequest {
-  // Permanent login identifier — cannot be changed after registration
   @MinLength(3, { message: 'Username must contain at least 3 characters' })
   @Matches(/^[a-zA-Z0-9.-]+$/, {
     message: 'Username can only contain letters, numbers, dots and hyphens',
@@ -21,9 +20,6 @@ export class RegisterUserDto implements RegisterUserRequest {
   @IsDefined({ message: 'Email is required' })
   email: string;
 
-  // -rbauerMod2- Required so the search module's age filter (SearchUsersDto)
-  // always has real data on new accounts. `@Type(() => Number)` converts before
-  // the checks below, in case a client sends "25" as a string.
   @Type(() => Number)
   @IsInt({ message: 'Age must be a whole number' })
   @Min(0, { message: 'Age must be at least 0' })

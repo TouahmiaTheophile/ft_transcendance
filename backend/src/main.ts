@@ -16,7 +16,6 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  //For Nginx https connections
   app.set('trust proxy', 1);
 
   app.enableCors({
@@ -32,9 +31,6 @@ async function bootstrap() {
 
 
 
-  // Allow to deliver static files
-  // process.cwd() et non __dirname : users.service.ts ecrit les avatars la, et
-  // __dirname depend de la profondeur de dist/ (imbriquee a cause de @shared).
   app.useStaticAssets(join(process.cwd(), 'uploads/avatars'), {
     prefix: '/uploads/avatars',
   });
@@ -43,7 +39,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(
     new HttpExceptionFilter(),
-    new WsExceptionFilter(),  // Normalizes all WsExceptions across all gateways
+    new WsExceptionFilter(),
   );
 
   app.useGlobalPipes(

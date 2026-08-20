@@ -88,8 +88,6 @@
   cursor: default;
 }
 
-/* --- Filters toggle button ------------------------------------------- */
-
 .filtersToggle {
   align-self: flex-start;
   font-size: 0.75rem;
@@ -104,8 +102,6 @@
 .filtersToggle:hover {
   color: rgb(255 255 255 / 0.8);
 }
-
-/* --- Filters panel (age range + sorting) ------------------------------ */
 
 .filtersPanel {
   display: flex;
@@ -158,8 +154,6 @@
   color: white;
   outline: none;
 }
-
-/* --- Results count + pagination ---------------------------------------- */
 
 .resultsCount {
   font-size: 0.7rem;
